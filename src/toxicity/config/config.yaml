@@ -1,0 +1,4 @@
+wandb: True # Whether or not to use W&B at allm
+wandb_project_name: easy_edit # W&B project name
+wandb_run_name: null # Manual name for W&B
+wandb_mode: online
