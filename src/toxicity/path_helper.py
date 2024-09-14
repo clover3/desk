@@ -3,7 +3,7 @@ import os
 
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import read_csv
-from toxicity.misc_lib import exist_or_mkdir, make_parent_exists
+from chair.misc_lib import make_parent_exists
 
 
 def get_dataset_pred_save_path(run_name: str, dataset_name: str) -> str:

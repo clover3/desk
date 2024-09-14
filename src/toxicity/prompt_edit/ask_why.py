@@ -1,6 +1,5 @@
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 from toxicity.llama_helper.lf_client import LLMClient
-from toxicity.misc_lib import SuccessCounter
 
 
 # Iterate Prompt of Toxigen

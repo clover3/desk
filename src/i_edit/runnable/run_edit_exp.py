@@ -5,7 +5,7 @@ import logging
 import os
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-from toxicity.misc_lib import average
+from chair.misc_lib import average
 
 LOG = logging.getLogger(__name__)
 

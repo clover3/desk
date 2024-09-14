@@ -1,10 +1,7 @@
-import sys
-from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
-
 import fire
 
-from toxicity.clf_util import eval_prec_recall_f1_acc, print_evaluation_results
-from toxicity.list_lib import right, left
+from toxicity.clf_util import eval_prec_recall_f1_acc
+from chair.list_lib import right, left
 from toxicity.llama_guard.output_convertor import parse_predictions
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 from toxicity.io_helper import read_csv

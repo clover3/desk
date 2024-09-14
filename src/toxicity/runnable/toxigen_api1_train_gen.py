@@ -2,10 +2,9 @@ import json
 import os
 
 from toxicity.cpath import output_root_path
-from toxicity.dataset_helper.load_toxigen import load_toxigen_formatted, ToxigenBinary
-from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
+from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 
-from toxicity.misc_lib import make_parent_exists
+from chair.misc_lib import make_parent_exists
 from toxicity.predictors.api_based import get_api_1_prompt
 
 

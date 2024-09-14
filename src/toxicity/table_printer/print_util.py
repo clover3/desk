@@ -3,7 +3,7 @@ import logging
 
 from chair.table_lib import DictCache, TablePrintHelper
 from taskman_client.named_number_proxy import NamedNumberProxy
-from toxicity.tab_print import print_table
+from chair.tab_print import print_table
 logger = logging.getLogger(__name__)
 
 

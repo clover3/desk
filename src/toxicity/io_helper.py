@@ -1,6 +1,6 @@
 import csv
 from typing import List, Tuple
-from toxicity.misc_lib import make_parent_exists
+from chair.misc_lib import make_parent_exists
 
 
 def save_csv(tuple_itr, file_path: str) -> None:

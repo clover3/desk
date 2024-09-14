@@ -1,9 +1,9 @@
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 from toxicity.io_helper import read_csv
-from toxicity.list_lib import left
+from chair.list_lib import left
 from toxicity.llama_guard.output_convertor import parse_predictions
 from toxicity.llama_helper.lf_client import LLMClient
-from toxicity.misc_lib import SuccessCounter
+from chair.misc_lib import SuccessCounter
 from toxicity.path_helper import get_dataset_pred_save_path
 
 

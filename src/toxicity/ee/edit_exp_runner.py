@@ -13,8 +13,8 @@ from transformers import GPT2TokenizerFast, GPT2Tokenizer
 from transformers import LlamaTokenizer
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-from toxicity.list_lib import left, right
-from toxicity.llama_guard.make_edit_payload import convert_predictions_to_binary, convert_to_binary
+from chair.list_lib import left, right
+from toxicity.llama_guard.make_edit_payload import convert_to_binary
 from toxicity.llama_guard.output_convertor import parse_prediction_paired
 
 LOG = logging.getLogger(__name__)

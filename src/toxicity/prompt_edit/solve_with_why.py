@@ -1,8 +1,8 @@
 from toxicity.llama_helper.lf_client import LLMClient
-from toxicity.misc_lib import SuccessCounter
+from chair.misc_lib import SuccessCounter
 from toxicity.path_helper import load_csv_dataset
 from toxicity.runnable.run_eval import load_labels
-from toxicity.tab_print import print_table
+from chair.tab_print import print_table
 
 
 

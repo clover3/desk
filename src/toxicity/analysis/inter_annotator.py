@@ -3,8 +3,8 @@ from collections import Counter
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-from toxicity.misc_lib import get_first, group_by
-from toxicity.tab_print import tab_print_dict
+from chair.misc_lib import get_first, group_by
+from chair.tab_print import tab_print_dict
 
 
 def parse_selection(e, prefix):

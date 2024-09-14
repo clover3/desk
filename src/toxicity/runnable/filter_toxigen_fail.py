@@ -1,6 +1,6 @@
 import fire
 
-from toxicity.list_lib import left
+from chair.list_lib import left
 from toxicity.llama_guard.output_convertor import parse_predictions
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 from toxicity.io_helper import read_csv, save_csv

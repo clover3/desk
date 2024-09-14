@@ -3,10 +3,9 @@ import os
 
 from toxicity.cpath import output_root_path
 from toxicity.dataset_helper.load_toxigen import load_toxigen_formatted
-from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
+from typing import List, Tuple
 
-from toxicity.misc_lib import make_parent_exists
-from toxicity.path_helper import get_payload_save_path
+from chair.misc_lib import make_parent_exists
 
 
 def main():
