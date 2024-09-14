@@ -1,12 +1,11 @@
 import logging
-import os
 import sys
 
 from easyeditor.editors.edit_runner import EasyEditEditor
-from toxicity.easy_edit_main import get_hparams
+from toxicity.ee.easy_edit_main import get_hparams
 from toxicity.io_helper import read_csv
 from toxicity.path_helper import get_comparison_save_path
-from toxicity.edit_exp_runner import EditExperimentRunner
+from toxicity.ee.edit_exp_runner import EditExperimentRunner
 from toxicity.dataset_helper.load_toxigen import load_toxigen_formatted, load_toxigen_formatted_inner
 import wandb
 

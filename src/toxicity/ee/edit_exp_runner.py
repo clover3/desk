@@ -170,20 +170,36 @@ class EditExperimentRunner:
     def edit_and_eval(self,
                       edit_payload: List[tuple[str, str]],
                       valid_data: List[tuple[str, str]] = None,
+                      eval_data_d=None,
                       skip_eval=False,
                       ):
+        do_pre_eval = not skip_eval
+        do_post_eval = not skip_eval
+        return self.run_edit_and_eval2(edit_payload, valid_data, eval_data_d, do_pre_eval, do_post_eval)
+
+    def run_edit_and_eval2(self,
+                 edit_payload: List[tuple[str, str]],
+                 valid_data: List[tuple[str, str]] = None,
+                 eval_data_d=None,
+                 do_pre_eval=False,
+                 do_post_eval=False):
+        if eval_data_d is None:
+            eval_data_d = {}
         seed_everything(42)
         eval_todo = {
             "train": edit_payload,
-            "valid": valid_data,
         }
+        if valid_data is not None:
+            eval_todo["valid"] = valid_data
+        eval_todo.update(eval_data_d)
+
         def eval_datasets(model):
             metric_d = {}
             for eval_split, eval_data in eval_todo.items():
                 start = time()
                 prompt_list: list[str] = left(eval_data)
                 label_str: list[str] = right(eval_data)
-                pred_tuples: list[tuple[str, float]] =\
+                pred_tuples: list[tuple[str, float]] = \
                     [generate(model, self.tok, p, self.device) for p in prompt_list]
                 labels_int: list[int] = [convert_to_binary(e, "unsafe") for e in label_str]
                 acc = np.mean([text_compare(p, l) for p, l in zip(left(pred_tuples), label_str)])
@@ -199,14 +215,13 @@ class EditExperimentRunner:
             return metric_d
 
         LOG.info(f"Pre-edit eval")
-        pre_metric_d = eval_datasets(self.model) if not skip_eval else {}
+        pre_metric_d = eval_datasets(self.model) if do_pre_eval else {}
         start = time()
         edited_model = self.edit_fn(self.model, self.tok, edit_payload)
         exec_time = time() - start
         LOG.info(f"Editing took {exec_time:.1f}")
-
         LOG.info(f"Post-edit eval")
-        post_metric_d = eval_datasets(self.model) if not skip_eval else {}
+        post_metric_d = eval_datasets(self.model) if do_post_eval else {}
         metrics = {
             "pre": pre_metric_d,
             "post": post_metric_d

@@ -68,15 +68,18 @@ class RESTProxy:
             print("WARNING postfix should start with /")
         url = self.url_format + url_postfix
         response = requests.post(url, data=json.dumps(data), timeout=timeout)
-        if response.status_code < 200 or response.status_code > 300:
-            if response.status_code == 408:
-                raise ValueError("Timed out")
-            raise ValueError(response.json())
-        elif response.status_code == 204 or response.status_code == 404:
-            return []
-        else:
-            return response.json()
-
+        try:
+            if response.status_code < 200 or response.status_code > 300:
+                if response.status_code == 408:
+                    raise ValueError("Timed out")
+                raise ValueError(response.json())
+            elif response.status_code == 204 or response.status_code == 404:
+                return []
+            else:
+                return response.json()
+        except requests.exceptions.JSONDecodeError:
+            print(response)
+            raise
 
     def get(self, url_postfix, timeout=5):
         """

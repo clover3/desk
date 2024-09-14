@@ -65,6 +65,7 @@ def parse_squeue(output):
                 gpu_usage[node] += n_used
     return gpu_usage
 
+
 def main():
     sinfo_output = run_command("sinfo -o \"%n %T %G\"")
     squeue_output = run_command("squeue -t R -o \"%.18i %.9P %.8j %.8u %.10M %.6D %R %b\"")

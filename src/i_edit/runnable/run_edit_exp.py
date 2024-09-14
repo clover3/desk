@@ -39,6 +39,7 @@ def compute_sequence_probability(model, tokenizer, prompt, target):
 
 
 def main(model_name="meta-llama/Meta-Llama-3-8B"):
+    print("main")
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     all_data = load_test_data()
