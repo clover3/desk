@@ -1,10 +1,7 @@
-
 from toxicity.table_printer.print_util import print_scores_by_asking_server
 
 
-
 def main():
-
     method_list = []
     method_name_map = {}
     for i in range(1, 33):
@@ -15,6 +12,7 @@ def main():
     condition_list = [
         "toxigen_train_head_100",
         "toxigen_test_head_100",
+        "toxigen_head_100_para_clean"
     ]
     target_field = "acc"
     print_scores_by_asking_server(

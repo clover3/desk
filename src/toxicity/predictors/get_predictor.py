@@ -48,6 +48,10 @@ def get_llama_guard_like_predictor(run_name):
     elif run_name.startswith("lgt3_"):
         model_path = f"/home/qdb5sn/work/LLaMA-Factory/saves/lg2/lora/{run_name}/"
         return load_llg2(model_path)
+    elif run_name.startswith("ft"):
+        model_path = f"/home/qdb5sn/work/LLaMA-Factory/saves/{run_name}/"
+        return load_llg2(model_path)
+
     elif run_name.startswith("lg2_"):
         group_str = ", ".join(['latino', 'asian', 'chinese', 'lgbtq', 'women', 'mental disabled', 'physical disabled', 'jewish', 'middle_east', 'muslim', 'mexican', 'black', 'native_american'])
         desc_d = {

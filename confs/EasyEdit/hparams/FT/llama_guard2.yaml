@@ -2,7 +2,7 @@ alg_name: "FT"
 model_name: "meta-llama/Meta-Llama-Guard-2-8B"
 device: 0
 
-layers: [21]
+layers: [29]
 num_steps: 5
 batch_size: 2
 max_length: 1024

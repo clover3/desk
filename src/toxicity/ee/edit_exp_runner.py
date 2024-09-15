@@ -182,7 +182,9 @@ class EditExperimentRunner:
                  valid_data: List[tuple[str, str]] = None,
                  eval_data_d=None,
                  do_pre_eval=False,
-                 do_post_eval=False):
+                 do_post_eval=False,
+                 edit_only_fail=False,
+        ):
         if eval_data_d is None:
             eval_data_d = {}
         seed_everything(42)
@@ -214,9 +216,22 @@ class EditExperimentRunner:
                 LOG.info(f"Evaluation took {time() - start:.2f} sec")
             return metric_d
 
+        def filter_failure():
+            LOG.info("Filtering failing instances")
+            fail_list = []
+            for prompt, label in edit_payload:
+                pred, score = generate(self.model, self.tok, prompt, self.device)
+                if not text_compare(pred, label):
+                    fail_list.append((prompt, label))
+
+            LOG.info("%d of %d are going to be edited", len(fail_list), len(edit_payload))
+            return fail_list
+
         LOG.info(f"Pre-edit eval")
         pre_metric_d = eval_datasets(self.model) if do_pre_eval else {}
         start = time()
+        if edit_only_fail:
+            edit_payload = filter_failure()
         edited_model = self.edit_fn(self.model, self.tok, edit_payload)
         exec_time = time() - start
         LOG.info(f"Editing took {exec_time:.1f}")

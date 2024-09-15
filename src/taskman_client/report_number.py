@@ -11,5 +11,4 @@ def main(name, number, condition, field):
 
 
 if __name__ == "__main__":
-
     fire.Fire(main)

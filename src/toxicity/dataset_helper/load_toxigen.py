@@ -10,6 +10,9 @@ import logging
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import read_csv
 from toxicity.llama_guard.llama_guard_formatter import LlamaGuardFormatter
+from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
+
+from toxicity.path_helper import get_label_path
 
 _logger = logging.getLogger(__name__)
 
@@ -126,6 +129,10 @@ def load_toxigen_formatted_inner(split, subset):
         ds = ToxigenTrain()
     else:
         raise ValueError(f"subset {subset} is not expected")
+    return apply_llama_guard_formats(ds)
+
+
+def apply_llama_guard_formats(ds: Iterable[dict]) -> list[tuple[str, str]]:
     formatter = LlamaGuardFormatter()
     data = []
     for e in ds:
@@ -134,6 +141,19 @@ def load_toxigen_formatted_inner(split, subset):
         label = formatter.get_label_str(e['label'])
         data.append((prompt, label))
     return data
+
+
+def load_toxigen_para_formatted():
+    dataset_name = "toxigen_head_100_para_clean"
+    save_path: str = os.path.join(output_root_path, "datasets", f"{dataset_name}.csv")
+
+    id_text_list = read_csv(save_path)
+    rows = read_csv(get_label_path(dataset_name))
+    labels_d = {data_id: int(label) for data_id, label in rows}
+    data = [{"text": text, "label": labels_d[data_id]} for  data_id, text in id_text_list]
+    return apply_llama_guard_formats(data)
+
+
 
 
 if __name__ == '__main__':
