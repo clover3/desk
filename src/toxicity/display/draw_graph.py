@@ -33,6 +33,7 @@ def draw_graph(output):
     plt.tight_layout()
     plt.show()
 
+
 def main():
     log = logging.getLogger(__name__)
     search = NamedNumberProxy()

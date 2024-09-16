@@ -35,7 +35,7 @@ def edit_exp(hparams, run_name=""):
         eval_data_d=eval_data_d,
         do_pre_eval=False,
         do_post_eval=True,
-        edit_only_fail=True,
+        edit_only_fail=hparams.edit_only_fail,
     )
     print(metrics)
     post_metrics = metrics["post"]
@@ -54,13 +54,17 @@ def run():
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     LOG.info(__name__)
-    if len(sys.argv) > 1:
+    try:
         hp_path = sys.argv[1]
-    else:
+        run_name = sys.argv[2]
+    except IndexError:
         hp_path = 'confs/EasyEdit/hparams/LoRA/llama_guard2.yaml'
+        run_name = ""
+
+
     hparams = get_hparams(hp_path)
     LOG.info("%s", str(hparams))
-    edit_exp(hparams)
+    edit_exp(hparams, run_name)
 
 
 if __name__ == "__main__":

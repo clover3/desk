@@ -23,6 +23,17 @@ def load_api_based_system(instruction):
         return ret, 0
     return check_conversation
 
+
+def load_api_based_system2(instruction_list):
+    client = LLMClient()
+
+    def check_conversation(conversation: list[str]) -> tuple[str, float]:
+        text = conversation[-1]
+        for instruction in instruction_list:
+            text = client.ask(text, instruction)
+        return text, 0
+    return check_conversation
+
 def load_api_1():
     instruction = get_api_1_prompt()
     return load_api_based(instruction)
@@ -71,6 +82,17 @@ def load_api_4():
     return load_api_based_system(instruction)
 
 
+def load_api_5():
+    instruction = "Toxicity: "
+    instruction += "A rude, disrespectful, or unreasonable comment that is likely to make people leave a discussion."
+    instruction += "Is this text include stereotypes over certain demographic groups? "
+    instruction += "Considering these, generate explanation. The last word should be toxic or benign.\n"
+
+    instruction2 = "If the text was considered toxic, output 'toxic' as a first token. If not, output benign"
+
+    return load_api_based_system2([instruction, instruction2])
+
+
 def load_api_based_predictor_by_name(run_name):
     tokens = run_name.split("_")
     base_name = "_".join(tokens[:2])
@@ -79,5 +101,6 @@ def load_api_based_predictor_by_name(run_name):
         "api_2": load_api_2,
         "api_3": load_api_3,
         "api_4": load_api_4,
+        "api_5": load_api_5,
     }
     return method_d[base_name]()

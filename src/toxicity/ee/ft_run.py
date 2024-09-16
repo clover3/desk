@@ -12,7 +12,7 @@ def main(target_layer: int):
     hparams = get_hparams(hp_path)
     hparams.layers = [target_layer]
     LOG.info("%s", str(hparams))
-    run_name = f"ee_ft_l{target_layer}"
+    run_name = f"ee_ft_eow_l{target_layer}"
     edit_exp(hparams, run_name)
 
 
