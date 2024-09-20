@@ -20,8 +20,10 @@ def get_hparams(hparams_name_or_path: str):
 
 
 def edit_exp(hparams, run_name=""):
-    edit_payload = load_toxigen_formatted(n_item=100)
-    test_data = load_toxigen_formatted(split="test", n_item=100)
+    train_n = 100
+    test_n = 100
+    edit_payload = load_toxigen_formatted(n_item=train_n)
+    test_data = load_toxigen_formatted(split="test", n_item=test_n)
     para_data = load_toxigen_para_formatted()
     eval_data_d = {
         "test": test_data,
@@ -42,8 +44,8 @@ def edit_exp(hparams, run_name=""):
     if run_name:
         proxy = get_task_manager_proxy()
         todo = {
-            "train_acc": "toxigen_train_head_100",
-            "test_acc": "toxigen_test_head_100",
+            "train_acc": f"toxigen_train_head_{train_n}",
+            "test_acc": f"toxigen_test_head_{test_n}",
             "para_acc": "toxigen_head_100_para_clean",
         }
         for key, long_name in todo.items():
@@ -56,11 +58,13 @@ def run():
     LOG.info(__name__)
     try:
         hp_path = sys.argv[1]
-        run_name = sys.argv[2]
     except IndexError:
         hp_path = 'confs/EasyEdit/hparams/LoRA/llama_guard2.yaml'
-        run_name = ""
 
+    try:
+        run_name = sys.argv[2]
+    except IndexError:
+        run_name = ""
 
     hparams = get_hparams(hp_path)
     LOG.info("%s", str(hparams))

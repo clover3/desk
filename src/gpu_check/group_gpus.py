@@ -1,4 +1,4 @@
-from generic.gpu_count import run_command, parse_squeue
+from gpu_check.gpu_count import run_command, parse_squeue
 
 
 def parse_dash_indicated_columns(output):
@@ -38,7 +38,7 @@ def main():
 
     no_gpu_users = []
     for user in users:
-        squeue_output = run_command(f"squeue -u {user} -t R -o \"%.18i %.9P %.8j %.8u %.10M %.6D %R %b\"")
+        squeue_output = run_command(f"squeue -u {user} -o \"%.18i %.9P %.8j %.8u %.10M %.6D %R %b\"")
         gpu_usage = parse_squeue(squeue_output)
         n_gpu = sum(gpu_usage.values())
         if n_gpu:

@@ -194,7 +194,6 @@ class EditExperimentRunner:
         if valid_data is not None:
             eval_todo["valid"] = valid_data
         eval_todo.update(eval_data_d)
-
         def eval_datasets(model):
             metric_d = {}
             for eval_split, eval_data in eval_todo.items():
@@ -205,6 +204,7 @@ class EditExperimentRunner:
                     [generate(model, self.tok, p, self.device) for p in prompt_list]
                 labels_int: list[int] = [convert_to_binary(e, "unsafe") for e in label_str]
                 acc = np.mean([text_compare(p, l) for p, l in zip(left(pred_tuples), label_str)])
+                print(pred_tuples)
                 parsed: list[tuple[str, float]] = parse_prediction_paired(pred_tuples, "unsafe", )
                 scores = right(parsed)
                 fpr, tpr, thresholds = roc_curve(labels_int, scores)
@@ -232,11 +232,11 @@ class EditExperimentRunner:
         start = time()
         if edit_only_fail:
             edit_payload = filter_failure()
-        edited_model = self.edit_fn(self.model, self.tok, edit_payload)
+        edited_model, _ = self.edit_fn(self.model, self.tok, edit_payload)
         exec_time = time() - start
         LOG.info(f"Editing took {exec_time:.1f}")
         LOG.info(f"Post-edit eval")
-        post_metric_d = eval_datasets(self.model) if do_post_eval else {}
+        post_metric_d = eval_datasets(edited_model) if do_post_eval else {}
         metrics = {
             "pre": pre_metric_d,
             "post": post_metric_d

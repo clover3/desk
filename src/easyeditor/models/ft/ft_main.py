@@ -47,6 +47,20 @@ def apply_ft_to_model(
     return model, weights_copy
 
 
+def apply_nothing_to_model(
+    model: AutoModelForCausalLM,
+    tok: AutoTokenizer,
+    requests: List[Dict],
+    hparams: FTHyperParams,
+    copy=False,
+    return_orig_weights=False,
+    keep_original_weight=False,
+    **kwargs: Any,
+) -> Tuple[AutoModelForCausalLM, Dict[str, Any]]:
+    weights_copy = {}
+    return model, weights_copy
+
+
 def execute_ft(
     model: AutoModelForCausalLM,
     tok: AutoTokenizer,
@@ -212,6 +226,7 @@ def execute_ft(
                             v, min=weights_copy[k] - eps, max=weights_copy[k] + eps
                         )
 
+        print("Epoch loss: {}".format(loss_meter.avg))
         if loss_meter.avg < 1e-2:
             break
 

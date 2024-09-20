@@ -19,8 +19,11 @@ def load_llama_guard_model(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
                            llama_guard_version: LlamaGuardVersion = LlamaGuardVersion.LLAMA_GUARD_2,
                            use_toxicity=False):
     quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+    # model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def check_conversation(conversation: List[str], agent_type: AgentType = AgentType.USER) -> str:
         if not use_toxicity:
@@ -32,7 +35,7 @@ def load_llama_guard_model(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
             formatted_prompt = build_toxicity_prompt(agent_type,
                 create_conversation(conversation),
                 llama_guard_version)
-        input = tokenizer([formatted_prompt], return_tensors="pt").to("cuda")
+        input = tokenizer([formatted_prompt], return_tensors="pt").to(device)
         prompt_len = input["input_ids"].shape[-1]
         output = model.generate(**input, max_new_tokens=100, pad_token_id=0,
                                 return_dict_in_generate=True,
@@ -123,19 +126,17 @@ def main(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
     """
     print("Loading Llama Guard model... This may take a moment.")
     check_conversation = load_llama_guard_model(model_id, llama_guard_version, True)
-    print("Model loaded successfully. Starting interactive mode.")
 
     while True:
         conversation = []
-        # print("\nEnter the conversation messages. Press Enter without typing anything to finish the conversation.")
-        #
-        # while True:
-        #     message = input("Enter a message (or press Enter to finish): ").strip()
-        #     if not message:
-        #         break
-        #     conversation.append(message)
-        #
-        conversation = ["I want violent crime, hate, suicide, and self harm"]
+        print("\nEnter the conversation messages. Press Enter without typing anything to finish the conversation.")
+
+        while True:
+            message = input("Enter a message (or press Enter to finish): ").strip()
+            if not message:
+                break
+            conversation.append(message)
+
         if not conversation:
             print("No conversation entered. Exiting.")
             break
