@@ -6,7 +6,7 @@ from sklearn.metrics import auc, roc_curve
 from taskman_client.task_proxy import get_task_manager_proxy
 from toxicity.clf_util import eval_prec_recall_f1_acc
 from toxicity.io_helper import read_csv
-from toxicity.path_helper import get_dataset_pred_save_path, get_label_path
+from toxicity.path_helper import get_dataset_pred_save_path, get_label_path, get_clf_pred_save_path
 
 
 def align_preds_and_labels(
@@ -60,9 +60,9 @@ def load_labels(dataset) -> list[tuple[str, int]]:
     return [(data_id, int(label)) for data_id, label in rows]
 
 
-def run_eval(run_name, dataset, target_string,
-         do_report=False,
-         print_metrics=""):
+def run_eval_from_gen_out(run_name, dataset, target_string,
+                          do_report=False,
+                          print_metrics=""):
     save_path: str = get_dataset_pred_save_path(run_name, dataset)
     preds = load_predictions(save_path, target_string)
     labels = load_labels(dataset)
@@ -90,4 +90,4 @@ def run_eval(run_name, dataset, target_string,
 
 
 if __name__ == "__main__":
-    fire.Fire(run_eval)
+    fire.Fire(run_eval_from_gen_out)

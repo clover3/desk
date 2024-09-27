@@ -14,7 +14,7 @@ def print_scores_by_asking_server(
 
     def load_method_relate_scores(method):
         ret = search.search_numbers(method)
-        print(ret)
+        logger.debug(ret)
         d: dict[str, Any] = {}
         for e in ret:
             if e['field'] == target_field and e['name'] == method:

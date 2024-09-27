@@ -12,7 +12,7 @@ from typing_extensions import override
 from llamafactory.extras.constants import IGNORE_INDEX
 from llamafactory.extras.logging import get_logger
 from llamafactory.train.callbacks import PissaConvertCallback, SaveProcessorCallback
-from llamafactory.train.trainer_utils import create_custom_optimizer, create_custom_scheduler
+from llamafactory.train.trainer_utils import create_custom_optimzer, create_custom_scheduler
 from llamafactory.train.sft.trainer import CustomSeq2SeqTrainer
 
 if TYPE_CHECKING:

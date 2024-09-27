@@ -11,11 +11,11 @@ def save_csv(tuple_itr, file_path: str) -> None:
             writer.writerow(row)
 
 
-def save_text_list_as_csv(tuple_itr, file_path: str) -> None:
+def save_text_list_as_csv(text_itr, file_path: str) -> None:
     make_parent_exists(file_path)
     with open(file_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        for text in tuple_itr:
+        for text in text_itr:
             writer.writerow([text])
             f.flush()
 

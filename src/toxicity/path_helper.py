@@ -14,6 +14,23 @@ def get_dataset_pred_save_path(run_name: str, dataset_name: str) -> str:
     return save_path
 
 
+
+def get_wrong_pred_save_path(run_name: str, dataset_name: str) -> str:
+    dir_name: str = f"{dataset_name}"
+    file_name: str = f"{run_name}.csv"
+    save_path: str = os.path.join(output_root_path, "wrong_ids", dir_name, file_name)
+    make_parent_exists(save_path)
+    return save_path
+
+
+def get_clf_pred_save_path(run_name: str, dataset_name: str) -> str:
+    dir_name: str = f"{dataset_name}"
+    file_name: str = f"{run_name}.csv"
+    save_path: str = os.path.join(output_root_path, "clf", dir_name, file_name)
+    make_parent_exists(save_path)
+    return save_path
+
+
 def get_label_path(dataset_name: str) -> str:
     file_name: str = f"{dataset_name}.csv"
     save_path: str = os.path.join(output_root_path, "labels", file_name)
@@ -53,3 +70,8 @@ def get_csv_dataset_path(dataset):
     save_path: str = os.path.join(output_root_path, "datasets", f"{dataset}.csv")
     return save_path
 
+
+def get_model_save_path(name):
+    save_path: str = os.path.join(output_root_path, "models", name)
+    make_parent_exists(save_path)
+    return save_path

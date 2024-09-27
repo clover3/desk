@@ -55,6 +55,10 @@ def load_llg2(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
                            use_toxicity=True) -> Callable[[list[str]], tuple[str, float]]:
     quantization_config = BitsAndBytesConfig(load_in_8bit=True)
     tokenizer = AutoTokenizer.from_pretrained(model_id)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device.type == "cpu":
+        quantization_config = None
+
     model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
     def check_conversation(conversation: List[str], agent_type: AgentType = AgentType.USER) -> tuple[str, float]:
         if isinstance(conversation, str):
@@ -68,7 +72,7 @@ def load_llg2(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
             formatted_prompt = build_toxicity_prompt(agent_type,
                 create_conversation(conversation),
                 llama_guard_version)
-        input = tokenizer([formatted_prompt], return_tensors="pt").to("cuda")
+        input = tokenizer([formatted_prompt], return_tensors="pt").to(device)
         prompt_len = input["input_ids"].shape[-1]
         output = model.generate(**input, max_new_tokens=100, pad_token_id=0,
                                 return_dict_in_generate=True,

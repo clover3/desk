@@ -12,6 +12,5 @@ def main():
     save_text_list_as_csv(outputs, save_path)
 
 
-
 if __name__ == "__main__":
     main()

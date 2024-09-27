@@ -6,13 +6,12 @@ from tqdm import tqdm
 
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import save_csv, read_csv_column, read_csv
-from toxicity.path_helper import get_dataset_pred_save_path
+from toxicity.path_helper import get_dataset_pred_save_path, get_clf_pred_save_path
 from toxicity.predictors.get_predictor import get_llama_guard_like_predictor
-from toxicity.runnable.run_eval import run_eval
+from toxicity.runnable.run_eval import run_eval_from_gen_out
 
 
-def predict_inner(dataset, run_name):
-    predict_fn = get_llama_guard_like_predictor(run_name)
+def predict_inner(dataset, run_name, predict_fn):
     save_path: str = os.path.join(output_root_path, "datasets", f"{dataset}.csv")
     payload = read_csv(save_path)
     payload: list[tuple[str, str]] = list(payload)
@@ -36,11 +35,16 @@ def main(
         do_report=False,
         print_metrics=""
 ) -> None:
-    predict_inner(dataset, run_name)
-    if do_eval:
-        run_eval(run_name, dataset, target_string,
-                 do_report, print_metrics)
-
+    predict_fn = get_llama_guard_like_predictor(run_name)
+    dataset_list = dataset.split(",")
+    for dataset in dataset_list:
+        if not dataset:
+            continue
+        print("Predicting for ", dataset)
+        predict_inner(dataset, run_name, predict_fn)
+        if do_eval:
+            run_eval_from_gen_out(run_name, dataset, target_string,
+                                  do_report, print_metrics)
 
 
 if __name__ == "__main__":

@@ -21,8 +21,23 @@ def gen_head():
         save_csv(labels, save_path)
 
 
+def gen_fold():
+    step = 100
+    for split in {"train", "test"}:
+        dataset: ToxigenBinary = ToxigenBinary(split)
+        payload = [(e['id'], e['text']) for e in dataset]
+        labels = [(e['id'], e['label']) for e in dataset]
+        for fold_idx in range(0, 10):
+            start_idx = fold_idx * step
+            end_idx = start_idx + step
+            payload_sel = payload[start_idx: end_idx]
+            save_path = get_csv_dataset_path(f"toxigen_{split}_fold_{fold_idx}")
+            save_csv(payload_sel, save_path)
+
+            label_sel = labels[start_idx: end_idx]
+            save_path = get_label_path(f"toxigen_{split}_fold_{fold_idx}")
+            save_csv(label_sel, save_path)
 
 
 if __name__ == "__main__":
-    gen_head()
-    main()
+    gen_fold()

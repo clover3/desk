@@ -24,7 +24,6 @@ from toxicity.dataset_helper.csv_datasets import load_toxigen_like_csv
 pf_log = logging.getLogger(__name__)
 
 def init_logging():
-
     format_str = '%(levelname)s\t%(name)s \t%(asctime)s %(message)s'
     formatter = logging.Formatter(format_str,
                                   datefmt='%m-%d %H:%M:%S',
@@ -33,6 +32,7 @@ def init_logging():
     ch.setFormatter(formatter)
     root_logger = logging.getLogger()
     root_logger.addHandler(ch)
+
 
 def generate_label(batch: List[Tuple[str, str]], tokenizer, device):
     txt, tgt = zip(*batch)
@@ -101,7 +101,6 @@ def main():
     model_id = "meta-llama/Meta-Llama-Guard-2-8B"
     pf_log.info(f"Loading toxigen")
     ds = load_toxigen_like_csv("toxigen_train_head_100")
-    # TODO Make concurrent
     pf_log.info(f"Applying template")
     edit_payload: List[Tuple[str, str]] = apply_llama_guard_formats(ds)
     tokenizer = AutoTokenizer.from_pretrained(model_id)

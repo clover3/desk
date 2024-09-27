@@ -44,12 +44,15 @@ def get_llama_guard_like_predictor(run_name):
     elif run_name.startswith("lgt2_"):
         n = int(run_name[len("lgt2_"):])
         model_path = f"/home/qdb5sn/work/LLaMA-Factory/saves/lg2/lora/lgt2_{n}/"
+        print("Loading model from ", model_path)
         return load_llg2(model_path)
     elif run_name.startswith("lgt3_"):
         model_path = f"/home/qdb5sn/work/LLaMA-Factory/saves/lg2/lora/{run_name}/"
+        print("Loading model from ", model_path)
         return load_llg2(model_path)
     elif run_name.startswith("ft"):
         model_path = f"/home/qdb5sn/work/LLaMA-Factory/saves/{run_name}/"
+        print("Loading model from ", model_path)
         return load_llg2(model_path)
 
     elif run_name.startswith("lg2_"):
