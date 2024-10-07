@@ -1,7 +1,7 @@
 
 import os
 
-from toxicity.cpath import output_root_path
+from toxicity.cpath import output_root_path, data_root_path
 from toxicity.io_helper import read_csv
 from chair.misc_lib import make_parent_exists
 
@@ -74,4 +74,14 @@ def get_csv_dataset_path(dataset):
 def get_model_save_path(name):
     save_path: str = os.path.join(output_root_path, "models", name)
     make_parent_exists(save_path)
+    return save_path
+
+
+def get_study_subreddit_list_path():
+    save_path = os.path.join(data_root_path, "reddit", "study-subreddits.csv")
+    return save_path
+
+
+def get_reddit_delete_post_path():
+    save_path = os.path.join(data_root_path, "reddit", "reddit-removal-log.csv")
     return save_path

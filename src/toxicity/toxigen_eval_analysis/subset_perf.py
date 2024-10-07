@@ -4,7 +4,7 @@ from datasets import load_dataset
 from toxicity.clf_util import eval_prec_recall_f1_acc, print_evaluation_results
 from toxicity.llama_guard.output_convertor import convert_predictions_to_binary
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import load_predictions, read_csv
+from toxicity.io_helper import load_two_column_csv, read_csv
 from toxicity.path_helper import get_dataset_pred_save_path
 
 

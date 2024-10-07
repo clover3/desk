@@ -4,7 +4,7 @@ from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
 from toxicity.clf_util import eval_prec_recall_f1_acc, print_evaluation_results
 from toxicity.llama_guard.output_convertor import convert_predictions_to_binary
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import load_predictions
+from toxicity.io_helper import load_two_column_csv
 from toxicity.path_helper import get_dataset_pred_save_path
 
 # Example usage
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
 
     save_path: str = get_dataset_pred_save_path(run_name, dataset_name)
-    ids, text_predictions = load_predictions(save_path)
+    ids, text_predictions = load_two_column_csv(save_path)
 
     # Convert to binary predictions
     target_string = "S1"
