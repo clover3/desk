@@ -2,6 +2,8 @@ import csv
 from typing import List, Tuple
 from chair.misc_lib import make_parent_exists
 
+import logging
+import sys
 
 import json
 
@@ -61,3 +63,15 @@ def read_jsonl(file_path):
         for line in file:
             data.append(json.loads(line.strip()))
     return data
+
+
+def init_logging(level=logging.INFO):
+    format_str = '%(levelname)s\t%(name)s \t%(asctime)s %(message)s'
+    formatter = logging.Formatter(format_str,
+                                  datefmt='%m-%d %H:%M:%S',
+                                  )
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(formatter)
+    root_logger = logging.getLogger()
+    root_logger.addHandler(ch)
+    root_logger.setLevel(level)
