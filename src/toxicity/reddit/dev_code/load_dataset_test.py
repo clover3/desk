@@ -1,7 +1,7 @@
 import pandas as pd
 from datasets import Dataset
 
-from toxicity.path_helper import get_reddit_train_data_path
+from toxicity.reddit.path_helper import get_reddit_train_data_path
 
 
 def load_dataset_from_csv(data_path):

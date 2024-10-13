@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from chair.misc_lib import group_by, get_second
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import read_csv, read_jsonl, save_csv
-from toxicity.path_helper import get_reddit_delete_post_path
+from toxicity.reddit.path_helper import get_reddit_delete_post_path
 import re
 
 

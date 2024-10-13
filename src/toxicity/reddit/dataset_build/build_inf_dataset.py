@@ -1,5 +1,6 @@
 from toxicity.io_helper import read_csv, save_csv
-from toxicity.path_helper import load_subreddit_list, get_reddit_train_data_path, get_csv_dataset_path, get_label_path
+from toxicity.path_helper import get_csv_dataset_path, get_label_path
+from toxicity.reddit.path_helper import get_reddit_train_data_path, load_subreddit_list
 
 
 def main():

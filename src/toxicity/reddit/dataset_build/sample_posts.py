@@ -7,7 +7,7 @@ import pyzstd
 
 from chair.misc_lib import TELI
 from toxicity.cpath import output_root_path, data_root_path
-from toxicity.path_helper import load_subreddit_list
+from toxicity.reddit.path_helper import load_subreddit_list
 
 
 class SubredditSampler:

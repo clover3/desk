@@ -4,7 +4,7 @@ from collections import Counter
 from chair.misc_lib import get_second
 from toxicity.cpath import data_root_path
 from toxicity.io_helper import read_csv, save_csv
-from toxicity.path_helper import get_reddit_delete_post_path
+from toxicity.reddit.path_helper import get_reddit_delete_post_path
 
 
 def main():

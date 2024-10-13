@@ -15,7 +15,8 @@ import multiprocessing
 from taskman_client.task_proxy import get_task_manager_proxy
 from taskman_client.wrapper3 import JobContext
 from toxicity.io_helper import read_csv, init_logging
-from toxicity.path_helper import get_model_save_path, get_reddit_train_data_path, get_model_log_save_dir_path
+from toxicity.path_helper import get_model_save_path, get_model_log_save_dir_path
+from toxicity.reddit.path_helper import get_reddit_train_data_path
 from toxicity.reddit.predict_clf import predict_clf_main
 from toxicity.reddit.train_bert import load_dataset_from_csv
 from toxicity.reddit.train_common import compute_per_device_batch_size

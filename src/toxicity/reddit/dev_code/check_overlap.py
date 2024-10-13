@@ -1,7 +1,8 @@
 import pandas as pd
 
 from toxicity.io_helper import read_csv
-from toxicity.path_helper import get_reddit_train_data_path
+from toxicity.reddit.path_helper import get_reddit_train_data_path
+
 """
 No Spamming.
 No Trolling.

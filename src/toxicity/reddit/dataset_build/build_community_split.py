@@ -1,7 +1,7 @@
 import random
 
 from toxicity.io_helper import save_csv, save_text_list_as_csv
-from toxicity.path_helper import load_subreddit_list, get_split_subreddit_list_path
+from toxicity.reddit.path_helper import get_split_subreddit_list_path, load_subreddit_list
 
 
 def main():

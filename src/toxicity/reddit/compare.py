@@ -7,7 +7,7 @@ from toxicity.io_helper import read_csv, save_csv
 from toxicity.path_helper import get_clf_pred_save_path, get_comparison_save_path
 
 
-def main(dataset, run1, run2):
+def do_reddit_pred_compare(dataset, run1, run2):
     def load(run_name):
         save_path = get_clf_pred_save_path(run_name, dataset)
         return read_csv(save_path)
@@ -33,4 +33,4 @@ def main(dataset, run1, run2):
 
 
 if __name__ == "__main__":
-    fire.Fire(main)
+    fire.Fire(do_reddit_pred_compare)

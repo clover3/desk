@@ -2,7 +2,8 @@ import fire
 import numpy as np
 
 from toxicity.io_helper import init_logging
-from toxicity.path_helper import get_model_save_path, get_reddit_train_data_path, get_model_log_save_dir_path
+from toxicity.path_helper import get_model_save_path, get_model_log_save_dir_path
+from toxicity.reddit.path_helper import get_reddit_train_data_path
 
 import pandas as pd
 import math

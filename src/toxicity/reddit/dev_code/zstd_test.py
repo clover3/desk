@@ -5,7 +5,7 @@ import pyzstd
 
 from chair.misc_lib import make_parent_exists
 from toxicity.cpath import output_root_path
-from toxicity.path_helper import load_subreddit_list
+from toxicity.reddit.path_helper import load_subreddit_list
 
 
 class StreamHandler:
