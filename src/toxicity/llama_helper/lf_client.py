@@ -4,8 +4,12 @@ import sys
 import requests
 
 
+
+
 class LLMClient:
-    def __init__(self, host=None, port=8000):
+    def __init__(self, host=None, port=8000,
+                 max_prompt_len=10000
+                 ):
         if host is None:
             try:
                 host = os.environ["API_HOST"]
@@ -13,6 +17,15 @@ class LLMClient:
                 host = "localhost"
                 print(f"Environment variable API_HOST is not found default to {host}")
         self.url = f"http://{host}:{port}/v1/chat/completions"
+        self.max_prompt_len = max_prompt_len
+
+    def len_filter(self, text):
+        if len(text) < self.max_prompt_len:
+
+            return text
+        else:
+            print("Text has {} characters. Truncate to {}".format(len(text), self.max_prompt_len))
+            return text[:self.max_prompt_len]
 
     def _ask_no_system(self, prompt):
         ret = requests.post(self.url, json=j)
@@ -20,6 +33,8 @@ class LLMClient:
         return content
 
     def ask(self, prompt, system_prompt=None):
+        prompt = self.len_filter(prompt)
+        system_prompt = self.len_filter(system_prompt)
         j = self.get_json_request(prompt, system_prompt)
         ret = requests.post(self.url, json=j)
         content = ret.json()["choices"][0]["message"]["content"]

@@ -13,11 +13,15 @@ class NamedNumberProxy:
         ret = self.search_numbers(method)
         matched_number = None
         n_match = 0
+        all_matched = []
         for e in ret:
             if e['field'] == target_field and e['name'] == method:
                 if condition is None or condition == e['condition']:
                     matched_number = e["number"]
                     n_match += 1
+                    all_matched.append(e)
+        if n_match > 1:
+            print(f"Warning {n_match} matched. :{all_matched}")
         return matched_number
 
 

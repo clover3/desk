@@ -44,7 +44,6 @@ def show_f1_api_runs():
     save_path = os.path.join(output_root_path, "reddit", "api_f1.csv")
     save_csv(output, save_path)
 
-
 def f1_corr():
     save_path = os.path.join(output_root_path, "reddit", "bert_f1.csv")
     items = read_csv(save_path)

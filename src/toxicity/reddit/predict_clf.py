@@ -44,7 +44,7 @@ def get_classifier_pipeline(run_name):
 
 
 def load_api_based(run_name):
-    client = LLMClient()
+    client = LLMClient(max_prompt_len=5000)
     pos_keyword = "unsafe"
     instruction = get_instruction_by_name(run_name, pos_keyword)
 
@@ -65,11 +65,13 @@ def get_random_classifier():
 
 
 def get_instruction_by_name(run_name, pos_keyword):
-    _api, sb, role = run_name.split("_")
+    tokens = run_name.split("_")
+    sb = "_".join(tokens[1:-1])
+    role = tokens[-1]
     assert role in ["summary", "detail"]
     rule_save_path = get_reddit_rule_path(sb)
     rules = json.load(open(rule_save_path, "r"))
-    rule_text = " ".join([r['summary'] for r in rules])
+    rule_text = " ".join([r[role] for r in rules])
     inst_summary = "The above rule describes prohibited contents. Classify if the following text is prohibited. "
     inst_summary += f"If prohibited, output '{pos_keyword}' as a first token. If not, output 'safe'"
     return rule_text + "\n " + inst_summary
