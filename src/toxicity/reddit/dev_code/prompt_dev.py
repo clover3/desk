@@ -2,6 +2,8 @@ import json
 
 from toxicity.llama_helper.lf_client import LLMClient
 from toxicity.reddit.path_helper import get_reddit_rule_path
+from toxicity.reddit.prompt_opt.enum_wrong import enum_wrong, enum_FN
+from toxicity.reddit.prompt_opt.optimizer import parse_tagged_text
 
 
 def main():
@@ -23,21 +25,99 @@ def main():
     sb = "askscience"
     rule_save_path = get_reddit_rule_path(sb)
     rules = json.load(open(rule_save_path, "r"))
-    rule_text = " ".join([r['summary'] for r in rules])
-    rule_text = ""
+    rule_text = " ".join([r['detail'] for r in rules])
 
-    inst_core = ("The following two texts are deleted from 'askscience' subreddit. "
+    inst_core = ("The following post is deleted from 'askscience' subreddit, but it is not covered by existing rules "
                  # "The above is list of existing rules."
                  "Could you guess why this text is deleted? "
-                 "Could make a new rule statement corresponds to that reason?\n"
+                 # "Could make a new rule statement corresponds to that reason?\n"
                  )
 
-    system = f"{rule_text}\n===\n{inst_core}"
+    system = f"<existing rules>{rule_text}</existing rules>\n===\n{inst_core}"
     prompt = f"<text>{text}</text>"
     ret = client.ask(prompt, system)
     print(ret)
 
 
-if __name__ == "__main__":
-    main()
+def get_new_classifier(sb, role, new_rule: list[str], pos_keyword="unsafe"):
+    assert role in ["summary", "detail"]
+    rule_save_path = get_reddit_rule_path(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    rule_text_list = [r[role] for r in rules]
+    rule_text_list.extend(new_rule)
+    rule_text = " ".join(rule_text_list)
+    inst_summary = "The above rule describes prohibited contents. Classify if the following text is prohibited. "
+    inst_summary += f"If prohibited, output '{pos_keyword}' as a first token. If not, output 'safe'"
+    instruction = rule_text + "\n " + inst_summary
 
+    client = LLMClient(max_prompt_len=5000)
+    pos_keyword = "unsafe"
+
+    def predict(text):
+        ret_text = client.ask(text, instruction)
+        print("Ret_text", ret_text)
+        pred = pos_keyword in ret_text.lower()
+        ret = int(pred)
+        return ret, 0
+    return predict
+
+
+def one_rule_at_a_time():
+    client = LLMClient()
+    sb = "askscience"
+    run_name = f"api_{sb}_detail"
+    entries = list(enum_FN(f"{sb}_val_100", run_name))
+
+    entries = [e for e in entries if "thank you for submitting to" not in e["text"]]
+    text_list = [e["text"] for e in entries[1:2]]
+    prompt = " ".join([f"<text>{t}</text>" for t in text_list])
+
+    rule_save_path = get_reddit_rule_path(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    print(prompt)
+    rule_text_list = [r['summary'] + ": " + r['detail'] for r in rules]
+    for rule_text in rule_text_list:
+        pos_keyword = "yes"
+        system = f"<rule>{rule_text}</rule>\n===\nDoes the following text violates the given rule?\n"
+        system += f"Output either '{pos_keyword}' or 'no' as the first token. "
+        ret = client.ask(system + prompt)
+        print(rule_text)
+        print(ret)
+
+
+def run_from_wrong():
+    client = LLMClient()
+    sb = "askscience"
+    sb = "NeutralPolitics"
+    run_name = f"api_{sb}_detail"
+    entries = list(enum_FN(f"{sb}_val_100", run_name))
+    entries = [e for e in entries if "thank you for submitting to" not in e["text"]]
+    text_list = [e["text"] for e in entries[1:2]]
+    prompt = " ".join([f"<text>{t}</text>" for t in text_list])
+
+    rule_save_path = get_reddit_rule_path(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    rule_text = " ".join([r['detail'] for r in rules])
+
+    start_tag = "<rule>"
+    end_tag = "</rule>"
+    inst_core = ("The following post is deleted from 'askscience' subreddit, but it is not covered by existing rules "
+                 "The above is list of existing rules."
+                 "Could you guess why this text is deleted? "
+                 "Could make a new rule statement corresponds to that reason?\n"
+                 f"Wrap the rule with {start_tag} and {end_tag}."
+                 )
+
+    system = f"<rules>{rule_text}</rules>\n===\n{inst_core}\n"
+    ret = client.ask(system + prompt)
+    new_rule = parse_tagged_text(ret, start_tag, end_tag)
+    print(prompt)
+    print(ret)
+
+    print("rule:", new_rule)
+    predict = get_new_classifier(sb, "detail", new_rule)
+    print(predict(text_list[0]))
+
+
+if __name__ == "__main__":
+    run_from_wrong()

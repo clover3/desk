@@ -1,20 +1,19 @@
-import tqdm
 import os
 from abc import ABC, abstractmethod
 from typing import List
 
 import numpy as np
+import tqdm
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 from chair.list_lib import right, left
-from chair.misc_lib import get_second, get_first
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import read_csv, save_csv
 from toxicity.path_helper import get_clf_pred_save_path
 
 
 def eval_prec_recall_f1_acc(y_true: List[int], y_pred: List[int]) -> dict:
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
     return {
         "accuracy": accuracy_score(y_true, y_pred),
         "precision": precision_score(y_true, y_pred),

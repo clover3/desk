@@ -3,7 +3,7 @@ import fire
 from toxicity.clf_util import clf_predict_w_predict_fn
 from toxicity.reddit.corpus_sim.compute_sim import get_most_sim
 from toxicity.reddit.path_helper import get_split_subreddit_list
-from toxicity.reddit.predict_clf import get_classifier
+from toxicity.reddit.classifier_loader.load_by_name import get_classifier
 from toxicity.runnable.run_eval_clf import run_eval_clf
 
 

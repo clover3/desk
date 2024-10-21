@@ -1,8 +1,7 @@
 import fire
 
 from taskman_client.task_proxy import get_task_manager_proxy
-from toxicity.io_helper import read_csv
-from toxicity.path_helper import get_clf_pred_save_path
+from toxicity.path_helper import load_clf_pred
 from toxicity.runnable.run_eval import load_labels, clf_eval
 
 
@@ -10,9 +9,7 @@ def run_eval_clf(run_name,
                  dataset,
                  do_report=False,
                  print_metrics=""):
-    save_path: str = get_clf_pred_save_path(run_name, dataset)
-    raw_preds = read_csv(save_path)
-    preds = [(data_id, int(pred), float(score)) for data_id, pred, score in raw_preds]
+    preds = load_clf_pred(dataset, run_name)
     labels = load_labels(dataset)
     score_d = clf_eval(preds, labels)
     metrics_to_report = ["accuracy", "f1"]

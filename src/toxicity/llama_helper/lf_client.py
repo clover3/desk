@@ -20,8 +20,10 @@ class LLMClient:
         self.max_prompt_len = max_prompt_len
 
     def len_filter(self, text):
-        if len(text) < self.max_prompt_len:
+        if text is None:
+            return text
 
+        if len(text) < self.max_prompt_len:
             return text
         else:
             print("Text has {} characters. Truncate to {}".format(len(text), self.max_prompt_len))

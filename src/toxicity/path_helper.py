@@ -1,8 +1,10 @@
+import json
 import os
 
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import read_csv
 from chair.misc_lib import make_parent_exists
+from toxicity.reddit.path_helper import get_reddit_rule_path
 
 
 def get_dataset_pred_save_path(run_name: str, dataset_name: str) -> str:
@@ -86,3 +88,17 @@ def get_cola_train_data_path(role):
     save_dir = os.path.join(output_root_path, "glue", "cola")
     save_path = os.path.join(save_dir, role + ".csv")
     return save_path
+
+
+def load_clf_pred(dataset, run_name):
+    save_path: str = get_clf_pred_save_path(run_name, dataset)
+    raw_preds = read_csv(save_path)
+    preds = [(data_id, int(pred), float(score)) for data_id, pred, score in raw_preds]
+    return preds
+
+
+def get_n_rules(sb):
+    rule_save_path = get_reddit_rule_path(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    n_rule = len(rules)
+    return n_rule
