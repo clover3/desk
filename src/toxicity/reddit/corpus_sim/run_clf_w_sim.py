@@ -13,13 +13,13 @@ def predict_clf_main(
         do_report=True,
         print_metrics=""
 ) -> None:
-    dataset = f"{trg_reddit}_val"
+    dataset = f"{trg_reddit}_val_100"
     avail = get_split_subreddit_list("train")
     most_sim = get_most_sim(trg_reddit, avail)
     run_name = f"bert_{most_sim}"
     print(f"{most_sim} is most similar for {trg_reddit}")
-    predict_fn = get_classifier(run_name)
     report_name = "sim_" + run_name
+    predict_fn = get_classifier(run_name)
     clf_predict_w_predict_fn(dataset, report_name, predict_fn)
     if do_eval:
         run_eval_clf(report_name, dataset,

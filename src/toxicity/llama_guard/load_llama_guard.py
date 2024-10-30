@@ -96,9 +96,7 @@ def load_llg2_custom(category_desc,
 
     def check_conversation(conversation: List[str]) -> tuple[str, float]:
         categories = [
-            SafetyCategory(
-                "Toxicity. ",
-                category_desc),
+            SafetyCategory("Toxicity. ", category_desc),
         ]
         category_short_name_prefix = LLAMA_GUARD_2_CATEGORY_SHORT_NAME_PREFIX
         prompt_template = PROMPT_TEMPLATE_2
@@ -119,9 +117,40 @@ def load_llg2_custom(category_desc,
         unsafe_score = first_token_score[0][generated_seq[0]].cpu().numpy()
         result = tokenizer.decode(output.sequences[0][prompt_len:], skip_special_tokens=True)
         return result, unsafe_score
-
     return check_conversation
 
+
+def load_llg2_custom2(category_list: list[tuple[str, str]],
+                     model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
+                     ) -> Callable[[list[str]], tuple[str, float]]:
+    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+
+    def check_conversation(conversation: List[str]) -> tuple[str, float]:
+        categories = [
+            SafetyCategory(name, desc) for name, desc in category_list
+        ]
+        category_short_name_prefix = LLAMA_GUARD_2_CATEGORY_SHORT_NAME_PREFIX
+        prompt_template = PROMPT_TEMPLATE_2
+        formatted_prompt = build_custom_prompt(
+            AgentType.USER,
+            create_conversation(conversation),
+            categories,
+            category_short_name_prefix,
+            prompt_template, with_policy=True)
+
+        input = tokenizer([formatted_prompt], return_tensors="pt").to("cuda")
+        prompt_len = input["input_ids"].shape[-1]
+        output = model.generate(**input, max_new_tokens=100, pad_token_id=0,
+                                return_dict_in_generate=True,
+                                output_scores=True)
+        generated_seq = output.sequences[0][prompt_len:]
+        first_token_score = output.scores[0]
+        unsafe_score = first_token_score[0][generated_seq[0]].cpu().numpy()
+        result = tokenizer.decode(output.sequences[0][prompt_len:], skip_special_tokens=True)
+        return result, unsafe_score
+    return check_conversation
 
 def main(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
          llama_guard_version: LlamaGuardVersion = LlamaGuardVersion.LLAMA_GUARD_2):

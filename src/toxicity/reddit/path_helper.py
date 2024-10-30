@@ -1,3 +1,4 @@
+import json
 import os
 
 from toxicity.cpath import data_root_path, output_root_path
@@ -54,3 +55,22 @@ def get_reddit_rule_path(sb):
     rule_save_path = os.path.join(
         output_root_path, "reddit", "rules", f"{sb}.json")
     return rule_save_path
+
+
+def load_reddit_rule(sb):
+    rule_save_path = get_reddit_rule_path(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    return rules
+
+
+def load_reddit_rule_para(sb):
+    rule_save_path = os.path.join(
+        output_root_path, "reddit", "rules_para", f"{sb}.txt")
+    rule_text = open(rule_save_path, "r").read()
+    return rule_text
+
+
+
+def get_reddit_db_path():
+    return os.path.join(
+        output_root_path, "reddit", "db")

@@ -3,7 +3,7 @@ from toxicity.llama_guard.output_convertor import parse_predictions
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 from toxicity.io_helper import read_csv, save_csv
 from toxicity.path_helper import get_dataset_pred_save_path, get_comparison_save_path
-from toxicity.toxigen_eval_analysis.run_eval import get_dataset_split
+from toxicity.toxigen.toxigen_eval_analysis.run_eval import get_dataset_split
 
 
 

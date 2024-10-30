@@ -45,9 +45,7 @@ class BinaryDataset(ABC):
 
 
 def clf_predict_w_predict_fn(dataset, run_name, predict_fn):
-    save_path: str = os.path.join(output_root_path, "datasets", f"{dataset}.csv")
-    payload = read_csv(save_path)
-    payload: list[tuple[str, str]] = list(payload)
+    payload = load_csv_dataset_by_name(dataset)
 
     def predict(e):
         id, text = e
@@ -58,6 +56,13 @@ def clf_predict_w_predict_fn(dataset, run_name, predict_fn):
     save_path = get_clf_pred_save_path(run_name, dataset)
     save_csv(pred_itr, save_path)
     print(f"Saved at {save_path}")
+
+
+def load_csv_dataset_by_name(dataset):
+    save_path: str = os.path.join(output_root_path, "datasets", f"{dataset}.csv")
+    payload = read_csv(save_path)
+    payload: list[tuple[str, str]] = list(payload)
+    return payload
 
 
 def clf_predict_w_batch_predict_fn(dataset, run_name, batch_predict_fn):

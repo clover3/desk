@@ -1,6 +1,6 @@
 import os
 import sys
-
+import openai
 import requests
 
 
@@ -8,7 +8,8 @@ import requests
 
 class LLMClient:
     def __init__(self, host=None, port=8000,
-                 max_prompt_len=10000
+                 max_prompt_len=10000,
+                 model_name="dummy",
                  ):
         if host is None:
             try:
@@ -18,6 +19,7 @@ class LLMClient:
                 print(f"Environment variable API_HOST is not found default to {host}")
         self.url = f"http://{host}:{port}/v1/chat/completions"
         self.max_prompt_len = max_prompt_len
+        self.model_name = model_name
 
     def len_filter(self, text):
         if text is None:
@@ -45,7 +47,7 @@ class LLMClient:
     def get_json_request(self, prompt, system_prompt):
         if system_prompt is None:
             j = {
-                "model": "dummy",
+                "model": self.model_name,
                 "messages": [
                     {
                         "role": "user",
@@ -55,7 +57,7 @@ class LLMClient:
             }
         else:
             j = {
-                "model": "dummy",
+                "model": self.model_name,
                 "messages": [
                     {
                         "role": "system",

@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 import fire
-from sklearn.metrics import auc, roc_curve
 
 from taskman_client.task_proxy import get_task_manager_proxy
 from toxicity.clf_util import eval_prec_recall_f1_acc
@@ -31,6 +30,8 @@ def align_preds_and_labels(
 def clf_eval(
         preds: List[Tuple[str, int, float]],
         labels: List[Tuple[str, int]]):
+    from sklearn.metrics import auc, roc_curve
+
     aligned_preds, aligned_labels, aligned_scores = align_preds_and_labels(preds, labels)
     if not aligned_preds:
         raise ValueError("No matching data_ids found between predictions and labels")

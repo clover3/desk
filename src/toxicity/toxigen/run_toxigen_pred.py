@@ -1,6 +1,6 @@
 import fire
 from toxicity.predictors.get_predictor import run_toxigen_prediction, get_llama_guard_like_predictor
-from toxicity.toxigen_eval_analysis.run_eval import run_toxigen_eval
+from toxicity.toxigen.toxigen_eval_analysis.run_eval import run_toxigen_eval
 
 
 def main(

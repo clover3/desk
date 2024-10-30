@@ -13,11 +13,7 @@ from taskman_client.host_defs import webtool_host
 def init_log():
     clover_web_logger = logging.getLogger('Tray')
     clover_web_logger.setLevel(logging.INFO)
-    format_str = '%(levelname)s\t%(name)s \t%(asctime)s %(message)s'
-    formatter = logging.Formatter(format_str,
-                                  datefmt='%m-%d %H:%M:%S',
-                                  )
-    ch = logging.StreamHandler(sys.stdout)
+v    ch = logging.StreamHandler(sys.stdout)
     ch.setFormatter(formatter)
     clover_web_logger.propagate = True
     clover_web_logger.addHandler(ch)
