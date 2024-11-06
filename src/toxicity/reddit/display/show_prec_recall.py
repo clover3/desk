@@ -33,12 +33,12 @@ def print_perf(dataset_fmt, run_name_fmt, split):
     print_table(output)
 
 
-def main():
-    run_name_fmt = "api_{}_detail"
+def main(run_name_fmt, split = "val"):
+    # run_name_fmt = "bert_train_mix3"
+    print("run_name_fmt", run_name_fmt)
     dataset_fmt = "{}_val_100"
-    split = "train"
     print_perf(dataset_fmt, run_name_fmt, split)
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

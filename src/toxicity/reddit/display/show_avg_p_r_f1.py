@@ -18,9 +18,23 @@ def calculate_stats(numbers):
     return mean, stdev
 
 
-def show_avg_p_r_f1(dataset_fmt, get_run_name, split):
-    subreddit_list = get_split_subreddit_list(split)
+def show_avg_p_r_f1(dataset_fmt, get_run_name, split, n_expected = 20):
     columns = ["f1", "precision", "recall"]
+    score_l_d = compute_per_reddit_scores(columns, dataset_fmt, get_run_name, split)
+
+    row = []
+    for c in columns:
+        n_item = len(score_l_d[c])
+        assert n_item == n_expected
+        avg, std = calculate_stats(score_l_d[c])
+        avg = "{0:.2f}".format(avg)
+        std = "{0:.2f}".format(std)
+        row.extend([avg, std])
+    print_table([row])
+
+
+def compute_per_reddit_scores(columns, dataset_fmt, get_run_name, split):
+    subreddit_list = get_split_subreddit_list(split)
     score_l_d = {c: list() for c in columns}
     for sb in subreddit_list:
         run_name = get_run_name(sb)
@@ -39,18 +53,7 @@ def show_avg_p_r_f1(dataset_fmt, get_run_name, split):
         except ValueError:
             print(save_path)
             raise
-    n_expected = 20
-
-    row = []
-    for c in columns:
-        n_item = len(score_l_d[c])
-        assert n_item == n_expected
-        avg, std = calculate_stats(score_l_d[c])
-        print(avg, std)
-        avg = "{0:.2f}".format(avg)
-        std = "{0:.2f}".format(std)
-        row.extend([avg, std])
-    print_table([row])
+    return score_l_d
 
 
 def display_result(get_run_name):
@@ -79,10 +82,19 @@ def most_sim_run():
     display_result(get_run_name)
 
 
-def main():
-    run_name_fmt = "chatgpt_{}_none"
+def bert_train_mix():
+    print("bert_train_mix")
+
+    def get_run_name(target_sb):
+        return "bert_train_mix3"
+
+    display_result(get_run_name)
+
+
+def main(run_name_fmt):
+    # run_name_fmt = "chatgpt_{}_none"
     display_from_run_name_fmt(run_name_fmt)
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

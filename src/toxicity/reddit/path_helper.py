@@ -1,6 +1,7 @@
 import json
 import os
 
+from chair.misc_lib import make_parent_exists
 from toxicity.cpath import data_root_path, output_root_path
 from toxicity.io_helper import read_csv_column, read_csv
 
@@ -49,6 +50,20 @@ def get_reddit_train_data_path(sub_reddit, role):
 def load_subreddit_list():
     save_path = get_study_subreddit_list_path()
     return read_csv_column(save_path, 0)
+
+
+def get_reddit_manual_prompt_path(name):
+    rule_save_path = os.path.join(
+        output_root_path, "reddit", "man_prompt", f"{name}.txt")
+    return rule_save_path
+
+
+
+def get_reddit_auto_prompt_path(type_name, name):
+    rule_save_path = os.path.join(
+        output_root_path, "reddit", f"{type_name}_prompt", f"{name}.txt")
+    make_parent_exists(rule_save_path)
+    return rule_save_path
 
 
 def get_reddit_rule_path(sb):

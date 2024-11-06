@@ -25,7 +25,8 @@ def do_reddit_pred_compare(dataset, run1, run2):
         for (id0, text), (id1, pred1, score1), (id2, pred2, score2) in zip(payload, d1, d2):
             assert id0 == id1
             assert id1 == id2
-            yield id1, pred1, pred2, text
+            if pred1 != pred2:
+                yield id1, pred1, pred2, text
 
     run_name = f"{run1}_{run2}"
     s = get_comparison_save_path(run_name, dataset)
