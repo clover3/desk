@@ -1,7 +1,7 @@
 import fire
 
 from toxicity.clf_util import load_csv_dataset_by_name
-from toxicity.reddit.classifier_loader.load_by_name import PromptBuilder
+from toxicity.reddit.classifier_loader.prompt_based import PromptBuilder
 from toxicity.apis.open_ai_batch_requester import BatchChatGPTSender, get_gpt_model_name_from_run_name
 
 

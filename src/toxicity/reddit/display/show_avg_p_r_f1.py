@@ -18,17 +18,22 @@ def calculate_stats(numbers):
     return mean, stdev
 
 
-def show_avg_p_r_f1(dataset_fmt, get_run_name, split, n_expected = 20):
+def show_avg_p_r_f1(dataset_fmt, get_run_name, split):
     columns = ["f1", "precision", "recall"]
+    n_expected = len(get_split_subreddit_list(split))
     score_l_d = compute_per_reddit_scores(columns, dataset_fmt, get_run_name, split)
 
     row = []
+    head = []
     for c in columns:
+        print(c, score_l_d[c])
         n_item = len(score_l_d[c])
-        assert n_item == n_expected
+        if not n_item == n_expected:
+            raise ValueError("Expected {} but got {}".format(n_expected, n_item))
         avg, std = calculate_stats(score_l_d[c])
         avg = "{0:.2f}".format(avg)
         std = "{0:.2f}".format(std)
+        head.extend([c + "_avg", c + "_std"])
         row.extend([avg, std])
     print_table([row])
 
@@ -91,9 +96,8 @@ def bert_train_mix():
     display_result(get_run_name)
 
 
-def main(run_name_fmt):
-    # run_name_fmt = "chatgpt_{}_none"
-    display_from_run_name_fmt(run_name_fmt)
+def main(run_name_fmt, dataset_fmt="{}_val_100", split="val"):
+    show_avg_p_r_f1(dataset_fmt, run_name_fmt.format, split)
 
 
 if __name__ == "__main__":

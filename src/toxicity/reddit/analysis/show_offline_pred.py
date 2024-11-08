@@ -2,7 +2,7 @@ import fire
 
 from toxicity.apis.open_ai_batch_requester import BatchChatGPTLoader
 from toxicity.clf_util import clf_predict_w_predict_fn
-from toxicity.reddit.classifier_loader.load_by_name import PromptBuilder
+from toxicity.reddit.classifier_loader.prompt_based import PromptBuilder
 from toxicity.reddit.classifier_loader.inst_builder import get_instruction_from_run_name
 
 
