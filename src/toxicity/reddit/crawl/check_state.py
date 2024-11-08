@@ -77,8 +77,7 @@ class RateLimiter:
 class DeletedCommentProcessor:
     def __init__(self, read_path: str, write_path: str, batch_size: int = 100,
                  max_retries: int = 10, initial_retry_delay: int = 60,
-                 run_time=3600 * 24,
-                 ):
+                 run_time=3600 * 24, threshold: int = 10000):
         self.read_path = read_path
         self.write_path = write_path
         self.batch_size = batch_size
@@ -87,6 +86,9 @@ class DeletedCommentProcessor:
         self.initial_retry_delay = initial_retry_delay
         self.start = time.time()
         self.run_time = run_time
+        self.threshold = threshold
+        self.exclude_subreddit_list = set()  # Using set for O(1) lookups
+        self.subreddit_counts = {}  # Dictionary to store counts
 
         logging.basicConfig(
             level=logging.INFO,
@@ -95,6 +97,32 @@ class DeletedCommentProcessor:
         self.logger = logging.getLogger(__name__)
 
         self.setup_database()
+        self.load_subreddit_counts()
+
+
+    def load_subreddit_counts(self):
+        """Load current subreddit counts from database and initialize exclusion list."""
+        with sqlite3.connect(self.write_path) as conn:
+            cursor = conn.execute("""
+                SELECT subreddit, COUNT(*) as count
+                FROM deleted_comments
+                GROUP BY subreddit
+            """)
+
+            for subreddit, count in cursor.fetchall():
+                self.subreddit_counts[subreddit] = count
+                if count >= self.threshold:
+                    self.exclude_subreddit_list.add(subreddit)
+                    self.logger.info(f"Excluding subreddit {subreddit} with {count} comments")
+
+    def update_subreddit_count(self, subreddit: str):
+        """Update count for a subreddit and check if it should be excluded."""
+        self.subreddit_counts[subreddit] = self.subreddit_counts.get(subreddit, 0) + 1
+
+        if (self.subreddit_counts[subreddit] >= self.threshold and
+                subreddit not in self.exclude_subreddit_list):
+            self.exclude_subreddit_list.add(subreddit)
+            self.logger.info(f"Adding {subreddit} to exclusion list - reached {self.threshold} comments")
 
     def setup_database(self):
         """Initialize the deleted_comments table."""
@@ -195,6 +223,7 @@ class DeletedCommentProcessor:
         last_timestamp = self.get_last_processed_timestamp()
         processed_count = 0
         deleted_count = 0
+        skipped_count = 0
 
         try:
             read_conn = sqlite3.connect(self.read_path)
@@ -233,6 +262,12 @@ class DeletedCommentProcessor:
                         'parent_id': comment[8],
                         'is_submitter': comment[9]
                     }
+                    if comment_dict['subreddit'] in self.exclude_subreddit_list:
+                        skipped_count += 1
+                        last_timestamp = comment_dict['created_utc']
+                        processed_count += 1
+                        continue
+
                     is_deleted, deletion_type = self.check_deleted(comment_dict)
 
                     if is_deleted:
@@ -274,7 +309,15 @@ class DeletedCommentProcessor:
             write_conn.close()
             self.logger.info(
                 f"Processing completed. Total comments processed: {processed_count}, "
-                f"Deleted comments found: {deleted_count}")
+                f"Deleted comments found: {deleted_count}, "
+                f"Skipped comments: {skipped_count}")
+
+    def get_excluded_subreddits_stats(self):
+        """Get statistics about excluded subreddits."""
+        self.logger.info("\nExcluded Subreddits Statistics:")
+        for subreddit in sorted(self.exclude_subreddit_list):
+            count = self.subreddit_counts.get(subreddit, 0)
+            self.logger.info(f"- {subreddit}: {count:,} comments")
 
     def get_deletion_stats(self):
         """Get statistics about deleted comments."""
