@@ -1,22 +1,23 @@
-import torch
-from transformers import AutoTokenizer, AutoModel
-from typing import Union, List
-from transformers import AutoConfig
 import os
-from toxicity.reddit.colbert.modeling import ColBertForSequenceClassification
+from typing import Union, List
+
+import torch
+from transformers import AutoTokenizer
+
+from toxicity.reddit.colbert.modeling import ColA
 
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
 
 class QDPredictor:
-    def __init__(self, model_path: str, device: str = None):
+    def __init__(self, arch_class, model_path: str, device: str = None):
         if device is None:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self.device = device
         base_model = 'bert-base-uncased'
         self.tokenizer = AutoTokenizer.from_pretrained(base_model)
-        self.model = ColBertForSequenceClassification.from_pretrained(model_path)
+        self.model = arch_class.from_pretrained(model_path)
         self.model.colbert_set_up(self.tokenizer)
         self.model.to(self.device)
         self.model.eval()
@@ -50,5 +51,5 @@ class QDPredictor:
         inputs = self.preprocess(query, document)
         with torch.no_grad():
             outputs = self.model(**inputs)
-            scores = torch.sigmoid(outputs.logits).cpu().numpy()
+            scores = outputs.logits.cpu().numpy()
             return float(scores[0][0])

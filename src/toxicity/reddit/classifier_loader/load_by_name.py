@@ -37,14 +37,14 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
         from toxicity.reddit.classifier_loader.prompt_based import load_chatgpt_based
         return load_chatgpt_based(run_name)
     elif run_name.startswith("colbert"):
-        from toxicity.reddit.classifier_loader.get_pipeline import get_colbert_const
+        from toxicity.reddit.classifier_loader.get_qd_predictor import get_colbert_const
         return get_colbert_const(run_name)
-    elif run_name.startswith("col1"):
-        from toxicity.reddit.classifier_loader.get_pipeline import get_clf_pipeline_w_q
-        return get_clf_pipeline_w_q(run_name)
+    # elif run_name.startswith("col1"):
+    #     from toxicity.reddit.classifier_loader.get_qd_predictor import get_qd_predictor
+    #     return get_qd_predictor(run_name)
     elif run_name.startswith("col"):
-        from toxicity.reddit.classifier_loader.get_pipeline import get_clf_pipeline_w_conf
-        return get_clf_pipeline_w_conf(run_name)
+        from toxicity.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
+        return get_qd_predictor_w_conf(run_name)
     else:
         raise ValueError(f"{run_name} is not expected")
 

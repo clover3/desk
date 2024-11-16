@@ -9,7 +9,7 @@ from toxicity.runnable.run_eval_clf import run_eval_clf
 LOG = logging.getLogger(__name__)
 
 
-def predict_clf_main(
+def predict_sb_split(
         run_name_fmt: str,
         split: str,
 ) -> None:
@@ -21,10 +21,9 @@ def predict_clf_main(
         dataset = dataset_fmt.format(sb)
         predict_fn = get_classifier(run_name)
         clf_predict_w_predict_fn(dataset, run_name, predict_fn)
+
     show_avg_p_r_f1(dataset_fmt, run_name_fmt.format, split)
-        # run_eval_clf(run_name, dataset,
-        #              do_report, print_metrics)
 
 
 if __name__ == "__main__":
-    fire.Fire(predict_clf_main)
+    fire.Fire(predict_sb_split)

@@ -5,7 +5,8 @@ import os
 
 
 def issue():
-    instruction = "Rewrite the rule above. Keep all keywords, while removing repetition. Make the style concise. Goal is to compress it to reduce prompt length."
+    instruction = ("Rewrite the rule above. Keep all keywords, while removing repetition. "
+                   "Make the style concise. Goal is to compress it to reduce prompt length.")
     sb_names = load_subreddit_list()
     batch_name = "rule_rewrite2"
     sender = BatchChatGPTSender(batch_name, "gpt-4o")

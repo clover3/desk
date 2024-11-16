@@ -181,7 +181,8 @@ def train_bert_like_model(
     eval_result = train_classification_single_score(
         model,
         training_args,
-        tokenized_train, tokenized_eval
+        tokenized_train,
+        tokenized_eval
     )
     if not do_debug:
         metric = "eval_f1"

@@ -26,7 +26,8 @@ def show_avg_p_r_f1(dataset_fmt, get_run_name, split):
     row = []
     head = []
     for c in columns:
-        print(c, score_l_d[c])
+        scores = ", ".join(f"{s:.2f}" for s in score_l_d[c])
+        print(f"{c}: [{scores}]")
         n_item = len(score_l_d[c])
         if not n_item == n_expected:
             raise ValueError("Expected {} but got {}".format(n_expected, n_item))

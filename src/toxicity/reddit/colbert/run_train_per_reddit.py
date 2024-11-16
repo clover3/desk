@@ -5,7 +5,7 @@ from transformers import BertTokenizer
 
 from toxicity.io_helper import init_logging
 from toxicity.reddit.colbert.dataset_builder import TwoColumnDatasetLoader
-from toxicity.reddit.colbert.modeling import ColBertForSequenceClassification
+from toxicity.reddit.colbert.modeling import ColA
 from toxicity.reddit.colbert.train_common import get_reddit_data_arguments, get_default_training_argument, \
     train_bert_like_model
 
@@ -19,7 +19,7 @@ def main(debug=False, subreddit="TwoXChromosomes"):
     dataset_args = get_reddit_data_arguments(debug, subreddit)
     training_args = get_default_training_argument(run_name)
     base_model = 'bert-base-uncased'
-    colbert = ColBertForSequenceClassification.from_pretrained(base_model)
+    colbert = ColA.from_pretrained(base_model)
     tokenizer = BertTokenizer.from_pretrained(base_model)
     colbert.colbert_set_up(tokenizer)
 

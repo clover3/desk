@@ -1,5 +1,7 @@
 import json
+import os
 
+from toxicity.cpath import output_root_path
 from toxicity.reddit.path_helper import get_reddit_rule_path, load_subreddit_list
 
 
@@ -22,6 +24,21 @@ def load_rule_d(role):
     return {sb: load_rule_text(role, sb) for sb in sb_list}
 
 
+def load_rule_para():
+    def load_rule_text(sb):
+        try:
+            rule_save_path = os.path.join(
+                output_root_path, "reddit", "rules_para", f"{sb}.txt")
+            rule_text = open(rule_save_path, "r").read()
+        except FileNotFoundError:
+            rule_text = f"Follow the rules that are appropriate for {sb} subreddit."
+            print("Rule not found for {}. Replace to {}".format(sb, rule_text))
+        return rule_text
+
+    sb_list = load_subreddit_list()
+    return {sb: load_rule_text(sb) for sb in sb_list}
+
+
 def get_sb_to_query(sb_strategy):
     if sb_strategy == "name":
         def sb_to_query(sb):
@@ -29,6 +46,11 @@ def get_sb_to_query(sb_strategy):
     elif sb_strategy == "summary":
         rule_d = load_rule_d("summary")
 
+        def sb_to_query(sb):
+            return rule_d[sb]
+
+    elif sb_strategy == "para":
+        rule_d = load_rule_para()
         def sb_to_query(sb):
             return rule_d[sb]
     else:

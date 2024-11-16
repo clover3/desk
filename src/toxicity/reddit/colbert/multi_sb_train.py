@@ -5,7 +5,7 @@ from transformers import BertTokenizer
 
 from toxicity.io_helper import init_logging
 from toxicity.reddit.colbert.dataset_builder import ThreeColumnDatasetLoader
-from toxicity.reddit.colbert.modeling import ColBertForSequenceClassification
+from toxicity.reddit.colbert.modeling import ColA
 from toxicity.reddit.colbert.query_builders import get_sb_to_query
 from toxicity.reddit.colbert.train_common import get_default_training_argument, \
     train_bert_like_model, get_data_arguments
@@ -17,7 +17,7 @@ def col_bert_train_exp(builder, debug, run_name, dataset_name):
     base_model = 'bert-base-uncased'
     dataset_args = get_data_arguments(debug, dataset_name)
     training_args = get_default_training_argument(run_name)
-    colbert = ColBertForSequenceClassification.from_pretrained(base_model)
+    colbert = ColA.from_pretrained(base_model)
     tokenizer = BertTokenizer.from_pretrained(base_model)
     colbert.colbert_set_up(tokenizer)
 

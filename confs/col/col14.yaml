@@ -1,0 +1,4 @@
+arch_name: colJ
+sb_strategy: para
+dataset_name: train_comb2
+run_name: col14

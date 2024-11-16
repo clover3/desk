@@ -45,7 +45,7 @@ def get_single_rule_instruction_by_name(run_name, pos_keyword):
     sb = "_".join(tokens[2:-2])
     rule_idx = int(tokens[-2])
     role = tokens[-1]
-    assert role in ["summary", "detail"]
+    assert role in ["summary", "detail", "both"]
     rule_save_path = get_reddit_rule_path(sb)
     rules = json.load(open(rule_save_path, "r"))
     rule_text = rules[rule_idx][role]
