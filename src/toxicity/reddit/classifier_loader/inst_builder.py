@@ -48,9 +48,34 @@ def get_single_rule_instruction_by_name(run_name, pos_keyword):
     assert role in ["summary", "detail", "both"]
     rule_save_path = get_reddit_rule_path(sb)
     rules = json.load(open(rule_save_path, "r"))
-    rule_text = rules[rule_idx][role]
+    if role == "both":
+        r = rules[rule_idx]
+        rule_text = r["summary"] + ". " + r["detail"]
+    else:
+        rule_text = rules[rule_idx][role]
+
     inst_summary = "Does the following text violate the rule above? "
     inst_summary += f"If so, output '{pos_keyword}' as a first token. If not, output 'no'"
+    return rule_text + "\n " + inst_summary
+
+
+def get_single_rule_instruction2(run_name, pos_keyword):
+    # api_sr2_sb_1_detail
+    tokens = run_name.split("_")
+    sb = "_".join(tokens[2:-2])
+    rule_idx = int(tokens[-2])
+    role = tokens[-1]
+    assert role in ["summary", "detail", "both"]
+    rule_save_path = get_reddit_rule_path(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    if role == "both":
+        r = rules[rule_idx]
+        rule_text = r["summary"] + ". " + r["detail"]
+    else:
+        rule_text = rules[rule_idx][role]
+
+    inst_summary = "Does the following text violate the rule above? "
+    inst_summary += f"If so, output '{pos_keyword}' as a first token. If not, output 'no'. If unclear, output 'no'."
     return rule_text + "\n " + inst_summary
 
 
@@ -70,11 +95,13 @@ def get_autogen_instruction(name, pos_keyword):
     return prompt
 
 
-
 def get_instruction_from_run_name(run_name):
     if run_name.startswith("api_sr_"):
         pos_keyword = "yes"
         instruction = get_single_rule_instruction_by_name(run_name, pos_keyword)
+    elif run_name.startswith("api_sr2_"):
+        pos_keyword = "yes"
+        instruction = get_single_rule_instruction2(run_name, pos_keyword)
     elif run_name.startswith("api_srr_"):
         pos_keyword = "yes"
         instruction = get_paraphrased_instruction(run_name, pos_keyword)

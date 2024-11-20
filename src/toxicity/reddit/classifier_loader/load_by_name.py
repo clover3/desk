@@ -39,9 +39,6 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("colbert"):
         from toxicity.reddit.classifier_loader.get_qd_predictor import get_colbert_const
         return get_colbert_const(run_name)
-    # elif run_name.startswith("col1"):
-    #     from toxicity.reddit.classifier_loader.get_qd_predictor import get_qd_predictor
-    #     return get_qd_predictor(run_name)
     elif run_name.startswith("col"):
         from toxicity.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
         return get_qd_predictor_w_conf(run_name)

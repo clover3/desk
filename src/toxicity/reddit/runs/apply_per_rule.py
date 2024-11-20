@@ -4,10 +4,10 @@ from toxicity.reddit.classifier_loader.load_by_name import get_classifier
 
 
 def main():
-    sb = "churning"
+    sb = "pics"
     n_rule = get_n_rules(sb)
     for rule_idx in range(n_rule):
-        run_name = f"api_sr_{sb}_{rule_idx}_detail"
+        run_name = f"api_sr2_{sb}_{rule_idx}_detail"
         print(run_name)
         predict_fn = get_classifier(run_name)
         dataset = f"{sb}_val_100"
