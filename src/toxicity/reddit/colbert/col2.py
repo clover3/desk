@@ -7,8 +7,8 @@ from toxicity.io_helper import init_logging
 from toxicity.reddit.colbert.dataset_builder import ThreeColumnDatasetLoader
 from toxicity.reddit.colbert.modeling import Col2
 from toxicity.reddit.colbert.query_builders import get_sb_to_query
-from toxicity.reddit.colbert.train_common import get_default_training_argument, \
-    train_bert_like_model, get_data_arguments
+from toxicity.reddit.colbert.train_common import train_bert_like_model
+from toxicity.reddit.train_common import get_default_training_argument, get_data_arguments
 
 LOG = logging.getLogger(__name__)
 

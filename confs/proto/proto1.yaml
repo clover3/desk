@@ -1,0 +1,5 @@
+dataset_name: train_comb2
+run_name: proto1
+base_model_name: sentence-transformers/all-MiniLM-L6-v2
+k_protos: 50
+learning_rate: 5e-3

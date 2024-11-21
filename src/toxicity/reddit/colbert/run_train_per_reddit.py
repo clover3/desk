@@ -6,8 +6,8 @@ from transformers import BertTokenizer
 from toxicity.io_helper import init_logging
 from toxicity.reddit.colbert.dataset_builder import TwoColumnDatasetLoader
 from toxicity.reddit.colbert.modeling import ColA
-from toxicity.reddit.colbert.train_common import get_reddit_data_arguments, get_default_training_argument, \
-    train_bert_like_model
+from toxicity.reddit.colbert.train_common import train_bert_like_model
+from toxicity.reddit.train_common import get_reddit_data_arguments, get_default_training_argument
 
 LOG = logging.getLogger(__name__)
 

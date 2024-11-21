@@ -1,9 +1,10 @@
-
 import pandas as pd
 from datasets import Dataset as HFDataset
 
+from toxicity.reddit.train_common import DatasetLoader
 
-class TwoColumnDatasetLoader:
+
+class TwoColumnDatasetLoader(DatasetLoader):
     def __init__(self, constant_query="Please classify this text"):
         self.constant_query = constant_query
 
@@ -38,7 +39,7 @@ class TwoColumnDatasetLoader:
         })
 
 
-class ThreeColumnDatasetLoader:
+class ThreeColumnDatasetLoader(DatasetLoader):
     def __init__(self, sb_to_query):
         self.sb_to_query = sb_to_query
 

@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -5,6 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 from typing import List, Dict, Tuple, Optional
+from sklearn_extra.cluster import KMedoids
 
 
 class PrototypeLayer(nn.Module):
@@ -28,6 +30,15 @@ class PrototypeLayer(nn.Module):
         # Calculate distances
         distances = torch.sum((x_expanded - protos_expanded) ** 2, dim=-1)  # [batch_size, seq_len, n_protos]
         return distances, self.prototypes
+
+    def set_prototypes(self, new_prototypes: torch.Tensor) -> None:
+        if new_prototypes.shape != (self.n_protos, self.vect_size):
+            raise ValueError(
+                f"New prototypes shape {new_prototypes.shape} doesn't match "
+                f"expected shape ({self.n_protos}, {self.vect_size})"
+            )
+
+        self.prototypes.weight = torch.nn.Parameter(torch.Tensor(new_prototypes))
 
 
 class DistanceLayer(nn.Module):
@@ -66,6 +77,19 @@ class ProtoryNet(nn.Module):
         self.lstm = nn.LSTM(k_protos, 128, batch_first=True)
         self.classifier = nn.Linear(128, 1)
 
+
+    def init_prototypes(self, loader):
+        print("init_prototypes")
+        sentence_embeddings_all = []
+        for batch in tqdm(loader):
+            sentence_embeddings = self.encode_inputs(batch["text"])
+            sentence_embeddings_all.append(sentence_embeddings.detach().cpu().numpy())
+
+        sentence_embeddings_all = np.concatenate(sentence_embeddings_all, axis=0)
+        kmedoids = KMedoids(n_clusters=self.k_protos, random_state=0).fit(sentence_embeddings_all)
+        k_cents = kmedoids.cluster_centers_
+        self.prototype_layer.set_prototypes(k_cents)
+
     def mean_pooling(self, model_output: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
         token_embeddings = model_output[0]
         input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
@@ -73,16 +97,7 @@ class ProtoryNet(nn.Module):
 
     def forward(self, inputs: List[str]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         # Tokenize and encode sentences
-        encoded = self.tokenizer(inputs, padding=True, truncation=True, return_tensors="pt")
-        encoded = {k: v.to(next(self.parameters()).device) for k, v in encoded.items()}
-
-        with torch.no_grad():
-            model_output = self.encoder(**encoded)
-
-        # Get sentence embeddings
-        sentence_embeddings = self.mean_pooling(model_output, encoded['attention_mask'])
-        sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
-        # Add sequence dimension
+        sentence_embeddings = self.encode_inputs(inputs)
         sentence_embeddings = sentence_embeddings.unsqueeze(1)  # [batch_size, 1, vect_size]
         # Get prototype distances and similarities
         distances, prototypes = self.prototype_layer(sentence_embeddings)
@@ -97,10 +112,21 @@ class ProtoryNet(nn.Module):
 
         return predictions.squeeze(), distances, prototypes
 
+    def encode_inputs(self, inputs):
+        encoded = self.tokenizer(inputs, padding=True, truncation=True, return_tensors="pt")
+        encoded = {k: v.to(next(self.parameters()).device) for k, v in encoded.items()}
+        with torch.no_grad():
+            model_output = self.encoder(**encoded)
+        # Get sentence embeddings
+        sentence_embeddings = self.mean_pooling(model_output, encoded['attention_mask'])
+        sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
+        return sentence_embeddings
+
     def compute_loss(self, predictions: torch.Tensor, targets: torch.Tensor,
                      distances: torch.Tensor, prototypes: torch.Tensor) -> torch.Tensor:
         # Binary cross entropy loss
         targets = targets.float()
+        targets = targets.to(next(self.parameters()).device)
         bce_loss = F.binary_cross_entropy(predictions, targets)
 
         # Prototype clustering loss
@@ -233,7 +259,7 @@ def evaluate(model: ProtoryNet,
             predictions, distances, prototypes = model(batch_texts)
             loss = model.compute_loss(predictions, batch_labels, distances, prototypes)
 
-            predictions = (predictions > 0.5).float()
+            predictions = (predictions > 0.5).float().cpu()
             correct += (predictions == batch_labels).sum().item()
             total += len(batch_labels)
             total_loss += loss.item()

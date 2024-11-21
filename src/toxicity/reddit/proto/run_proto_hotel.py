@@ -57,7 +57,8 @@ if __name__ == '__main__':
     test_not_clean = data['test_not_clean']
     y_train = data['y_train']
     y_test = data['y_test']
-    train_size = 128
+    # train_size = 128
+    train_size = None
     # Generate sentences
     train_noclean_sents = gen_sents(train_not_clean)
     test_noclean_sents = gen_sents(test_not_clean)
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     test_dataset = MyDataset(x_test, y_test, tokenizer)
 
     # Create data loaders
-    batch_size = 32
+    batch_size = 16
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     eval_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
@@ -94,18 +95,17 @@ if __name__ == '__main__':
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = ProtoryNet(k_protos=10)  # 768 is BERT's hidden size
     model = model.to(device)
-
-    # Create optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    model.init_prototypes(train_loader)
+    lr = 1e-3
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Training loop
-    num_epochs = 2
+    num_epochs = 30
     for epoch in range(num_epochs):
         train_loss = train_epoch(model, train_loader, optimizer)
-        batch = next(iter(train_loader))
-        model.show_prototypes(batch["text"])
-
         eval_accuracy, eval_loss = evaluate(model, eval_loader)
-
         print(f"Epoch {epoch}: Train Loss = {train_loss:.4f}, "
               f"Eval Loss = {eval_loss:.4f}, Eval Accuracy = {eval_accuracy:.4f}")
+
+    batch = next(iter(train_loader))
+    model.show_prototypes(batch["text"])
