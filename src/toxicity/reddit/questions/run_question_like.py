@@ -40,9 +40,10 @@ def get_api_classifier(question):
 def main():
     sb = "churning"
     dataset = f"{sb}_val_100"
+    run_fmt = "api_sq_{}"
     questions = load_reddit_rules_questions(sb)
     for q_idx, q in enumerate(questions):
-        run_name = f"api_sq_{q_idx}"
+        run_name = run_fmt.format(q_idx)
         predict_fn = get_api_classifier(q)
         clf_predict_w_predict_fn(dataset, run_name, predict_fn)
         run_eval_clf(run_name, dataset,

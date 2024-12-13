@@ -70,7 +70,6 @@ class ClfDatasetLoader(DatasetLoader):
             names=['text', 'label'],
             dtype={"text": str, 'label': int}
         )
-        print(df.head(10))
         if max_samples is not None:
             df = df.head(max_samples)
         return HFDataset.from_pandas(df)
@@ -93,7 +92,7 @@ def get_reddit_data_arguments(do_debug, subreddit):
     return dataset_args
 
 
-def get_default_training_argument(model_name):
+def get_default_training_argument(model_name) -> TrainingArguments:
     training_args = TrainingArguments(
         output_dir=get_model_save_path(model_name),
         num_train_epochs=3,

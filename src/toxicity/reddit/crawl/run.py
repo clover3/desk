@@ -19,7 +19,7 @@ class RedditCrawler:
                  subreddits: List[str],
                  content_type: Literal['posts', 'comments'],
                  db_dir_path: str,
-                 run_time=3600 * 4,
+                 run_time: Optional[int] = 3600 * 4,
                  max_retries=5,
                  initial_retry_delay=60
                  ):
@@ -136,7 +136,7 @@ class RedditCrawler:
                                 f"Processed {processed_in_session} {self.content_type} in this session. "
                             )
 
-                    if time.time() - self.start > self.run_time:
+                    if self.run_time is not None and time.time() - self.start > self.run_time:
                         self.logger.info("Time limit exceeded...")
                         return
 
@@ -278,7 +278,7 @@ class RedditCrawler:
                     str(comment.subreddit),
                     int(comment.created_utc),
                     str(comment.author) if comment.author else '[deleted]',
-                    comment.compute_interaction_score,
+                    comment.score,
                     comment.body,
                     comment.permalink,
                     comment.submission.id,
@@ -337,7 +337,8 @@ def main(content_type):
     subreddits = load_subreddit_list()
     db_path = get_reddit_db_path()
     # Crawl comments
-    crawler = RedditCrawler(subreddits, content_type, db_path)
+    crawler = RedditCrawler(
+        subreddits, content_type, db_path, run_time=None)
     print("\nInitial comments statistics:")
     if content_type == "posts":
         batch_size = 100

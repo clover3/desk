@@ -33,10 +33,10 @@ def print_perf(dataset_fmt, run_name_fmt, split):
     print_table(output)
 
 
-def main(run_name_fmt, split = "val"):
+def main(run_name_fmt, split = "val", dataset_fmt = "{}_val_100"):
     # run_name_fmt = "bert_train_mix3"
     print("run_name_fmt", run_name_fmt)
-    dataset_fmt = "{}_val_100"
+    print("dataset_fmt", dataset_fmt)
     print_perf(dataset_fmt, run_name_fmt, split)
 
 

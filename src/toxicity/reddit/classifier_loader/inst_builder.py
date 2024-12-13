@@ -2,7 +2,8 @@ import json
 import os
 
 from toxicity.cpath import output_root_path
-from toxicity.reddit.path_helper import get_reddit_rule_path, get_reddit_manual_prompt_path, get_reddit_auto_prompt_path
+from toxicity.reddit.path_helper import get_reddit_rule_path, get_reddit_manual_prompt_path, \
+    get_reddit_auto_prompt_path, get_reddit_rule_path2
 
 
 def get_paraphrased_instruction(run_name, pos_keyword):
@@ -28,6 +29,28 @@ def get_rule_showing_instruction(sb, role):
     inst_summary = "The above rule describes prohibited contents. Classify if the following text is prohibited. "
     inst_summary += f"If prohibited, output '{pos_keyword}' as a first token. If not, output 'safe'"
     return rule_text + "\n " + inst_summary, pos_keyword
+
+
+def get_rule2_from_name(run_name):
+    tokens = run_name.split("_")
+    sb = "_".join(tokens[2:])
+    return get_rule_showing_instruction2(sb)
+
+
+def get_rule_showing_instruction2(sb):
+    pos_keyword = "unsafe"
+    rule_save_path = get_reddit_rule_path2(sb)
+    rules = json.load(open(rule_save_path, "r"))
+    rule_text_list = []
+    for r in rules:
+        if r['kind'] in ["comment", "all"]:
+            rule_text = r["short_name"] + ". " + r["description"]
+            rule_text_list.append(rule_text)
+    rule_text = " ".join(rule_text_list)
+    inst_summary = "The above rule describes prohibited contents. Classify if the following text is prohibited. "
+    inst_summary += f"If prohibited, output '{pos_keyword}' as a first token. If not, output 'safe'"
+    return rule_text + "\n " + inst_summary, pos_keyword
+
 
 
 def get_no_rule_instruction(run_name):
@@ -113,6 +136,8 @@ def get_instruction_from_run_name(run_name):
         postfix = run_name[len("api_auto_"):]
         pos_keyword = "yes"
         instruction = get_autogen_instruction(postfix, pos_keyword)
+    elif run_name.startswith("api_rule2_"):
+        instruction, pos_keyword = get_rule2_from_name(run_name)
     else:
         tokens = run_name.split("_")
         sb = "_".join(tokens[1:-1])

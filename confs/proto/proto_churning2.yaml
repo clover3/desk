@@ -1,0 +1,5 @@
+dataset_name: churning
+run_name: proto2_churning
+base_model_name: bert-base-uncased
+k_protos: 20
+learning_rate: 5e-3

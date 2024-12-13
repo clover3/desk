@@ -14,7 +14,6 @@ def predict_clf_main(
         do_report=False,
         print_metrics=""
 ) -> None:
-
     predict_fn = get_classifier(run_name)
     clf_predict_w_predict_fn(dataset, run_name, predict_fn)
     if do_eval:

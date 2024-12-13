@@ -15,6 +15,7 @@ def preprocess_text(text_list):
     text_list = [" ".join(re.findall(r'[\w]+', text)) for text in text_list]
     return text_list
 
+# Added filter conditions
 
 
 def main():
@@ -23,11 +24,7 @@ def main():
     grouped = group_by(all_data, get_second)
 
     load_dir = os.path.join(output_root_path, "reddit", "subreddit_samples")
-    save_root = os.path.join(output_root_path, "reddit", "train_data")
-
-    def exclude(j):
-        text = j["body"]
-        return text == "[removed]" or text == "[deleted]" or text in pos_texts_set
+    save_root = os.path.join(output_root_path, "reddit", "train_data2")
 
     for sub_reddit in grouped:
         print(sub_reddit)
@@ -38,6 +35,9 @@ def main():
             pos_texts_set = set(pos_texts)
             print(f"{len(pos_items)} pos_items")
 
+            def exclude(j):
+                text = j["body"]
+                return text == "[removed]" or text == "[deleted]" or text in pos_texts_set or j["score"] < 1
 
             neg_items = read_jsonl(file_path)
             n_neg_before = len(neg_items)

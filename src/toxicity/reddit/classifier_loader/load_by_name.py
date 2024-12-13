@@ -1,6 +1,8 @@
 import random
 from typing import Callable
 
+from toxicity.reddit.classifier_loader.proto_predictor import get_proto_predictor
+
 
 def get_random_classifier():
     def predict(text):
@@ -42,6 +44,9 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("col"):
         from toxicity.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
         return get_qd_predictor_w_conf(run_name)
+    if run_name.startswith("proto"):
+        from toxicity.reddit.classifier_loader.get_pipeline import get_classifier_pipeline
+        return get_proto_predictor(run_name)
     else:
         raise ValueError(f"{run_name} is not expected")
 

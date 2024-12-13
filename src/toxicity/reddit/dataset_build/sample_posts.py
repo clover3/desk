@@ -65,13 +65,7 @@ def main():
     sampler = SubredditSampler(
         subreddit_list, output_dir=save_dir, sample_size=200000)
     PARAMS = {pyzstd.DParameter.windowLogMax: 31}
-    n_lines_maybe = 67108864
     n_lines_maybe = 23285177
-    #
-    # def line_itr():
-    #     with pyzstd.ZstdFile(input_file_path, "r", level_or_option=PARAMS) as source:
-    #         for line in TELI(source, n_lines_maybe):
-    #             yield line
 
     def line_itr():
         with open(input_file_path, "r") as source:

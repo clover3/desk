@@ -7,9 +7,7 @@ from typing import Dict, Any
 
 import praw
 from prawcore import ResponseException
-
 from toxicity.reddit.path_helper import get_reddit_db_path
-
 import time
 from collections import deque
 
