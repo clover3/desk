@@ -1,7 +1,7 @@
 import os
 
-from toxicity.cpath import output_root_path
-from toxicity.io_helper import read_csv
+from rule_gen.cpath import output_root_path
+from desk_util.io_helper import read_csv
 
 
 def main():

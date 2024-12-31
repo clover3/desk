@@ -1,7 +1,7 @@
-from toxicity.llama_helper.lf_client import LLMClient
+from llama_user.llama_helper.lf_client import LLMClient
 from chair.misc_lib import SuccessCounter
-from toxicity.path_helper import load_csv_dataset
-from toxicity.runnable.run_eval import load_labels
+from desk_util.path_helper import load_csv_dataset
+from desk_util.runnable.run_eval import load_labels
 from chair.tab_print import print_table
 
 

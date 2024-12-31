@@ -1,9 +1,8 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-import warnings
 from transformers import logging
 
-from toxicity.path_helper import get_model_save_path
+from desk_util.path_helper import get_model_save_path
 
 # Set logging level to ERROR to suppress warnings
 logging.set_verbosity_error()

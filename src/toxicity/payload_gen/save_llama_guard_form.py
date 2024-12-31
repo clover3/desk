@@ -2,10 +2,10 @@ import json
 import os
 
 from chair.misc_lib import make_parent_exists
-from toxicity.cpath import output_root_path
-from toxicity.io_helper import read_csv
+from rule_gen.cpath import output_root_path
+from desk_util.io_helper import read_csv
 from toxicity.llama_guard.llama_guard_formatter import LlamaGuardFormatter
-from toxicity.path_helper import get_csv_dataset_path, get_label_path
+from desk_util.path_helper import get_csv_dataset_path, get_label_path
 
 
 def gen_fold():

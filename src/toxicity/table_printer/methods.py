@@ -1,4 +1,4 @@
-from toxicity.table_printer.print_util import print_scores_by_asking_server
+from desk_util.print_util import print_scores_by_asking_server
 
 
 def main():

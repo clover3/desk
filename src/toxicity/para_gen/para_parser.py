@@ -1,7 +1,7 @@
 import math
-from toxicity.io_helper import save_text_list_as_csv
+from desk_util.io_helper import save_text_list_as_csv
 from chair.misc_lib import get_second
-from toxicity.path_helper import get_text_list_save_path
+from desk_util.path_helper import get_text_list_save_path
 from collections import Counter
 import nltk
 from nltk.tokenize import word_tokenize
@@ -11,7 +11,7 @@ nltk.download('punkt')
 
 
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import read_csv_column
+from desk_util.io_helper import read_csv_column
 
 
 def bag_of_words_similarity(sentence1, sentence2):

@@ -3,7 +3,7 @@ from transformers import AutoModelForCausalLM
 
 import torch
 
-from toxicity.llama_helper.llama_model_names import failspy, Llama3_8B_Instruct
+from llama_user.llama_helper import failspy, Llama3_8B_Instruct
 
 gc.collect()
 torch.cuda.empty_cache()

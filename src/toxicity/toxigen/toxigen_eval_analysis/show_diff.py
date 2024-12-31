@@ -1,11 +1,11 @@
 import csv
-from typing import List, Dict
+from typing import List
 
 import fire
 
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import load_two_column_csv, read_csv
-from toxicity.path_helper import get_dataset_pred_save_path, get_comparison_save_path
+from desk_util.io_helper import read_csv
+from desk_util.path_helper import get_dataset_pred_save_path, get_comparison_save_path
 
 
 def compare_predictions_and_save_csv(

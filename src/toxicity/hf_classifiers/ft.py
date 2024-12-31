@@ -1,10 +1,9 @@
 import os
 import math
-from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 
-from toxicity.dataset_helper.csv_datasets import load_csv_as_hf_dataset
-from toxicity.path_helper import get_model_save_path
+from desk_util.csv_datasets import load_csv_as_hf_dataset
+from desk_util.path_helper import get_model_save_path
 
 
 def main():

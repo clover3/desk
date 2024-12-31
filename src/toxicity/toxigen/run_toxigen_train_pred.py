@@ -3,9 +3,9 @@ from tqdm import tqdm
 import itertools
 from typing import Callable
 from toxicity.llama_guard.load_llama_guard import load_llg2
-from toxicity.path_helper import get_dataset_pred_save_path
+from desk_util.path_helper import get_dataset_pred_save_path
 from toxicity.dataset_helper.load_toxigen import ToxigenTrain
-from toxicity.io_helper import save_csv
+from desk_util.io_helper import save_csv
 
 
 def predidct_toxigen_train_head(predict_fn, run_name, n_pred=900):

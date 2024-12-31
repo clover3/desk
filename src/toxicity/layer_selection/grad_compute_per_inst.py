@@ -1,26 +1,18 @@
-import torch
 import json
 import logging
 import sys
-from collections import defaultdict
 from functools import partial
 
 from torch.utils.data import DataLoader
-from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import os
 
-
-import numpy as np
 import torch
-from torch.nn import CrossEntropyLoss
-from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
+from typing import List, Tuple
 
-from chair.list_lib import right, left
-from toxicity.cpath import output_root_path
-from toxicity.dataset_helper.load_toxigen import load_toxigen_formatted, apply_llama_guard_formats, ToxigenTrain, \
-    ToxigenBinary
-from toxicity.dataset_helper.csv_datasets import load_toxigen_like_csv
+from rule_gen.cpath import output_root_path
+from toxicity.dataset_helper.load_toxigen import apply_llama_guard_formats
+from desk_util.csv_datasets import load_toxigen_like_csv
 from toxicity.layer_selection.grad_compute import compute_gradient_abs, generate_label
 
 pf_log = logging.getLogger(__name__)

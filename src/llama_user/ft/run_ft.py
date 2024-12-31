@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from llamafactory.hparams import get_train_args
 from llamafactory.train.callbacks import LogCallback
 from llamafactory.train.sft import run_sft
-from toxicity.path_helper import get_model_save_path
+from desk_util.path_helper import get_model_save_path
 
 
 def run_exp(overwrite_args: Optional[Dict[str, Any]] = None, callbacks: List["TrainerCallback"] = []) -> None:

@@ -1,11 +1,11 @@
 import fire
 
-from toxicity.clf_util import eval_prec_recall_f1_acc
+from desk_util.clf_util import eval_prec_recall_f1_acc
 from chair.list_lib import right, left
 from toxicity.llama_guard.output_convertor import parse_predictions
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import read_csv
-from toxicity.path_helper import get_dataset_pred_save_path
+from desk_util.io_helper import read_csv
+from desk_util.path_helper import get_dataset_pred_save_path
 from sklearn.metrics import auc, roc_curve
 from taskman_client.task_proxy import get_task_manager_proxy
 

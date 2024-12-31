@@ -6,9 +6,9 @@ from torch.utils.data import Dataset
 from datasets import load_dataset
 import logging
 
-from toxicity.cpath import output_root_path
-from toxicity.dataset_helper.csv_datasets import load_toxigen_para
-from toxicity.io_helper import read_csv
+from rule_gen.cpath import output_root_path
+from desk_util.csv_datasets import load_toxigen_para
+from desk_util.io_helper import read_csv
 from toxicity.llama_guard.llama_guard_formatter import LlamaGuardFormatter
 from typing import List, Iterable, Tuple
 

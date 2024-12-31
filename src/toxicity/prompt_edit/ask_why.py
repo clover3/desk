@@ -1,5 +1,5 @@
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.llama_helper.lf_client import LLMClient
+from llama_user.llama_helper.lf_client import LLMClient
 
 
 # Iterate Prompt of Toxigen

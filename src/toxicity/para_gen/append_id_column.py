@@ -1,8 +1,6 @@
 import os
-import fire
-from tqdm import tqdm
-from toxicity.cpath import output_root_path
-from toxicity.io_helper import read_csv_column, save_csv
+from rule_gen.cpath import output_root_path
+from desk_util.io_helper import read_csv_column, save_csv
 
 
 def main():

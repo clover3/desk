@@ -1,10 +1,10 @@
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import read_csv
+from desk_util.io_helper import read_csv
 from chair.list_lib import left
 from toxicity.llama_guard.output_convertor import parse_predictions
-from toxicity.llama_helper.lf_client import LLMClient
+from llama_user.llama_helper.lf_client import LLMClient
 from chair.misc_lib import SuccessCounter
-from toxicity.path_helper import get_dataset_pred_save_path
+from desk_util.path_helper import get_dataset_pred_save_path
 
 
 # Iterate Prompt of Toxigen

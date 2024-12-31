@@ -1,6 +1,6 @@
 from toxicity.hf_classifiers.get_clf import toxicity_hf_model_names
-from toxicity.runnable.predict_clf import clf_predict_inner
-from toxicity.runnable.run_eval_clf import run_eval_clf
+from desk_util.runnable import clf_predict_inner
+from desk_util.runnable.run_eval_clf import run_eval_clf
 
 
 def main():

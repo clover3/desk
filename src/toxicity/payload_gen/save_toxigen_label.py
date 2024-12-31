@@ -1,6 +1,6 @@
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import save_csv
-from toxicity.path_helper import get_label_path
+from desk_util.io_helper import save_csv
+from desk_util.path_helper import get_label_path
 
 
 def main():

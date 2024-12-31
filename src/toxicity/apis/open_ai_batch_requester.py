@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Dict, Optional
 import json
 
-from toxicity.apis.open_ai import get_open_ai
-from toxicity.cpath import output_root_path
+from desk_util.open_ai import get_open_ai
+from rule_gen.cpath import output_root_path
 
 
 def format_payload(custom_id, prompt, model, max_tokens):

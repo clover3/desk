@@ -2,7 +2,7 @@ import os
 import json
 from collections import Counter
 
-from toxicity.cpath import output_root_path
+from rule_gen.cpath import output_root_path
 
 def get_key_of_max_value(dictionary):
     if not dictionary:

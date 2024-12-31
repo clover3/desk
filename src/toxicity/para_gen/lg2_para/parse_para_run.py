@@ -1,6 +1,6 @@
-from toxicity.io_helper import save_text_list_as_csv, read_csv_column
+from desk_util.io_helper import save_text_list_as_csv, read_csv_column
 from toxicity.para_gen.ft12_first.parse_para_by_rule import parse_para
-from toxicity.path_helper import get_text_list_save_path
+from desk_util.path_helper import get_text_list_save_path
 
 
 def main():

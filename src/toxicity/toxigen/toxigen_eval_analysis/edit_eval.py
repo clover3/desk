@@ -7,15 +7,11 @@
 #   FP, FN are considered generalizability
 
 
-import sys
-from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
-
-from toxicity.clf_util import eval_prec_recall_f1_acc, print_evaluation_results
+from desk_util.clf_util import eval_prec_recall_f1_acc
 from toxicity.llama_guard.output_convertor import convert_predictions_to_binary
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import load_two_column_csv, read_csv
-from toxicity.path_helper import get_dataset_pred_save_path
-from taskman_client.task_proxy import get_task_manager_proxy
+from desk_util.io_helper import read_csv
+from desk_util.path_helper import get_dataset_pred_save_path
 
 
 def per_item_eval(labels: list[int], predictions: list[int]) -> list[str]:

@@ -1,9 +1,9 @@
 from typing import List, Tuple
 
 import fire
-from toxicity.io_helper import save_csv
-from toxicity.path_helper import get_dataset_pred_save_path, get_wrong_pred_save_path
-from toxicity.runnable.run_eval import load_predictions, load_labels
+from desk_util.io_helper import save_csv
+from desk_util.path_helper import get_dataset_pred_save_path, get_wrong_pred_save_path
+from desk_util.runnable.run_eval import load_predictions, load_labels
 
 
 def align_preds_and_labels(

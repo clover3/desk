@@ -1,7 +1,7 @@
 import json
 import os
 
-from toxicity.cpath import output_root_path
+from rule_gen.cpath import output_root_path
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 
 from chair.misc_lib import make_parent_exists

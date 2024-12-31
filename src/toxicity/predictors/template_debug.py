@@ -1,22 +1,9 @@
-from llama_recipes.inference.prompt_format_utils import LLAMA_GUARD_2_CATEGORY_SHORT_NAME_PREFIX, PROMPT_TEMPLATE_2
-
 from typing import List
 
-from llama_recipes.inference.prompt_format_utils import create_conversation, LlamaGuardVersion, \
-    build_custom_prompt, SafetyCategory
+from llama_recipes.inference.prompt_format_utils import create_conversation, LlamaGuardVersion
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from toxicity.llama_guard.llama_guard_formatter import build_toxicity_prompt, AgentType
-from toxicity.llama_helper.llama_model_names import Llama3_8B_Instruct
-from typing import List
-
-from llama_recipes.inference.prompt_format_utils import LLAMA_GUARD_2_CATEGORY_SHORT_NAME_PREFIX, PROMPT_TEMPLATE_2
-from llama_recipes.inference.prompt_format_utils import create_conversation, LlamaGuardVersion, \
-    build_custom_prompt, SafetyCategory
-from transformers import AutoTokenizer, AutoModelForCausalLM
-
-from toxicity.llama_guard.llama_guard_formatter import build_toxicity_prompt, AgentType
-from toxicity.llama_helper.llama_model_names import Llama3_8B_Instruct
 
 
 def load_ilu(run_name):

@@ -1,6 +1,6 @@
 import sys
 
-from toxicity.apis.open_ai import get_open_ai
+from desk_util.open_ai import get_open_ai
 
 
 def main():

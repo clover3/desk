@@ -6,16 +6,7 @@ from transformers import AutoTokenizer
 
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
 from toxicity.llama_guard.llama_guard_formatter import build_toxicity_prompt
-from toxicity.llama_helper.llama_model_names import Llama3_8B_Instruct
-from typing import List
-
-from llama_recipes.inference.prompt_format_utils import build_default_prompt, create_conversation, LlamaGuardVersion, \
-    AgentType
-from transformers import AutoTokenizer
-
-from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.llama_guard.llama_guard_formatter import build_toxicity_prompt
-from toxicity.llama_helper.llama_model_names import Llama3_8B_Instruct
+from llama_user.llama_helper import Llama3_8B_Instruct
 
 
 def llama3_instruct(llama_guard_version: LlamaGuardVersion = LlamaGuardVersion.LLAMA_GUARD_2,

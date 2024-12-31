@@ -1,8 +1,7 @@
 from toxicity.dataset_helper.load_toxigen import ToxigenBinary
-from toxicity.io_helper import save_text_list_as_csv
-from toxicity.llama_helper.lf_client import transform_text_by_llm
-from toxicity.path_helper import get_text_list_save_path
-from toxicity.prompt_edit.prompt_fix_exp import load_predictions_parsed
+from desk_util.io_helper import save_text_list_as_csv
+from llama_user.llama_helper.lf_client import transform_text_by_llm
+from desk_util.path_helper import get_text_list_save_path
 
 
 def main():

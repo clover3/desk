@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from toxicity.io_helper import save_csv
-from toxicity.path_helper import load_csv_dataset, get_csv_dataset_path
+from desk_util.io_helper import save_csv
+from desk_util.path_helper import load_csv_dataset, get_csv_dataset_path
 
 
 def main():
