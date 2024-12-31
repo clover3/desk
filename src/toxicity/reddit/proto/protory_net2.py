@@ -222,12 +222,14 @@ class ProtoryConfig2(PretrainedConfig):
         alpha: float = 0.0001,
         beta: float = 0.01,
         lstm_dim: int = 128,
+        update_encoder=False,
         **kwargs,
     ):
         self.k_protos = k_protos
         self.alpha = alpha
         self.beta = beta
         self.lstm_dim = lstm_dim
+        self.update_encoder = update_encoder
         self.base_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
         super().__init__(**kwargs)
 
@@ -254,10 +256,10 @@ class ProtoryNet3(BertPreTrainedModel):
         self.distance_layer = DistanceLayer()
         self.lstm = nn.LSTM(k_protos, p_config.lstm_dim, batch_first=True)
         self.classifier = nn.Linear(p_config.lstm_dim, 1)
-        self.use_grad = False
+        self.update_encoder = p_config.update_encoder
 
     def encode_inputs(self, input_ids, attention_mask):
-        with torch.set_grad_enabled(self.use_grad):
+        with torch.set_grad_enabled(self.update_encoder):
             model_output = self.model(input_ids, attention_mask)
         sentence_embeddings = self.mean_pooling(model_output, attention_mask)
         sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
@@ -389,3 +391,4 @@ class ProtoryNet3(BertPreTrainedModel):
             print(f"Prototype {i}: {self.mapped_prototypes[i]}")
 
         return self.mapped_prototypes
+

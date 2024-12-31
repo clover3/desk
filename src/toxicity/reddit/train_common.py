@@ -14,6 +14,7 @@ from toxicity.reddit.path_helper import get_reddit_train_data_path
 
 LOG = logging.getLogger(__name__)
 
+
 def compute_per_device_batch_size(train_batch_size):
     # Get the number of available GPUs
     num_gpus = torch.cuda.device_count()
@@ -97,7 +98,7 @@ def get_default_training_argument(model_name) -> TrainingArguments:
         output_dir=get_model_save_path(model_name),
         num_train_epochs=3,
         per_device_train_batch_size=16,
-        per_device_eval_batch_size=64,
+        per_device_eval_batch_size=16,
         learning_rate=5e-5,
         warmup_ratio=0.1,
         weight_decay=0.01,
@@ -139,6 +140,8 @@ def train_classification_single_score(
 
     def compute_metrics(eval_pred):
         logits, labels = eval_pred
+        print("compute_metrics")
+        print("logits", logits)
         predictions = logits > 0.5
         return clf_metrics.compute(predictions=predictions, references=labels)
 

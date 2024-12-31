@@ -12,7 +12,6 @@ from toxicity.io_helper import init_logging
 from toxicity.reddit.train_common import ClfDatasetLoader, get_default_training_argument, get_data_arguments, \
     get_datasets_from_dataset_arg, DatasetLoader, train_classification_single_score, DataArguments
 from toxicity.reddit.predict_split import predict_sb_split
-from toxicity.reddit.proto.protory_net2 import ProtoryNet2
 from typing import Dict, Any
 
 
@@ -91,6 +90,7 @@ def train_protory_net(
         do_init: bool
 ):
     train_dataset, eval_dataset = get_datasets_from_dataset_arg(dataset_builder, dataset_args)
+
     LOG.info("Training instance example: %s", str(train_dataset[0]))
     tokenize_format = get_tokenize_formatter(tokenizer, dataset_args.max_length)
 
@@ -109,12 +109,14 @@ def train_protory_net(
     return eval_result
 
 
-def protonet_train_exp(conf, do_sb_eval, debug):
+def protonet_train_exp(model_cls, conf, do_sb_eval, debug):
     dataset_builder = ClfDatasetLoader()
     run_name = conf.run_name
     dataset_args = get_data_arguments(debug, conf.dataset_name)
     training_args = get_default_training_argument(run_name)
     training_args.learning_rate = conf.get('learning_rate', 1e-3)
+    training_args.num_train_epochs = conf.get('epochs', 3)
+
     proton_config = ProtoryConfig2(
         k_protos=conf.get('k_protos', 10),
         alpha=conf.get('alpha', 0.0001),
@@ -124,7 +126,7 @@ def protonet_train_exp(conf, do_sb_eval, debug):
     )
     do_init = conf.get('do_init', True)
 
-    model = ProtoryNet3(proton_config)
+    model = model_cls(proton_config)
     eval_result = train_protory_net(
         model,
         model.tokenizer,
@@ -154,7 +156,7 @@ def main(
     conf_path = os.path.join("confs", "proto", f"{run_name}.yaml")
     conf = OmegaConf.load(conf_path)
     LOG.info(str(conf))
-    protonet_train_exp(conf, do_sb_eval, debug)
+    protonet_train_exp(ProtoryNet3, conf, do_sb_eval, debug)
 
 
 if __name__ == "__main__":

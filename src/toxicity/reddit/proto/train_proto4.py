@@ -17,8 +17,8 @@ def main(
     init_logging()
     conf = OmegaConf.create({
         'dataset_name': f'{sb}',
-        'run_name': f'proto3_{sb}',
-        'base_model_name': 'sentence-transformers/all-MiniLM-L6-v2',
+        'run_name': f'proto4_{sb}',
+        'base_model_name': "bert-base-uncased",
         'k_protos': 20,
         'learning_rate': 0.005
     })

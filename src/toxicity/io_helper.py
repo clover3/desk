@@ -66,7 +66,7 @@ def read_jsonl(file_path):
 
 
 def init_logging(level=logging.INFO):
-    format_str = '%(levelname)s\t%(name)s \t%(asctime)s %(message)s'
+    format_str = '%(levelname)s %(name)s %(asctime)s %(message)s'
     formatter = logging.Formatter(format_str,
                                   datefmt='%m-%d %H:%M:%S',
                                   )

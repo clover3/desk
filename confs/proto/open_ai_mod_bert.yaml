@@ -1,0 +1,6 @@
+dataset_name: open_ai_mod
+run_name: proto1
+base_model_name: bert-base-uncased
+k_protos: 10
+learning_rate: 5e-3
+epochs: 5

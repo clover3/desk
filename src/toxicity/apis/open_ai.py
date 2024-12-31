@@ -136,10 +136,28 @@ def get_open_ai_my():
     return OpenAI(api_key=key)
 
 
-def get_open_ai():
+def get_open_ai(deployment=None):
     api_key_path = os.path.join(data_root_path, "openai_api_key_uva.txt")
     with open(api_key_path, "r") as f:
         key = f.read().strip()
     azure_endpoint = "https://rtp2-shared.openai.azure.com"
-    client = AzureOpenAI(api_key=key, api_version="2024-10-21", azure_endpoint=azure_endpoint)
+    client = AzureOpenAI(api_key=key, api_version="2024-10-21",
+                         azure_endpoint=azure_endpoint, azure_deployment=deployment)
     return client
+
+
+
+class DummyChatClient:
+    def __init__(self):
+        self.total_tokens_used = 0  # Track total tokens used
+        self.last_request_tokens = 0  # Track tokens used in the last request
+
+    def request(self, message):
+        char_per_token = 4
+
+        self.last_request_tokens = int(len(message) // char_per_token)
+        self.total_tokens_used += self.last_request_tokens
+        return ""
+
+    def __del__(self):
+        print("{} tokens used.".format(self.total_tokens_used))

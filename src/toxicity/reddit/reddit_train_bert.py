@@ -2,20 +2,15 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import fire
-import numpy as np
 import logging
 from transformers import TrainingArguments, Trainer, BertTokenizer, BertForSequenceClassification
-from datasets import Dataset
-import evaluate
-import torch
-import pandas as pd
-import math
 import multiprocessing
 
 from taskman_client.task_proxy import get_task_manager_proxy
 from taskman_client.wrapper3 import JobContext
-from toxicity.io_helper import read_csv, init_logging
+from toxicity.io_helper import init_logging
 from toxicity.path_helper import get_model_save_path, get_model_log_save_dir_path
+from toxicity.reddit.base_bert.train_clf_common import get_compute_metrics
 from toxicity.reddit.path_helper import get_reddit_train_data_path
 from toxicity.reddit.predict_clf import predict_clf_main
 from toxicity.reddit.train_bert import load_dataset_from_csv
@@ -44,12 +39,6 @@ def finetune_bert(
         num_labels=2,
 ):
     LOG.info("Starting BERT fine-tuning process")
-    clf_metrics = evaluate.combine(["accuracy", "f1", "precision", "recall"])
-
-    def compute_metrics(eval_pred):
-        logits, labels = eval_pred
-        predictions = np.argmax(logits, axis=-1)
-        return clf_metrics.compute(predictions=predictions, references=labels)
 
     tokenized_train, tokenized_eval = prepare_datasets(dataset_args, model_name)
     model = BertForSequenceClassification.from_pretrained(model_name, num_labels=num_labels)
@@ -62,7 +51,7 @@ def finetune_bert(
         args=training_args,
         train_dataset=tokenized_train,
         eval_dataset=tokenized_eval,
-        compute_metrics=compute_metrics,
+        compute_metrics=get_compute_metrics(),
     )
 
     # Train the model

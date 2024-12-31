@@ -54,6 +54,11 @@ def get_gpt_model_name_from_run_name(run_name: str):
         if run_name.startswith(prefix):
             return prefix[:-1]
 
+    if run_name.startswith("chatgpt_"):
+        return "gpt-4o"
+    else:
+        raise ValueError(run_name + " is not expected")
+
 
 class BatchChatGPTSender:
     def __init__(self, batch_name: str, model="gpt-4o-mini", max_tokens=2000):
@@ -65,6 +70,7 @@ class BatchChatGPTSender:
         print("BatchChatGPTSender - model: " + self.model + " - batch name: " + self.batch_name)
         self._request_queue = []
         self.client = get_open_ai()
+        self.client_gb = get_open_ai("GlobalBatch")
         self.max_tokens = max_tokens
 
     def add_request(self, request_id, prompt: str) -> bool:
@@ -97,7 +103,7 @@ class BatchChatGPTSender:
             batch_input_file_id = batch_input_file.id
             print("batch_input_file_id", batch_input_file_id)
             self.client.files.wait_for_processing(batch_input_file_id)
-            ret = self.client.batches.create(
+            ret = self.client_gb.batches.create(
                 input_file_id=batch_input_file_id,
                 endpoint="/v1/chat/completions",
                 completion_window="24h",
@@ -145,6 +151,10 @@ class BatchChatGPTLoader:
         custom_id_to_prompts = dict(batch_info["prompts"])
         batch_id = batch_info["batch_id"]
         batch_status = self.client.batches.retrieve(batch_id)
+        if batch_status.status != "completed":
+            print("batch_status: ", batch_status.status)
+            print(batch_status)
+            raise ValueError("Not completed ({})".format(batch_status.status))
         print("Reading {} from OpenAI".format(batch_status.output_file_id))
         content = self.client.files.content(batch_status.output_file_id).text
         prompt_to_response = {}

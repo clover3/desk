@@ -12,15 +12,19 @@ LOG = logging.getLogger(__name__)
 
 def main(
     sb = "churning",
+    k_protos=20,
+    learning_rate=0.005,
+    epochs=3,
     debug=False,
 ):
     init_logging()
     conf = OmegaConf.create({
         'dataset_name': f'{sb}',
-        'run_name': f'proto3_{sb}',
+        'run_name': f'proto_hp_{sb}_{k_protos}_{learning_rate}',
         'base_model_name': 'sentence-transformers/all-MiniLM-L6-v2',
-        'k_protos': 20,
-        'learning_rate': 0.005
+        'k_protos': k_protos,
+        'learning_rate': learning_rate,
+        'epochs': epochs,
     })
     LOG.info(str(conf))
     protonet_train_exp(ProtoryNet3, conf, False, debug)

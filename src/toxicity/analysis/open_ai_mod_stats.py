@@ -4,7 +4,7 @@ from typing import Dict, Any
 import json
 from statistics import mean, median
 
-def load_openai_dataset() -> Dict[str, Dict[str, Any]]:
+def load_open`ai_dataset() -> Dict[str, Dict[str, Any]]:
     openai_dataset = load_dataset("mmathys/openai-moderation-api-evaluation")["train"]
     return {str(i): {k:v for k,v in item.items() if k != "prompt"} for i, item in enumerate(openai_dataset)}
 

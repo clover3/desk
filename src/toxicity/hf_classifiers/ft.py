@@ -7,8 +7,6 @@ from toxicity.dataset_helper.csv_datasets import load_csv_as_hf_dataset
 from toxicity.path_helper import get_model_save_path
 
 
-
-
 def main():
     run_name = "s-nlp_1"
     dataset = "toxigen_train_head_100"

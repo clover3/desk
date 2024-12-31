@@ -6,8 +6,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, f1_score
 import numpy as np
 import fire
+from sklearn.svm import SVC
 
 from chair.list_lib import left
+from taskman_client.task_proxy import get_task_manager_proxy
 from toxicity.cpath import output_root_path
 from toxicity.io_helper import read_csv
 from toxicity.reddit.keyword_building.inf_keyword_to_text import load_keyword_statement, load_train_first_100
@@ -67,15 +69,16 @@ def train_classifier(sb, n_features=10, test_size=0.2, random_state=42):
     feature_scores = selector.scores_
 
     # Print top features and their scores
-    # print("\nTop selected features:")
-    # for idx, (is_selected, score) in enumerate(zip(selected_features, feature_scores)):
-    #     if is_selected:
-    #         keyword, statement = keyword_statement[idx]
-    #         print(f"Feature {idx}: {keyword} (Score: {score:.4f})")
-    #         print(f"Statement: {statement}\n")
+    print("\nTop selected features:")
+    for idx, (is_selected, score) in enumerate(zip(selected_features, feature_scores)):
+        if is_selected:
+            keyword, statement = keyword_statement[idx]
+            print(f"Feature {idx}: {keyword} (Score: {score:.4f})")
+            print(f"Statement: {statement}\n")
 
     # Train classifier
-    clf = RandomForestClassifier(n_estimators=100, random_state=random_state)
+    clf = SVC(kernel="linear", C=0.025, random_state=42)
+    # clf = RandomForestClassifier(n_estimators=100, random_state=random_state)
     clf.fit(X_train_selected, y_train)
 
     # Make predictions and evaluate
@@ -83,7 +86,14 @@ def train_classifier(sb, n_features=10, test_size=0.2, random_state=42):
 
     # Print classification report
     # print("\nClassification Report:")
-    print(sb, f1_score(y_test, y_pred))
+    score = f1_score(y_test, y_pred)
+    print(sb, score)
+    run_name= f"keyword_based_{sb}_1"
+    metric = "f1"
+    # proxy = get_task_manager_proxy()
+    # dataset = f"{sb}_train_holdout"
+    # proxy.report_number(run_name, score, dataset, metric)
+
     return clf, selector
 
 
