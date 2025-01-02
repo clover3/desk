@@ -1,0 +1,9 @@
+dataset_name: open_ai_mod
+run_name: proto2
+base_model_name: sentence-transformers/all-MiniLM-L6-v2
+k_protos: 40
+learning_rate: 1e-4
+epochs: 1
+do_init: True
+b: 0
+a: 1e-5

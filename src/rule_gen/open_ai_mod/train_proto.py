@@ -1,3 +1,4 @@
+import torch
 import numpy as np
 import logging
 
@@ -139,10 +140,13 @@ def protonet_train_exp(model_cls, conf, debug):
 def main(
         conf_path="",
         debug=False,
+        random_seed=None,
 ):
     init_logging()
     conf = OmegaConf.load(conf_path)
     LOG.info(str(conf))
+    if random_seed is not None:
+        torch.manual_seed(random_seed)
     protonet_train_exp(ProtoryNet2, conf, debug)
 
 

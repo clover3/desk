@@ -10,7 +10,8 @@ from rule_gen.reddit.proto.protory_net2 import ProtoryNet2
 LOG = logging.getLogger(__name__)
 
 
-def run_random_search(conf_path: str, n_iter: int = 10) -> Dict[str, Any]:
+def run_random_search(conf_path: str,
+                      st: int = 10, ed = None) -> Dict[str, Any]:
     """
     Run random hyperparameter search and return best configuration.
 
@@ -23,15 +24,20 @@ def run_random_search(conf_path: str, n_iter: int = 10) -> Dict[str, Any]:
     """
     # Define parameter space
     param_distributions = {
-        'lr': [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
+        'lr': [1e-4, 5e-4, 1e-5, 5e-5, 1e-6],
         'epoch': [1, 2, 4, 8, 16, 32, 64, 128],
         "k_protos": [5, 10, 20, 40, 80],
         "alpha": [0, 0.0001, 0.01],
-        "beta": [0, 0.01, 0.1]
+        "beta": [0, 0.01, 0.1],
+        "do_init": [False, True],
     }
 
     # Sample random parameter combinations
-    param_combinations = list(ParameterSampler(param_distributions, n_iter=n_iter, random_state=42))
+    param_combinations = list(ParameterSampler(param_distributions, n_iter=1000, random_state=42))
+    if ed is None:
+        param_combinations = param_combinations[st:]
+    else:
+        param_combinations = param_combinations[st:ed]
 
     # Track best performance
     best_performance = float('-inf')
@@ -87,7 +93,7 @@ if __name__ == "__main__":
     conf_path = "confs/proto/open_ai_mod1.yaml"
 
     # Run random search with 10 iterations
-    results = run_random_search(conf_path, n_iter=10)
+    results = run_random_search(conf_path)
 
     LOG.info("Random Search Complete")
     LOG.info(f"Best parameters found: {results['best_params']}")
