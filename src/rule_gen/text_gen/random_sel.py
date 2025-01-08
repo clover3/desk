@@ -41,7 +41,7 @@ def concat_pos_neg(pos_texts, neg_texts):
 
 def main():
     sample_text = randomly_sample_pos_neg()
-    instruction = "Identify what are the criteria for being classified to be positive compared to negative classified ones."
+    instruction = "List what kinds of texts are being classified as positive compared to negative classified ones. Response as json"
 
     prompt = sample_text + "===\n" + instruction
     response = LLMClient().ask(prompt)
