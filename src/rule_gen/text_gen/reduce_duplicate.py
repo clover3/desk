@@ -5,10 +5,11 @@ from rule_gen.open_ai_mod.path_helper import get_rule_gen_save_path
 
 
 def main():
-    save_path: str = get_rule_gen_save_path("KMedois30", "oam")
+    save_path: str = get_rule_gen_save_path("oam", "p1")
     rules = json.load(open(save_path, "r"))
     payload = "\n".join(rules)
-    instruction = "Remove near duplicates from this list"
+    instruction = "Remove near duplicates from this list. Output as json"
+    instruction = "Extract all reasons without duplicates. Remove semantic duplicates. Output as json"
     prompt = str(payload) + "\n===\n" + instruction
     response = LLMClient().ask(prompt)
     print(response)

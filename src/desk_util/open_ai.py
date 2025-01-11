@@ -147,6 +147,16 @@ def get_open_ai(deployment=None):
 
 
 
+def get_open_ai_2():
+    api_key_path = os.path.join(data_root_path, "openai_api_key_uva2.txt")
+    with open(api_key_path, "r") as f:
+        key = f.read().strip()
+    endpoint = "https://rtp2-gpt35.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview"
+    client = AzureOpenAI(api_key=key, api_version="2024-10-21",
+                         azure_endpoint=endpoint, azure_deployment=None)
+    return client
+
+
 class DummyChatClient:
     def __init__(self):
         self.total_tokens_used = 0  # Track total tokens used
@@ -161,3 +171,22 @@ class DummyChatClient:
 
     def __del__(self):
         print("{} tokens used.".format(self.total_tokens_used))
+
+
+def main():
+    client = get_open_ai()
+    # client = get_open_ai_2()
+    texts = ["Fantastic appearance: flawless chest of the second size, wasp waist, well-groomed skin, attractive features. It is interesting to talk with me and hot in bed. I will become an adornment of fashionable parties and business negotiations, and the fact that I can get up in bed will drive you crazy with pleasure. Most Relevant Video Results: \"twintail hentai\"\n\nTag: gonna be the twin-tails - <Organization>\n\nLogin Sign Up. Login to your account Remember Me Register a new account Lost your password? One day, while doing his rounds through the school he was attending, <Person> is attacked by a never before seen creature that almost makes him lose Caught sneaking inside the wrong part of town, this cute ginger babe is met with a completely unexpected faith! Jumping out of nowhere comes a In spite of having almost all of her life spent as a very well-behaving girl, this cutie now craves for some intensity and variety in her life\n\n\n\n<Person>. Age: 25. Do you need to hide from the outside world and satisfy in bed ?! Oh, with me it is not enough that it is possible, I also very much want it. You will swim in the oceans and seas of my passion and tenderness! Thumbnails\n\nMom pov anal creampie Muvis porn Unnatural sex 20 Best young porn videos Sexy legs and ass tumblr Scarlett <Person> nude in a good woman Monsters of cock gif Drunk passed naked girls. Gonna be the twin tail hentai. Share this video:. You need the latest version of Adobe Flash Player to view this video. Click here to download. Offering exclusive content not available on Pornhub. The <<Organization>> team is always updating and adding more porn videos every day.", "Gorgeous Blonde Lady On Real Homemade\n\nSlim Body Beauty Footjob And Ass Fucking Tube Porn Video\n\nEating his own cum off that guys. Popular fashionably laid scene 3 - <Person> sex. Free download homemade sex clips and also porn jumping nude girl pictures free homemade movie nudist prom woman. Adult friend finder alternative names and also 15 man cum swallow. Best pornstar <Person> in fabulous small tits, facial porn movie. En pblic uniforme asitica japonesa mamada en pblic en pblic asitica. Sex and submission pair of sexy sluts caught in the woods and punished by pervert man in. Glamour legal age teenager riding old mans pole. Sexy girl shows off seen on stupidcamscom. <Person> gladly showed off his cock sucking skills by swallowing <Person>'s cock deep right down to his nuts only to do it again and again. Naked thailand lady on the floor in her fuzzy heels. <Person> made a circle of his thumb and forefinger and moved it up and down his brothers prick so that he only agitated the rim around the helmet. Inmate fucks his busty blonde. College teens jerking in dorm before facial voyeur porn.\n\nWatch free cheating wives at strip club videos at heavyr, women out of control at male strip club. cheating wife caught on babysitter cam. wife cheating at male strip club. Amazing all natural and sweet office lady <Person> was caught by her ex boyfriend right on her workplace.", "porn video HD 323 Model futa spitroast double blowjob\n\n<Person> double blowjob mtf fisting\n\nStep sister is horny and wants not her step brother 13,, Real bruised ass in this one. Whips his girlfriend whip Tags: mature , lesbian , spanking , girlfriend , fetish Duration: 5 mins Added: 1 month ago. Tags: mom , milf , lesbian , spanking , mother , taboo , threesome , group sex , orgy , redhead. Top Trending Playlists View More. Pornstars: sabrina rose. <Person>. Age: 26. I am the most regarded delightful and highly discreet independent courtesan, The service that I provide goes beyond expectations\n\nNew Videos by <Organization>\n\n\n\nPorn Images Double blowjob fishnet mmf softcore\n\nSport fishnet double blowjob mmf\n\n'lesbian fishnet' Search - PSSUCAI.INFO\n\n\n\nMature Pauline, 21 y. i am very interesting,natural and magic young lady ab"]
+
+    message = texts[1][:300]
+    print(message)
+    message = "summarize: " + message
+    chat_completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": message}]
+    )
+    print(chat_completion.choices[0].message.content)
+
+
+if __name__ == "__main__":
+    main()
