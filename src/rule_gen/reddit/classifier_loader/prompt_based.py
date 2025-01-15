@@ -1,6 +1,12 @@
+import os
 import random
 from typing import Callable
 
+import yaml
+from omegaconf import OmegaConf
+
+from desk_util.open_ai import OpenAIChatClient
+from rule_gen.cpath import prompt_conf_root
 from rule_gen.reddit.classifier_loader.inst_builder import get_instruction_from_run_name
 
 gpt_prefix_list = ["chatgpt_", "gpt-4o_", "gpt-4o-mini"]
@@ -90,3 +96,37 @@ def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
         return ret, 0
 
     return predict
+
+
+def load_from_conf(run_name):
+    prefix = "conf_"
+    assert run_name.startswith(prefix)
+    conf_name = run_name[len(prefix):]
+    conf_path = os.path.join(prompt_conf_root, f"{conf_name}.yaml")
+    conf = OmegaConf.load(conf_path)
+
+    if conf["client"] == "gpt":
+        client = OpenAIChatClient("gpt-4o")
+    elif conf["client"] == "llama":
+        from llama_user.llama_helper.lf_client import LLMClient
+        client = LLMClient(max_prompt_len=5000)
+    else:
+        raise ValueError("Conf {} is not expected".format(conf["client"]))
+
+    pos_keyword = conf["pos_keyword"]
+    inst_fmt = conf["inst_fmt"]
+    debug = conf.get("debug", False)
+    max_text_len = 5000
+
+    def predict(text):
+        prompt = inst_fmt.format(text[:max_text_len])
+        ret_text = client.request(prompt)
+        pred = pos_keyword.lower() in ret_text.lower()
+        if debug:
+            print(prompt)
+            print("ret:", ret_text)
+        ret = int(pred)
+        return ret, 0
+
+    return predict
+

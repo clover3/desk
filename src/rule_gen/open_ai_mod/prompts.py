@@ -35,14 +35,3 @@ Your list:
 """
 
 
-why_unsafe_key = """
-Below is a text that is categorized unsafe as
- inputs or outputs of LLMs.
-Guess why the text is consider the text unsafe.
-Answer in a short phrase.
-If for some reason you think this text should 
-not have been classified unsafe.
-Answer with ‘N/A’.
-Here’s the text: {}
-Your list:
-"""

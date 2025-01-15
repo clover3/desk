@@ -1,7 +1,7 @@
 import random
 from typing import Callable
 
-from rule_gen.reddit.classifier_loader.proto_predictor import get_proto_predictor
+from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf
 
 
 def get_random_classifier():
@@ -44,9 +44,11 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("col"):
         from rule_gen.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
         return get_qd_predictor_w_conf(run_name)
-    if run_name.startswith("proto"):
-        from rule_gen.reddit.classifier_loader.get_pipeline import get_classifier_pipeline
+    elif run_name.startswith("proto"):
+        from rule_gen.reddit.classifier_loader.proto_predictor import get_proto_predictor
         return get_proto_predictor(run_name)
+    elif run_name.startswith("conf_"):
+        return load_from_conf(run_name)
     else:
         raise ValueError(f"{run_name} is not expected")
 

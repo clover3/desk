@@ -22,7 +22,6 @@ if __name__ == "__main__":
     train_dataset, eval_dataset = get_datasets_from_dataset_arg(dataset_builder, dataset_args)
 
     # Set random seed for reproducibility
-
     tokenize_format = get_tokenize_formatter(encoder.tokenizer, dataset_args.max_length)
     tokenized_train, _tokenized_eval = apply_tokenize(train_dataset, eval_dataset, tokenize_format)
     embeddings, labels = encoder.encode_and_label(tokenized_train)

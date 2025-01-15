@@ -1,0 +1,10 @@
+client: gpt
+pos_keyword: "yes"
+
+inst_fmt: "Is this text unsafe to be posted in online platforms? 
+  If unsafe, output 'yes' as a first token. If not, output 'no'. If unclear, output 'no'.
+  
+  text: {}"
+
+
+debug: True

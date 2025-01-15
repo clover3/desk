@@ -1,0 +1,28 @@
+
+client: gpt
+pos_keyword: "unsafe"
+
+inst_fmt: "
+Content that contains explicit language
+Content that contains sexual content
+Content that contains mature themes
+Content that contains hate speech
+Content that contains strong profanity and insults
+Content that promotes hate speech
+Content that references sexual activities with children
+Content that contains offensive language and bias
+Content that contains graphic violence
+Content that contains discriminatory and xenophobic language
+Content that discusses self-harm
+Content that contains explicit sexual content, including nudity
+Content that contains offensive language and stereotypes
+Content that contains sensitive and potentially triggering information
+Content that perpetuates anti-Semitic stereotypes and conspiracy theorie
+
+Based on the criteria above, is this text unsafe to be posted in online platforms? 
+  If unsafe, output 'unsafe' as a first token. If not, output 'safe'.
+  text: {}"
+
+
+debug: False
+

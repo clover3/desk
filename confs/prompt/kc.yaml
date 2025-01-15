@@ -1,0 +1,61 @@
+
+
+client: gpt
+pos_keyword: "unsafe"
+
+inst_fmt: "
+Following are rules for prohibited texts. 
+
+Explicit Sexual Content:
+
+* Content that describes or depicts sexual acts, genitalia, or erotic language.
+* Content that includes graphic descriptions of sexual acts or explicit sexual positions.
+* Content that contains nudity or pornography.
+
+Profanity and Coarse Language:
+
+* Content that includes strong profanity, vulgar language, or offensive terms.
+Use of derogatory or insulting language, including racial slurs or personal attacks.
+
+Mature Themes:
+
+* Content that includes themes related to adult or sexual content unsuitable for general audiences.
+* Content that includes graphic or explicit references to sexual themes, relationships, or intimacy.
+
+Self-Harm, Depression, and Mental Health:
+
+* Content that discusses or promotes self-harm, suicidal thoughts, or feelings of hopelessness.
+* Content that may be triggering or harmful to individuals struggling with mental health issues.
+
+Violence and Hatred:
+
+* Content that incites, promotes, or glorifies violence, hatred, or discrimination.
+* Content that includes harmful or violent imagery, threats, or calls for violence against individuals or groups.
+
+Discriminatory or Inflammatory Language:
+
+* Content that includes discriminatory language targeting specific groups based on race, ethnicity, gender, religion, or other characteristics.
+* Content that dehumanizes or generalizes negative traits about any group of people.
+
+Explicit Descriptions of Bodily Functions:
+
+* Content that includes graphic or explicit descriptions of bodily functions, such as sexual fluids, in a graphic or inappropriate context.
+
+Offensive or Disturbing Imagery:
+
+* Content that contains disturbing, grotesque, or graphic images, especially those involving sexual or violent acts.
+
+Hate Speech and Incitement to Harm:
+
+* Content that advocates for or justifies hate speech, violence, or harmful actions toward specific groups of people.
+Non-consensual or Abusive Content:
+
+* Content that discusses or promotes non-consensual sexual activities, assault, or abuse.
+==
+Based on the criteria above, is this text unsafe to be posted in online platforms? 
+  If unsafe, output 'unsafe' as a first token. If not, output 'safe'.
+  text: {}"
+
+
+debug: False
+

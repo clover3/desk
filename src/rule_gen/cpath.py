@@ -8,5 +8,5 @@ project_root = os.path.abspath(dirname(src_root))
 output_root_path = os.path.join(project_root, "outputs")
 
 data_root_path = os.path.join(project_root, "data")
-
-
+conf_root = os.path.join(project_root, "confs")
+prompt_conf_root = os.path.join(conf_root, "prompt")

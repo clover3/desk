@@ -2,6 +2,7 @@ import json
 import logging
 import os
 
+import openai
 from openai import OpenAI
 from openai.lib.azure import AzureOpenAI
 
@@ -91,6 +92,24 @@ class TokenUsageDB:
         return rows
 
 
+import time
+import openai
+
+
+def complete_with_retry(client, model, messages, max_retries=5, sleep_seconds=20):
+    for attempt in range(max_retries):
+        try:
+            chat_completion = client.chat.completions.create(
+                model=model,
+                messages=messages
+            )
+            return chat_completion
+        except openai.RateLimitError:
+            print(f"Rate limit exceeded. Retrying in {sleep_seconds} seconds... (Attempt {attempt + 1} of {max_retries})")
+            time.sleep(sleep_seconds)
+    raise Exception("Max retries exceeded")
+
+
 class OpenAIChatClient:
     def __init__(self, model="gpt-4o", db_client=None):
         self.logger = setup_file_logger("openai")
@@ -101,11 +120,11 @@ class OpenAIChatClient:
         self.db_client = TokenUsageDB()  # Accepts an instance of TokenUsageDB
 
     def request(self, message):
-        chat_completion = self.client.chat.completions.create(
+        chat_completion = complete_with_retry(
+            client=self.client,
             model=self.model,
             messages=[{"role": "user", "content": message}]
         )
-
         # Track tokens used
         self.last_request_tokens = chat_completion.usage.total_tokens
         self.total_tokens_used += self.last_request_tokens
