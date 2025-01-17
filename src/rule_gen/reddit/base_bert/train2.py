@@ -22,7 +22,7 @@ def train_subreddit_classifier(subreddit="askscience_head"):
 
         output_dir = get_model_save_path(model_name)
         final_model_dir = get_model_save_path(model_name)
-        logging_dir,  = get_model_log_save_dir_path(model_name)
+        logging_dir = get_model_log_save_dir_path(model_name)
         max_length = 256
         training_args = build_training_argument(logging_dir, output_dir)
         dataset_args = DataArguments(

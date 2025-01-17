@@ -8,7 +8,7 @@ from tqdm import tqdm
 from chair.list_lib import right, left
 from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv, save_csv
-from desk_util.path_helper import get_clf_pred_save_path
+from desk_util.path_helper import get_clf_pred_save_path, get_label_path
 
 
 def eval_prec_recall_f1_acc(y_true: List[int], y_pred: List[int]) -> dict:
@@ -51,6 +51,16 @@ def load_csv_dataset_by_name(dataset):
     payload = read_csv(save_path)
     payload: list[tuple[str, str]] = list(payload)
     return payload
+
+
+def load_csv_dataset_w_label(dataset):
+    payload = load_csv_dataset_by_name(dataset)
+    labels = read_csv(get_label_path(dataset))
+    output = []
+    for (data_id1, text), (data_id2, label_s) in zip(payload, labels):
+        assert data_id1 == data_id2
+        output.append((text, int(label_s)))
+    return output
 
 
 def clf_predict_w_batch_predict_fn(dataset, run_name, batch_predict_fn):
