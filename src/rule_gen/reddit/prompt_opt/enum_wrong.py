@@ -18,6 +18,18 @@ def enum_label_joined(dataset, run_name) -> Iterable[dict]:
         yield {"id": id0, "prediction": int(pred), "label": int(label), "text": text}
 
 
+
+def enum_text_joined(dataset, run_name) -> Iterable[dict]:
+    payload = read_csv(get_csv_dataset_path(dataset))
+    preds = read_csv(get_clf_pred_save_path(run_name, dataset))
+
+    assert len(payload) == len(preds)
+
+    for (id0, pred, _score), (id1, text) in zip(preds, payload):
+        assert id0 == id1
+        yield {"id": id0, "prediction": int(pred), "text": text}
+
+
 def enum_wrong(dataset, run_name) -> Iterable[dict]:
     for e in enum_label_joined(dataset, run_name):
         if e["prediction"] != e["label"]:

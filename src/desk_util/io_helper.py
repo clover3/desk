@@ -65,13 +65,50 @@ def read_jsonl(file_path):
     return data
 
 
-def init_logging(level=logging.INFO):
+class IgnoreFilter(logging.Filter):
+    def __init__(self, ignore_rules: List[Tuple[str, str]] = None):
+        """
+        Initialize filter with ignore rules.
+
+        Args:
+            ignore_rules: List of tuples (logger_name, string_contains)
+                         Both elements can be empty strings to match everything
+        """
+        super().__init__()
+        self.ignore_rules = ignore_rules or []
+
+    def filter(self, record):
+        # Return False to ignore the log entry
+        for logger_name, contains_str in self.ignore_rules:
+            if (not logger_name or record.name.startswith(logger_name)) and \
+                    (not contains_str or contains_str in record.getMessage()):
+                return False
+        return True
+
+
+def init_logging(level=logging.INFO, ignore_rules: List[Tuple[str, str]] = None):
     format_str = '%(levelname)s %(name)s %(asctime)s %(message)s'
     formatter = logging.Formatter(format_str,
                                   datefmt='%m-%d %H:%M:%S',
                                   )
     ch = logging.StreamHandler(sys.stdout)
     ch.setFormatter(formatter)
+
+    # Add the ignore filter
+    ignore_filter = IgnoreFilter(ignore_rules)
+    ch.addFilter(ignore_filter)
+
     root_logger = logging.getLogger()
     root_logger.addHandler(ch)
     root_logger.setLevel(level)
+
+
+def init_logging_rivanna():
+    ignore_rules = [
+        ('root', 'gcc -pthread -B'),  # Ignore urllib3 logs containing "Connection pool"
+        ('boto', ''),  # Ignore all boto3 logs
+        ('accelerate.utils.other', 'Detected kernel version')  # Ignore any log containing "DEBUG information"
+    ]
+
+    init_logging(level=logging.INFO, ignore_rules=ignore_rules)
+

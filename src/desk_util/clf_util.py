@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Callable
 
 import numpy as np
 import tqdm
@@ -32,7 +32,9 @@ def print_evaluation_results(metrics: dict):
     print(np.array(metrics['confusion_matrix']))
 
 
-def clf_predict_w_predict_fn(dataset, run_name, predict_fn):
+def clf_predict_w_predict_fn(
+        dataset, run_name,
+        predict_fn: Callable[[str], tuple[int, float]]):
     payload = load_csv_dataset_by_name(dataset)
 
     def predict(e):
@@ -43,6 +45,21 @@ def clf_predict_w_predict_fn(dataset, run_name, predict_fn):
     pred_itr = map(predict, tqdm(payload, desc="Processing", unit="item"))
     save_path = get_clf_pred_save_path(run_name, dataset)
     save_csv(pred_itr, save_path)
+    print(f"Saved at {save_path}")
+
+
+def clf_predict_w_predict_list_fn(dataset, run_name,
+                                  predict_list_fn: Callable[[list[str]], list[int]]):
+    payload = load_csv_dataset_by_name(dataset)
+    text_list = right(payload)
+    pred_itr = predict_list_fn(text_list)
+
+    save_payload = []
+    for id, p in zip(left(payload), pred_itr):
+        save_payload.append((id, p, 0))
+
+    save_path = get_clf_pred_save_path(run_name, dataset)
+    save_csv(save_payload, save_path)
     print(f"Saved at {save_path}")
 
 

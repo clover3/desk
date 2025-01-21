@@ -16,7 +16,7 @@ from rule_gen.reddit.predict_clf import predict_clf_main
 from rule_gen.reddit.train_bert import load_dataset_from_csv
 from rule_gen.reddit.train_common import compute_per_device_batch_size
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("RedditTrainBert")
 
 
 # ... (keep all the existing import statements and helper functions)
