@@ -56,10 +56,13 @@ def run_edit_exp(
         run_name="",
         do_pre_eval=False,
         do_inf_save=False,
-        do_report=False):
+        do_report=False,
+        eval_data_name=""
+    ):
+    if not eval_data_name:
+        eval_data_name = f"{sb}_val_100"
     datasets.disable_progress_bars()
     edit_payload: list[tuple[str, int]] = load_edit_payload(sb)
-    eval_data_name = f"{sb}_val_100"
     eval_payload: list[tuple[str, int]] = load_csv_dataset_w_label(eval_data_name)
     edit_name = f"{sb}"
 

@@ -1,4 +1,6 @@
 import logging
+import random
+
 import numpy as np
 
 from datasets import Dataset
@@ -20,17 +22,15 @@ def pretty_dict(results, keys_to_keep):
 
     return formatted
 
-def build_training_argument(logging_dir, output_dir):
-    # Set up training parameters
-    num_train_epochs = 3
-    learning_rate = 5e-5
+
+def build_training_argument(logging_dir, output_dir, learning_rate=5e-5, num_train_epochs=3):
     train_batch_size = 16
     eval_batch_size = 64
     warmup_ratio = 0.1
-    # Load datasets to calculate total steps
-    # Calculate total number of training steps
     per_device_batch_size = compute_per_device_batch_size(train_batch_size)
     LOG.info(f"Train/Per-device batch size: {train_batch_size}/{per_device_batch_size}")
+    LOG.info(f"Learning rate: {learning_rate}, Epochs: {num_train_epochs}")
+
     # Create training arguments
     training_args = TrainingArguments(
         output_dir=output_dir,
@@ -49,13 +49,15 @@ def build_training_argument(logging_dir, output_dir):
 class BertTransfer(ClfEditorSpec):
     # Simple transfer learning strategy
     editor_name = "BT1"
-    def __init__(self):
+    def __init__(self, train_arg=None):
         self.model_name = "bert_train_mix3"
         model_path = get_model_save_path(self.model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
         self.model_path = model_path
         self.max_length = 256
-
+        if train_arg is None:
+            train_arg = build_training_argument("", "")
+        self.training_args = train_arg
 
     def _get_tokenized_dataset(self, payload):
         tokenizer = AutoTokenizer.from_pretrained(self.model_path)
@@ -82,8 +84,9 @@ class BertTransfer(ClfEditorSpec):
         updated_model_name = "{}_{}".format(self.model_name, edit_name)
         logging_dir = get_model_log_save_dir_path(updated_model_name)
         output_dir = get_model_save_path(updated_model_name)
-        training_args = build_training_argument(logging_dir, output_dir)
-        training_args.num_train_epochs = 4
+        training_args = self.training_args
+        training_args.logging_dir = logging_dir
+        training_args.output_dir = output_dir
         train_payload = self._augment_data(edit_payload)  # Train payload might be more than edit_payload
         tokenized_train = self._get_tokenized_dataset(train_payload)
         seed_everything(42)
@@ -131,4 +134,23 @@ class BertTransfer2(BertTransfer):
 
     def _augment_data(self, edit_payload):
         return edit_payload + self.aux_data
+
+
+class BertTransferBalance(BertTransfer):
+    editor_name = "BTB"  # Simply define the name as class variable
+
+    def __init__(self, train_arg, aux_data):
+        self.aux_data = aux_data
+
+        super(BertTransferBalance, self).__init__(train_arg)
+        self.num_train_epochs = 1
+
+    def _augment_data(self, edit_payload):
+        n_repeat = len(self.aux_data) // len(edit_payload)
+        data = edit_payload * n_repeat + self.aux_data
+        LOG.info("aux=%d edit=%d", len(self.aux_data), len(edit_payload))
+        LOG.info("n_repeat=%d total=%d", n_repeat, len(data))
+        random.shuffle(data)
+        print("Do explicit shuffling")
+        return data
 

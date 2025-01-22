@@ -14,7 +14,9 @@ def main(do_report=False, sb = "SuicideWatch", do_inf_save=False):
         editor_cls, sb,
         run_name,
         do_report=do_report,
-        do_inf_save=do_inf_save)
+        do_inf_save=do_inf_save,
+        eval_data_name=f"{sb}_2_val_100"
+    )
 
 
 if __name__ == "__main__":
