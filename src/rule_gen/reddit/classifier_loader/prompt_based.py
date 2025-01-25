@@ -57,6 +57,7 @@ def dummy_counter(run_name):
     print(instruction)
     adder = NumberAdder()
     def predict(text):
+        print(len(instruction), len(text))
         n_char = len(instruction) + len(text)
         n_char = min(n_char, 5000)
         adder.add(n_char)

@@ -12,7 +12,7 @@ from desk_util.io_helper import read_csv
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
 
 
-def load_keyword_statement(sb) -> list[str]:
+def load_keyword_statement(sb) -> list[tuple[str, str]]:
     parsed_path = os.path.join(
         output_root_path, "reddit", "rule_processing", "keyword_statement", f"{sb}.json")
     return json.load(open(parsed_path, "r"))

@@ -52,7 +52,6 @@ def get_rule_showing_instruction2(sb):
     return rule_text + "\n " + inst_summary, pos_keyword
 
 
-
 def get_no_rule_instruction(run_name):
     tokens = run_name.split("_")
     sb = "_".join(tokens[1:-1])
@@ -60,6 +59,13 @@ def get_no_rule_instruction(run_name):
     inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?"
     inst += f"Answer Yes or No, as a single token.\n"
     return inst, "Yes"
+
+
+def get_sb_agnostic():
+    pos_keyword = "Yes"
+    inst = f"If the following text is posted on Reddit, will it be moderated (deleted)?"
+    inst += f"Answer Yes or No, as a single token. \n"
+    return inst, pos_keyword
 
 
 def get_single_rule_instruction_by_name(run_name, pos_keyword):
@@ -138,6 +144,8 @@ def get_instruction_from_run_name(run_name):
         instruction = get_autogen_instruction(postfix, pos_keyword)
     elif run_name.startswith("api_rule2_"):
         instruction, pos_keyword = get_rule2_from_name(run_name)
+    elif run_name.startswith("api_none"):
+        instruction, pos_keyword = get_sb_agnostic()
     else:
         tokens = run_name.split("_")
         sb = "_".join(tokens[1:-1])
