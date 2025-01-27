@@ -1,16 +1,15 @@
-import json
 import os
 
 from chair.misc_lib import make_parent_exists
-from desk_util.open_ai import OpenAIChatClient
 from rule_gen.cpath import output_root_path
+from rule_gen.reddit.keyword_building.keyword_extractor import KeywordExtractor
 from rule_gen.reddit.path_helper import load_subreddit_list, load_reddit_rule2
 
+import json
 
 
 def main():
-    client = OpenAIChatClient("gpt-4o")
-    inst = "Extract keywords from the following text. Return as a json list"
+    extractor = KeywordExtractor()
     sb_list = load_subreddit_list()
     for sb in sb_list:
         try:
@@ -21,12 +20,8 @@ def main():
             data = []
             for r in rules:
                 rule_text = r["short_name"] + ". " + r["description"]
-                prompt = inst + "\n <text>" + rule_text + "</text>"
-                ret_text = client.request(prompt)
-                data.append(ret_text)
-                # print("==Prompt==")
-                # print(prompt)
-                # print("=====")
+                keywords = extractor.extract_keywords(rule_text)
+                data.append(keywords)
             json.dump(data, open(raw_path, "w"))
         except FileNotFoundError:
             pass

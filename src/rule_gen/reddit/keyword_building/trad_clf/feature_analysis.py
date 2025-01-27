@@ -5,7 +5,8 @@ import fire
 
 from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv
-from rule_gen.reddit.keyword_building.inf_keyword_to_text import load_keyword_statement, load_train_first_100
+from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100, \
+    apply_statement
 
 
 def main(sb):
@@ -34,18 +35,6 @@ def main(sb):
 
     ret = mutual_info_classif(X, y)
     print(ret)
-    # table = []
-    # for k_idx, (k, s) in e    numerate(keyword_statement):
-    #     true = counter[k_idx, "True"]
-    #     false = counter[k_idx, "False"]
-    #     print(k_idx)
-    #     row = [k_idx, true / (true + false), true, false, k, s]
-    #     table.append(row)
-    #
-    # table.sort(key=lambda x: x[1], reverse=True)
-    #
-    # for row in table:
-    #     print(row)
 
 
 if __name__ == "__main__":

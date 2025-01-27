@@ -1,20 +1,15 @@
 import csv
 import json
-import os
 
-import fire
-
-from chair.list_lib import left
-from chair.misc_lib import make_parent_exists, TimeEstimator
-from desk_util.open_ai import OpenAIChatClient
-from rule_gen.cpath import output_root_path
+from chair.misc_lib import TimeEstimator
 from desk_util.io_helper import read_csv
+from desk_util.open_ai import OpenAIChatClient
+from rule_gen.reddit.keyword_building.path_helper import get_keyword_statement_path
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
 
 
 def load_keyword_statement(sb) -> list[tuple[str, str]]:
-    parsed_path = os.path.join(
-        output_root_path, "reddit", "rule_processing", "keyword_statement", f"{sb}.json")
+    parsed_path = get_keyword_statement_path(sb)
     return json.load(open(parsed_path, "r"))
 
 
@@ -32,27 +27,28 @@ def load_train_first_100(sb) -> list[tuple[str, str]]:
     return read_csv(p)[:100]
 
 
-def main(sb):
-    client = OpenAIChatClient("gpt-4o")
-    keyword_statement = load_keyword_statement(sb)
-    data = load_train_first_100(sb)
-    texts = left(data)
-    res_save_path = os.path.join(output_root_path, "reddit",
-                                 "rule_processing", "k_to_text_100", f"{sb}.csv")
-    make_parent_exists(res_save_path)
+def apply_statement(keyword_statement, res_save_path, texts):
     n_req = len(keyword_statement) * len(texts)
-    ticker = TimeEstimator(n_req)
+    client = OpenAIChatClient("gpt-4o")
     out_f = open(res_save_path, "w")
     csv_writer = csv.writer(out_f)
+    ticker = TimeEstimator(n_req)
     for k_idx, ks in enumerate(keyword_statement):
         keyword, statement = ks
         for t_idx, text in enumerate(texts):
-            prompt=  form_question(statement, text)
+            prompt = form_question(statement, text)
             ret_text = client.request(prompt)
             ret = "yes" in ret_text.lower()
             csv_writer.writerow([k_idx, t_idx, ret])
             ticker.tick()
 
 
-if __name__ == "__main__":
-    fire.Fire(main)
+statement_gen_prompt_fmt = """
+keyword: {}
+With the keyword above, write a statement like:
+* This text contains A.
+* This text is A.
+* This text is considered A.
+
+Only output a single statement that best matches. 
+"""

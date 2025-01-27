@@ -18,7 +18,8 @@ from sklearn.model_selection import train_test_split
 
 from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv
-from rule_gen.reddit.keyword_building.inf_keyword_to_text import load_keyword_statement, load_train_first_100
+from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100, \
+    apply_statement
 
 
 def load_reddit_data(sb):

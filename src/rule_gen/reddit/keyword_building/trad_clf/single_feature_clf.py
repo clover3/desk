@@ -1,22 +1,18 @@
-import matplotlib.pyplot as plt
 import os
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import mutual_info_classif, SelectKBest, SelectFromModel
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score
-import numpy as np
 import fire
-from sklearn.tree import DecisionTreeClassifier, plot_tree, export_text
+import numpy as np
+from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100, \
+    apply_statement
+from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
 
 from chair.list_lib import right
-from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv
-from rule_gen.reddit.keyword_building.inf_keyword_to_text import load_keyword_statement, load_train_first_100
+from rule_gen.cpath import output_root_path
 
 
-def train_classifier(sb,  test_size=0.2, random_state=42):
+def train_classifier(sb, test_size=0.2, random_state=42):
     keyword_statement = load_keyword_statement(sb)
     print("keyword_statement", len(keyword_statement))
     statements = right(keyword_statement)
@@ -32,10 +28,7 @@ def train_classifier(sb,  test_size=0.2, random_state=42):
     d = {(int(t_idx), int(k_idx)): {"True": 1, "False": 0}[ret]
          for k_idx, t_idx, ret in res}
 
-    print("Feature sparsity = {}".format(sum(d.values()) / len(d)))
-
     max_k_idx = max([int(k_idx) for k_idx, t_idx, ret in res])
-    print("Use {} keywords".format(max_k_idx))
     X = []
     y = []
     for t_idx in range(len(data)):
@@ -45,21 +38,20 @@ def train_classifier(sb,  test_size=0.2, random_state=42):
 
     X = np.array(X)
     y = np.array(y)
-
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state
     )
-    clf = DecisionTreeClassifier(max_depth=1, random_state=42)
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    score = f1_score(y_test, y_pred)
-    text_representation = export_text(clf, feature_names=statements[:-1])
-    print(text_representation)
 
-    print(sb, score)
-    # plt.figure(figsize=(12, 8))
-    # plot_tree(clf, feature_names=keyword_statement, filled=True)
-    # plt.show()
+    f1_list = []
+    for feature_i in range(max_k_idx):
+        rep = X[:, feature_i]
+        y_pred = np.array(rep > 0).astype(int)
+        score = f1_score(y, y_pred)
+        f1_list.append((score, keyword_statement[feature_i]))
+    f1_list.sort(key=lambda x: x[0], reverse=True)
+
+    for s, k in f1_list[:3]:
+        print(s, k)
 
 
 def main(sb):

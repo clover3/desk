@@ -6,10 +6,8 @@ from rule_gen.reddit.path_helper import get_split_subreddit_list, get_reddit_aut
 def main():
     run_name = "chatgpt3"
     k = 10
-    subreddit_list = get_split_subreddit_list("val")
     subreddit_list = get_split_subreddit_list("train")
     for sb in subreddit_list[1:]:
-        print("Building prompt for", sb, "...")
         neg_items, pos_items = get_first_k(k, sb)
         prompt = build_prompt_from_true_false_items(sb, pos_items, neg_items)
         client = OpenAIChatClient()
