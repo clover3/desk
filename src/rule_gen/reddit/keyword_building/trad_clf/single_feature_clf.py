@@ -55,7 +55,7 @@ def train_classifier(sb, test_size=0.2, random_state=42):
 
 
 def main(sb):
-    train_classifier(sb, )
+    train_classifier(sb)
 
 
 if __name__ == "__main__":

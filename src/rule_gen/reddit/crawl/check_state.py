@@ -347,7 +347,7 @@ def main(batch_size: int = 100):
     write_path = os.path.join(get_reddit_db_path(), "deleted_comments.sqlite")
 
     processor = DeletedCommentProcessor(read_path, write_path, batch_size)
-    processor.process_comments()
+    # processor.process_comments()
     processor.get_deletion_stats()
 
 
