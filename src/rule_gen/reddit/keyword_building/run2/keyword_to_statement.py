@@ -1,6 +1,8 @@
 import json
 import os
 
+import fire
+
 from chair.list_lib import flatten
 from chair.misc_lib import make_parent_exists
 from desk_util.open_ai import OpenAIChatClient
@@ -10,9 +12,11 @@ from rule_gen.reddit.keyword_building.path_helper import get_named_keyword_path,
 from rule_gen.reddit.path_helper import load_subreddit_list
 
 
-def main():
+def main(sb=None):
     client = OpenAIChatClient("gpt-4o")
     sb_list = load_subreddit_list()
+    if sb is not None:
+        sb_list = [sb]
     name = "chatgpt3"
     for sb in sb_list:
         print(f"==== {sb} ====")
@@ -38,4 +42,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

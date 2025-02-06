@@ -2,8 +2,9 @@ import os
 
 import fire
 import numpy as np
-from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100, \
+from rule_gen.reddit.keyword_building.apply_statement_common import load_train_first_100, \
     apply_statement
+from rule_gen.reddit.keyword_building.path_helper import load_keyword_statement
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 

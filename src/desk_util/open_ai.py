@@ -95,19 +95,33 @@ class TokenUsageDB:
 import time
 import openai
 
+class OpenAIEmptyResponse(ValueError):
+    pass
+
 
 def complete_with_retry(client, model, messages, max_retries=5, sleep_seconds=20):
+    initial_sleep = sleep_seconds
     for attempt in range(max_retries):
         try:
             chat_completion = client.chat.completions.create(
                 model=model,
                 messages=messages
             )
+            if not chat_completion.choices:
+                raise OpenAIEmptyResponse()
+
             return chat_completion
-        except openai.RateLimitError:
-            print(f"Rate limit exceeded. Retrying in {sleep_seconds} seconds... (Attempt {attempt + 1} of {max_retries})")
-            time.sleep(sleep_seconds)
-    raise Exception("Max retries exceeded")
+        except (openai.RateLimitError, OpenAIEmptyResponse) as e:
+            if attempt == max_retries - 1:
+                raise Exception("Max retries exceeded")
+
+            sleep_duration = initial_sleep * (2 ** attempt)  # Exponential backoff
+            print(
+                f"{str(e)}. Retrying in {sleep_duration} seconds... (Attempt {attempt + 1} of {max_retries})")
+            time.sleep(sleep_duration)
+
+    print("OpenAI request failed")
+    raise openai.RateLimitError
 
 
 class OpenAIChatClient:
@@ -116,7 +130,6 @@ class OpenAIChatClient:
         self.client = get_open_ai()
         self.model = model
         self.total_tokens_used = 0  # Track total tokens used
-        self.last_request_tokens = 0  # Track tokens used in the last request
         self.db_client = TokenUsageDB()  # Accepts an instance of TokenUsageDB
 
     def request(self, message):
@@ -126,14 +139,20 @@ class OpenAIChatClient:
             messages=[{"role": "user", "content": message}]
         )
         # Track tokens used
-        self.last_request_tokens = chat_completion.usage.total_tokens
-        self.total_tokens_used += self.last_request_tokens
+        try:
+            last_request_tokens = chat_completion.usage.total_tokens
+            self.total_tokens_used += last_request_tokens
+        except openai.OpenAIError as e:
+            raise e
+        except AttributeError as e:
+            print("chat_completion", chat_completion)
+            raise e
 
         # Log message with tokens
         msg = {
             "request": message,
             "response": chat_completion.choices[0].message.content,
-            "tokens_used": self.last_request_tokens,
+            "tokens_used": last_request_tokens,
             "total_tokens_used": self.total_tokens_used
         }
         self.logger.info(json.dumps(msg))

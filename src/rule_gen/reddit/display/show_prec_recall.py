@@ -6,10 +6,13 @@ from rule_gen.reddit.path_helper import get_split_subreddit_list
 from desk_util.runnable.run_eval import load_labels, clf_eval
 
 
-def print_perf(dataset_fmt, run_name_fmt, split):
-    subreddit_list = get_split_subreddit_list(split)
+def print_perf(dataset_fmt, run_name_fmt, split, columns):
+    if split.endswith("_30"):
+        split = split[:-3]
+        subreddit_list = get_split_subreddit_list(split)[:30]
+    else:
+        subreddit_list = get_split_subreddit_list(split)
     output = []
-    columns = ["f1", "precision", "recall"]
     head = [""] + columns
     output.append(head)
     for sb in subreddit_list:
@@ -37,7 +40,8 @@ def main(run_name_fmt, split = "val", dataset_fmt = "{}_val_100"):
     # run_name_fmt = "bert_train_mix3"
     print("run_name_fmt", run_name_fmt)
     print("dataset_fmt", dataset_fmt)
-    print_perf(dataset_fmt, run_name_fmt, split)
+    columns = ["f1", "precision", "recall"]
+    print_perf(dataset_fmt, run_name_fmt, split, columns)
 
 
 if __name__ == "__main__":

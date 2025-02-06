@@ -13,7 +13,8 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree, export_text
 from chair.list_lib import right
 from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv
-from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100
+from rule_gen.reddit.keyword_building.apply_statement_common import load_train_first_100
+from rule_gen.reddit.keyword_building.path_helper import load_keyword_statement
 
 
 def train_classifier(sb,  test_size=0.2, random_state=42):

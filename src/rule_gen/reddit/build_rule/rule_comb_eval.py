@@ -3,6 +3,7 @@ import json
 from sklearn.feature_selection import mutual_info_classif
 from sklearn.metrics import f1_score
 
+from chair.tab_print import print_table
 from desk_util.path_helper import load_clf_pred
 from rule_gen.reddit.path_helper import load_subreddit_list, get_reddit_rule_path, get_n_rules
 from desk_util.runnable.run_eval import load_labels
@@ -36,8 +37,9 @@ def rule_comb(sb):
             X.append([pred])
         X_list.append(X)
         mi = mutual_info_classif(X, Y, discrete_features=True)
-        row = [rule_idx, mi[0], rules[rule_idx]]
+        row = [rule_idx, round(mi[0], 4), rules[rule_idx]]
         rows.append(row)
+    print_table(rows)
 
     rows.sort(key=lambda x: x[1], reverse=True)
 
@@ -67,8 +69,7 @@ def main():
         try:
             rule_comb(sb)
         except (FileNotFoundError, ValueError) as e:
-            print(e)
-
+            pass
 
 
 if __name__ == "__main__":

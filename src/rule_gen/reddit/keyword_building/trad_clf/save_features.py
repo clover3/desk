@@ -10,8 +10,9 @@ from desk_util.clf_util import load_csv_dataset_by_name
 from desk_util.runnable.run_eval import load_labels
 from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv
-from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100, \
+from rule_gen.reddit.keyword_building.apply_statement_common import load_train_first_100, \
     apply_statement
+from rule_gen.reddit.keyword_building.path_helper import load_keyword_statement
 from rule_gen.reddit.keyword_building.trad_clf.train_eval import build_feature
 
 

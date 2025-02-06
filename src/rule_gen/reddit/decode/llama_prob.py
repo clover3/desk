@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Any
 
 import torch
@@ -16,8 +17,13 @@ LOG = logging.getLogger(__name__)
 class TrieNode:
     def __init__(self, parent_ids=[]):
         self.children = {}  # token -> TrieNode
+        self.children_key_tensor = None
         self.is_end = False
         self.parent_ids: list = parent_ids
+
+    def set_children_key_tensor(self, device):
+        keys = list(self.children.keys())
+        self.children_key_tensor = torch.tensor(keys, device=device)
 
 def build_trie(post_fix_token_ids):
     root = TrieNode()
@@ -35,13 +41,13 @@ def build_trie(post_fix_token_ids):
         node.is_end = True
 
     # For debugging
-    LOG.info("Built trie structure:")
+    LOG.debug("Built trie structure:")
 
     def print_trie(node, depth=0, path=[]):
         if node.is_end:
-            LOG.info(f"Complete sequence: {path}")
+            LOG.debug(f"Complete sequence: {path}")
         for token, child in node.children.items():
-            LOG.info(f"{'  ' * depth}Token {token} -> has {len(child.children)} children")
+            LOG.debug(f"{'  ' * depth}Token {token} -> has {len(child.children)} children")
             print_trie(child, depth + 1, path + [token])
 
     print_trie(root)
@@ -55,39 +61,139 @@ class LlamaProbabilityCalculator:
         self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
         self.model.eval()
 
-    def compute_probability(self, prefix: str, post_fix_list: list[str]):
+    def compute_log_probability(self, prefix: str, post_fix_list: list[str]) -> list[float]:
+        """
+        Compute log probabilities for each postfix string given the prefix.
+
+        Args:
+            prefix (str): The context string to condition on
+            post_fix_list (list[str]): List of possible continuations to compute log probabilities for
+
+        Returns:
+            list[float]: List of log probabilities corresponding to each postfix string
+        """
+        # Encode the prefix
         inputs = self.tokenizer(prefix, return_tensors="pt").to(self.device)
         input_ids = inputs["input_ids"]
 
+        # Get the logits for the last token
+        with torch.no_grad():
+            outputs = self.model(input_ids)
+            next_token_logits = outputs.logits[:, -1, :]
+
+        # Convert logits to log probabilities using log_softmax
+        next_token_log_probs = torch.nn.functional.log_softmax(next_token_logits, dim=-1)
+
+        log_probabilities = []
+
+        for postfix in post_fix_list:
+            # Tokenize the postfix
+            postfix_tokens = self.tokenizer.encode(postfix, add_special_tokens=False)
+
+            if not postfix_tokens:
+                log_probabilities.append(float('-inf'))
+                continue
+
+            # Get log probability of the first token of the postfix
+            first_token_log_prob = next_token_log_probs[0, postfix_tokens[0]].item()
+
+            # If postfix is multiple tokens, compute conditional log probability
+            if len(postfix_tokens) > 1:
+                # Create input sequence by concatenating prefix and postfix
+                full_sequence = prefix + postfix
+                full_inputs = self.tokenizer(full_sequence, return_tensors="pt").to(self.device)
+                full_ids = full_inputs["input_ids"]
+
+                # Get the starting position of postfix tokens
+                prefix_length = len(input_ids[0])
+
+                # Generate outputs for the full sequence
+                with torch.no_grad():
+                    full_outputs = self.model(full_ids)
+                    full_logits = full_outputs.logits
+
+                # Compute conditional log probabilities for remaining tokens
+                sequence_log_prob = first_token_log_prob
+                for i in range(1, len(postfix_tokens)):
+                    position = prefix_length + i - 1
+                    next_token_logits = full_logits[:, position, :]
+                    next_token_log_probs = torch.nn.functional.log_softmax(next_token_logits, dim=-1)
+                    token_log_prob = next_token_log_probs[0, postfix_tokens[i]].item()
+                    sequence_log_prob += token_log_prob
+                log_probabilities.append(sequence_log_prob)
+            else:
+                # Single token case
+                log_probabilities.append(first_token_log_prob)
+
+        return log_probabilities
+
+    def compute_pair_probability_raw(self, prefix: str, post_fix_list: list[str]):
+        st = time.time()
+        probs = self.compute_log_probability(prefix, post_fix_list)
+        ed = time.time()
+        LOG.info("compute_probability took {}".format(ed-st))
+        diff_sorted = []
+        for i in range(0, len(post_fix_list), 2):
+            p1 = probs[i]
+            p2 = probs[i+1]
+            diff_sorted.append((i // 2, post_fix_list[i], p1 - p2))
+            LOG.info(f"Result ({i}): '{post_fix_list[i]}' (log prob: {p1:.4f})")
+            LOG.info(f"Result ({i+1}): '{post_fix_list[i+1]}' (log prob: {p2:.4f})")
+
+        diff_sorted.sort(key=lambda x: x[2], reverse=True)
+        LOG.info("\nDiff sorted results:")
+        for idx, text, diff in diff_sorted:
+            LOG.info(f"Result ({idx}): '{text}' (log prob diff: {diff:.4f})")
+
+        return diff_sorted
+
+
+    def compute_probability_trie(self, prefix: str, post_fix_list: list[str]):
+        inputs = self.tokenizer(prefix, return_tensors="pt").to(self.device)
+        input_ids = inputs["input_ids"]
         # Tokenize the post_fix_list
         post_fix_token_ids = [self.tokenizer.encode(post_fix, add_special_tokens=False) for post_fix in post_fix_list]
         trie = build_trie(post_fix_token_ids)
+
+        def traverse_and_set_tensors(node, device):
+            if node.children:
+                node.set_children_key_tensor(device)
+                for child in node.children.values():
+                    traverse_and_set_tensors(child, device)
+
+        traverse_and_set_tensors(trie, self.device)
+
         # Initialize beam with just the prefix sequence
         beams: list[tuple[Any, Any, TrieNode]] = [(input_ids, 0.0, trie)]  # (sequence, log_prob, node in trie)
         LOG.info(f"Starting probability computation with prefix: {prefix}")
         LOG.info(f"Initial input_ids shape: {input_ids.shape}")
         beam_width = 100
         results = []
-
+        st_all = time.time()
+        ed = None
         while beams:
-            new_beams = []
+            new_beams: list[tuple] = []
             LOG.debug(f"Current beam has: {len(beams)}")
-
             for beam_ids, beam_log_prob, node in beams:
-                parent_str = self.tokenizer.decode(node.parent_ids)
-                LOG.debug(f"beam_ids: {parent_str}")
-
                 with torch.no_grad():
+                    # st = time.time()
+                    # if ed is not None:
+                    #     LOG.info(f"Other routine took: {st-ed}")
                     outputs = self.model(beam_ids)
+                    # ed = time.time()
+                    # LOG.info(f"Model call took: {ed-st}")
                     next_token_logits = outputs.logits[0, -1]
                     next_token_log_probs = torch.log_softmax(next_token_logits, dim=-1)
-
-                    # Only consider tokens that are valid for the current position
+                    st1 = time.time()
+                    # valid_tokens = node.children_key_tensor
                     valid_tokens = list(node.children.keys())
                     valid_log_probs = next_token_log_probs[valid_tokens]
+                    ed1 = time.time()
+                    # LOG.info(f"next_token_log_probs[valid_tokens]: {ed1-st1}")
                     valid_tokens_s = [self.tokenizer.decode(v) for v in valid_tokens]
-                    LOG.debug(f"Valid tokens after: {parent_str}")
-                    LOG.debug(f"{valid_tokens_s}")
+
+                    # LOG.debug(f"Valid tokens after: {self.tokenizer.decode(node.parent_ids)}")
+                    # LOG.debug(f"{valid_tokens_s}")
 
                     for token, log_prob in zip(valid_tokens, valid_log_probs):
                         token_tensor = torch.tensor([[token]], device=self.device)
@@ -95,22 +201,21 @@ class LlamaProbabilityCalculator:
                         new_log_prob = beam_log_prob + log_prob.item()
 
                         # Check if this matches any complete post_fix sequence
-                        next_node = node.children[token]
+                        next_node = node.children[int(token)]
                         if next_node.is_end:
                             post_fix_ids = list(next_node.parent_ids)
-                            post_fix_ids.append(token)
                             results.append((new_ids, new_log_prob, post_fix_ids))
                         else:
                             new_beams.append((new_ids, new_log_prob, next_node))
-
             new_beams.sort(key=lambda x: x[1], reverse=True)
             beams = new_beams[:beam_width]
 
+        elapsed = time.time() - st_all
+        LOG.info(f"Completed probability computation. elapsed={elapsed}")
         # Sort results by log probability (higher is better)
-        results.sort(key=lambda x: x[1], reverse=True)
+        # results.sort(key=lambda x: x[1], reverse=True)
 
         output = []
-        LOG.info("\nFinal results:")
         for idx, (ids, log_prob, post_fix_ids) in enumerate(results):
             match_idx = None
             postfix = ids[0].tolist()[len(input_ids[0]):]
@@ -118,10 +223,23 @@ class LlamaProbabilityCalculator:
                 if list_equal(cand, postfix):
                     match_idx = c_idx
             text = self.tokenizer.decode(post_fix_ids)
-            LOG.info(f"Result {idx + 1}: '{text}' (log prob: {log_prob:.4f})")
             output.append((match_idx, text, log_prob))
+        output.sort()
+        LOG.info("\nPaired results:")
+        diff_sorted = []
+        for idx in range(0, len(output), 2):
+            src_idx1, text1, new_log_prob_1 = output[idx]
+            src_idx2, text2, new_log_prob_2 = output[idx + 1]
+            LOG.info(f"Result ({src_idx1}): '{text1}' (log prob: {new_log_prob_1:.4f})")
+            LOG.info(f"Result ({src_idx2}): '{text2}' (log prob: {new_log_prob_2:.4f})")
+            diff_sorted.append((src_idx1 // 2, text1, new_log_prob_1 - new_log_prob_2))
 
-        return output
+        diff_sorted.sort(key=lambda x: x[2], reverse=True)
+        LOG.info("\nDiff sorted results:")
+        for idx, text, diff in diff_sorted:
+            LOG.info(f"Result ({idx}): '{text}' (log prob diff: {diff:.4f})")
+
+        return diff_sorted
 
     def beam_search(self, prefix: str, beam_width: int = 3, max_tokens: int = 20):
         inputs = self.tokenizer(prefix, return_tensors="pt").to(self.device)
@@ -186,7 +304,7 @@ def main1():
     template = "This text is contains "
     prefix = comment + ".\n " + template
     postfixes = [" hostility", " subreddit", " a statement of fact"]
-    results = calculator.compute_probability(prefix, postfixes)
+    results = calculator.compute_probability_trie(prefix, postfixes)
     print("\nRanked sequences by log probability:")
     for sequence, log_prob in results:
         print(f"{sequence}: {log_prob:.4f}")

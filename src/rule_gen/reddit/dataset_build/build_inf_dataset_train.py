@@ -14,5 +14,19 @@ def main():
             generated_dataset_and_label(data, dataset_name)
 
 
+def main():
+    subreddit_list = load_subreddit_list()
+    todo = ["train", "val", "test"]
+    for subreddit in subreddit_list:
+        for split in todo:
+            try:
+                data = read_csv(get_reddit_train_data_path_ex("train_data", subreddit, split))
+                dataset_name = f"{subreddit}_{split}"
+                generated_dataset_and_label(data, dataset_name)
+            except FileNotFoundError as e:
+                print(e)
+
+
+
 if __name__ == "__main__":
     main()

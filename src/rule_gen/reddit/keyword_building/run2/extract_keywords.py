@@ -1,5 +1,7 @@
 import json
 
+import fire
+
 from chair.misc_lib import make_parent_exists
 from rule_gen.reddit.keyword_building.keyword_extractor import KeywordExtractor
 from rule_gen.reddit.keyword_building.path_helper import get_named_keyword_path
@@ -15,9 +17,12 @@ def split_clean_lines(rule_text):
     return lines
 
 
-def main():
+def main(sb=None):
     extractor = KeywordExtractor()
     sb_list = load_subreddit_list()
+    if sb is not None:
+        sb_list = [sb]
+
     for sb in sb_list:
         try:
             name = "chatgpt3"
@@ -33,4 +38,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

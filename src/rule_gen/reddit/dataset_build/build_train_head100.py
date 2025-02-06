@@ -1,10 +1,10 @@
 
 from desk_util.io_helper import read_csv, save_csv
 from desk_util.path_helper import get_csv_dataset_path, get_label_path
-from rule_gen.reddit.path_helper import load_subreddit_list
+from rule_gen.reddit.path_helper import get_split_subreddit_list
 
 def main100():
-    subreddit_list = load_subreddit_list()
+    subreddit_list = get_split_subreddit_list("train")
     n = 100
     for subreddit in subreddit_list:
         split = "train"

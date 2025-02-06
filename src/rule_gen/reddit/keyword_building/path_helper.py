@@ -1,3 +1,4 @@
+import json
 import os
 
 from rule_gen.cpath import output_root_path
@@ -32,3 +33,13 @@ def get_named_keyword_statement_path(name, sb):
         output_root_path, "reddit", "rule_processing", f"keyword_statement_{name}", f"{sb}.json")
     return parsed_path
 
+
+def load_keyword_statement(sb) -> list[tuple[str, str]]:
+    parsed_path = get_keyword_statement_path(sb)
+    return json.load(open(parsed_path, "r"))
+
+
+
+def load_named_keyword_statement(name, sb) -> list[tuple[str, str]]:
+    parsed_path = get_named_keyword_statement_path(name, sb)
+    return json.load(open(parsed_path, "r"))

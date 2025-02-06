@@ -7,7 +7,7 @@ def main():
     run_name = "chatgpt3"
     k = 10
     subreddit_list = get_split_subreddit_list("train")
-    for sb in subreddit_list[1:]:
+    for sb in subreddit_list[:1]:
         neg_items, pos_items = get_first_k(k, sb)
         prompt = build_prompt_from_true_false_items(sb, pos_items, neg_items)
         client = OpenAIChatClient()

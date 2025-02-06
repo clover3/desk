@@ -7,8 +7,9 @@ from chair.list_lib import right
 from desk_util.clf_util import load_csv_dataset_by_name
 from desk_util.runnable.run_eval import load_labels
 from rule_gen.cpath import output_root_path
-from rule_gen.reddit.keyword_building.apply_statement_common import load_keyword_statement, load_train_first_100
-from rule_gen.reddit.keyword_building.trad_clf.common import build_feature_matrix, build_feature
+from rule_gen.reddit.keyword_building.apply_statement_common import load_train_first_100
+from rule_gen.reddit.keyword_building.path_helper import load_keyword_statement
+from rule_gen.reddit.rule_classifier.common import build_feature_matrix, build_feature
 
 
 def train_classifier(sb):

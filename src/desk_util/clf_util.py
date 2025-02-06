@@ -34,7 +34,9 @@ def print_evaluation_results(metrics: dict):
 
 def clf_predict_w_predict_fn(
         dataset, run_name,
-        predict_fn: Callable[[str], tuple[int, float]]):
+        predict_fn: Callable[[str], tuple[int, float]],
+        overwrite_existing=False,
+):
     payload = load_csv_dataset_by_name(dataset)
 
     def predict(e):
@@ -42,8 +44,17 @@ def clf_predict_w_predict_fn(
         label, score = predict_fn(text)
         return id, label, score
 
-    pred_itr = map(predict, tqdm(payload, desc="Processing", unit="item"))
     save_path = get_clf_pred_save_path(run_name, dataset)
+    if not overwrite_existing and os.path.exists(save_path):
+        if len(read_csv(save_path)) == len(payload):
+            print(f"Prediction exists. Skip prediction")
+            print(f": {save_path}")
+            return
+        else:
+            print(f"Prediction exists but not complete. Overwritting")
+            print(f": {save_path}")
+
+    pred_itr = map(predict, tqdm(payload, desc="Processing", unit="item"))
     save_csv(pred_itr, save_path)
     print(f"Saved at {save_path}")
 

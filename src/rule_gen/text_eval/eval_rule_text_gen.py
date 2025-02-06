@@ -21,8 +21,6 @@ def load_open_ai_categories(load_field="category") -> list[str]:
 # Example usage
 
 # Example sentences
-
-
 def weighted_text_gen_eval(gold, pred, text_sim: Callable[[list, list], list]):
     tp = 0
     n_pos = 0
