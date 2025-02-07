@@ -5,9 +5,9 @@ from desk_util.io_helper import read_csv
 
 LOG = logging.getLogger(__name__)
 
-def build_feature_matrix(paired_data: list[tuple[str, str]], entail_save_path):
+def build_feature_matrix_from_indice_paired(paired_data: list[tuple[str, str]], entail_save_path):
     data_len = len(paired_data)
-    X = build_feature(data_len, entail_save_path)
+    X = build_feature_from_indices_paired(data_len, entail_save_path)
     label_d = {t_idx: int(label) for t_idx, (_text, label) in enumerate(paired_data)}
     y = []
     for t_idx in range(data_len):
@@ -15,7 +15,7 @@ def build_feature_matrix(paired_data: list[tuple[str, str]], entail_save_path):
     return X, np.array(y)
 
 
-def build_feature(data_len, entail_save_path):
+def build_feature_from_indices_paired(data_len, entail_save_path):
     res: list[tuple[str, str, str]] = read_csv(entail_save_path)
     d = {(int(t_idx), int(k_idx)): {"True": 1, "False": 0}[ret]
          for k_idx, t_idx, ret in res}

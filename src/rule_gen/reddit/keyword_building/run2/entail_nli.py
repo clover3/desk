@@ -11,18 +11,17 @@ from rule_gen.reddit.keyword_building.retrieve_candidates.nli_roberta import NLI
 
 
 def apply_statement(keyword_statement, res_save_path, texts):
-    n_req = len(keyword_statement) * len(texts)
     proc = NLIProcessor(batch_size=16)
     out_f = open(res_save_path, "w")
     csv_writer = csv.writer(out_f)
-    ticker = TimeEstimator(n_req, sample_size=110)
+    ticker = TimeEstimator(len(keyword_statement))
     for k_idx, ks in enumerate(keyword_statement):
         keyword, statement = ks
         for t_idx, text in enumerate(texts):
             probs = proc.process_pairs([text, statement])[0].tolist()
             row = [k_idx, t_idx, probs]
             csv_writer.writerow(row)
-            ticker.tick()
+        ticker.tick()
 
 
 def main(sb):

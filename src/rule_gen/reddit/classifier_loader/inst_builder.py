@@ -37,6 +37,35 @@ def get_rule2_from_name(run_name):
     return get_rule_showing_instruction2(sb)
 
 
+def get_v2_style_instruction(run_name):
+    prefix = "api_v2_"
+    name = run_name[len(prefix):]
+    last_token = name.split("_")[-1]
+    idx = int(last_token)
+    file_name = name[:-len(last_token)-1]
+    rule_save_path = os.path.join(
+        output_root_path, "reddit", "rule_processing", f"{file_name}.json")
+    rule_text = json.load(open(rule_save_path, "r"))[idx]
+    pos_keyword = "yes"
+    max_len = 5000
+    if file_name == "generic_norm":
+        def template_fn(text):
+            text = text[:max_len]
+            prompt = "Does the following text violate the rule? "
+            prompt += f"If it violates, output '{pos_keyword}' as a first token. If not, output 'no'"
+            prompt += f"<rule> {rule_text} </rule>"
+            prompt += f"<text> {text} </text>"
+            return prompt
+    else:
+        def template_fn(text):
+            text = text[:max_len]
+            prompt = f"{rule_text} Output as Yes/No."
+            prompt += f"\n <text> {text} </text>"
+            return prompt
+
+    return template_fn, pos_keyword
+
+
 def get_rule_showing_instruction2(sb):
     pos_keyword = "unsafe"
     rule_save_path = get_reddit_rule_path2(sb)
@@ -146,6 +175,8 @@ def get_instruction_from_run_name(run_name):
         instruction, pos_keyword = get_rule2_from_name(run_name)
     elif run_name.startswith("api_none"):
         instruction, pos_keyword = get_sb_agnostic()
+    elif run_name.startswith("api_v2"):
+        instruction, pos_keyword = get_v2_style_instruction(run_name)
     else:
         tokens = run_name.split("_")
         sb = "_".join(tokens[1:-1])

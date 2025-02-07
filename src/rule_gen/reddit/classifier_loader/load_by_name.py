@@ -1,7 +1,7 @@
 import random
 from typing import Callable
 
-from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf
+from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf, load_api_based2, load_local_based
 
 
 def get_random_classifier():
@@ -32,6 +32,11 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("api_"):
         from rule_gen.reddit.classifier_loader.prompt_based import load_api_based
         return load_api_based(run_name)
+    elif run_name.startswith("api2_"):
+        from rule_gen.reddit.classifier_loader.prompt_based import load_api_based2
+        return load_api_based2(run_name)
+    elif run_name.startswith("llama_"):
+        return load_local_based(run_name)
     elif run_name.startswith("llg_"):
         from rule_gen.reddit.classifier_loader.llama_guard_based import load_llama_guard_based
         return load_llama_guard_based(run_name)

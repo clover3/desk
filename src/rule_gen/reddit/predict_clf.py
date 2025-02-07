@@ -12,10 +12,11 @@ def predict_clf_main(
         dataset: str,
         do_eval=False,
         do_report=False,
-        print_metrics=""
+        print_metrics="",
+        overwrite=False,
 ) -> None:
     predict_fn = get_classifier(run_name)
-    clf_predict_w_predict_fn(dataset, run_name, predict_fn)
+    clf_predict_w_predict_fn(dataset, run_name, predict_fn, overwrite)
     if do_eval:
         run_eval_clf(run_name, dataset,
                      do_report, print_metrics)

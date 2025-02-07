@@ -67,6 +67,28 @@ def dummy_counter(run_name):
     return predict
 
 
+def load_local_based(run_name):
+    max_text_len = 5000
+    from llama_user.llama_helper.lf_local import LlamaClient
+
+    run_name = run_name.replace("llama_", "api_")
+    instruction, pos_keyword = get_instruction_from_run_name(run_name)
+
+    client = LlamaClient(max_prompt_len=5000)
+
+    def predict(text):
+        text = text[:max_text_len]
+        if isinstance(instruction, str):
+            prompt = instruction + "\n" + text[:max_text_len]
+        else:
+            prompt = instruction(text)
+        ret_text = client.ask(prompt)
+        pred = pos_keyword.lower() in ret_text.lower()
+        ret = int(pred)
+        return ret, 0
+    return predict
+
+
 def load_api_based(run_name):
     max_text_len = 5000
     from llama_user.llama_helper.lf_client import LLMClient
@@ -82,6 +104,26 @@ def load_api_based(run_name):
     return predict
 
 
+def load_api_based2(run_name):
+    max_text_len = 5000
+    from llama_user.llama_helper.lf_client import LLMClient
+    client = LLMClient(max_prompt_len=5000)
+    run_name = run_name.replace("api2_", "api_")
+    instruction, pos_keyword = get_instruction_from_run_name(run_name)
+
+    def predict(text):
+        text = text[:max_text_len]
+        if isinstance(instruction, str):
+            prompt = instruction + "\n" + text[:max_text_len]
+        else:
+            prompt = instruction(text)
+        ret_text = client.ask(prompt)
+        pred = pos_keyword.lower() in ret_text.lower()
+        ret = int(pred)
+        return ret, 0
+    return predict
+
+
 def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
     from desk_util.open_ai import OpenAIChatClient
     client = OpenAIChatClient("gpt-4o")
@@ -90,12 +132,14 @@ def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
     max_prompt_len = 5000
 
     def predict(text):
-        prompt = instruction + "\n" + text[:max_prompt_len]
+        if isinstance(instruction, str):
+            prompt = instruction + "\n" + text[:max_prompt_len]
+        else:
+            prompt = instruction(text)
         ret_text = client.request(prompt)
         pred = pos_keyword.lower() in ret_text.lower()
         ret = int(pred)
         return ret, 0
-
     return predict
 
 

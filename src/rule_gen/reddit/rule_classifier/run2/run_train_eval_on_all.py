@@ -18,14 +18,9 @@ from rule_gen.reddit.keyword_building.apply_statement_common import (
     load_train_first_100,
 )
 from rule_gen.reddit.keyword_building.path_helper import load_named_keyword_statement
-from rule_gen.reddit.rule_classifier.common import build_feature_matrix, build_feature
+from rule_gen.reddit.rule_classifier.common import build_feature_matrix_from_indice_paired, build_feature_from_indices_paired
 from rule_gen.reddit.path_helper import get_split_subreddit_list
 
-
-@dataclass
-class ModelConfig:
-    max_depth: int = 5
-    random_state: int = 42
 
 def add_new_feature(X, new_feature):
     x0 = np.reshape(new_feature, [-1, 1])
@@ -33,18 +28,12 @@ def add_new_feature(X, new_feature):
     return X
 
 
-class SubredditClassifier:
+class FeatureLoaderFromPaired:
     def __init__(self, subreddit: str,
                  augment_other=False,
-                 config: Optional[ModelConfig] = None):
+                 ):
         self.subreddit = subreddit
-        self.config = config or ModelConfig()
         self.keyword_name = "chatgpt3"
-        # self.clf = Logi(
-        #     max_depth=self.config.max_depth,
-        #     random_state=self.config.random_state
-        # )
-        self.clf = LogisticRegression()
         self.augment_other = augment_other
         if augment_other:
             print("Use feature augmentation")
@@ -60,47 +49,28 @@ class SubredditClassifier:
             f"{self.subreddit}.csv"
         )
 
-    def _load_train_data(self) -> Tuple[np.array, np.array]:
+    def load_train_data(self) -> Tuple[np.array, np.array]:
         """Load and prepare training data."""
         train_data = load_train_first_100(self.subreddit)
         entail_save_path = self._get_data_path("train")
-        X, y = build_feature_matrix(train_data, entail_save_path)
+        X, y = build_feature_matrix_from_indice_paired(train_data, entail_save_path)
         if self.augment_other:
             y_as_x = load_other_pred(self.subreddit, "train")
             X = add_new_feature(X, y_as_x)
         return X, y
 
 
-    def _load_val_data(self) -> Tuple[np.array, np.array]:
+    def load_val_data(self) -> Tuple[np.array, np.array]:
         """Load and prepare validation data."""
         dataset = f"{self.subreddit}_val_100"
         payload = load_csv_dataset_by_name(dataset)
         entail_save_path = self._get_data_path("val")
-        X_test = build_feature(len(payload), entail_save_path)
+        X_test = build_feature_from_indices_paired(len(payload), entail_save_path)
         labels = load_labels(dataset)
         if self.augment_other:
             y_as_x = load_other_pred(self.subreddit, "val")
             X_test = add_new_feature(X_test, y_as_x)
         return X_test, right(labels)
-
-    def train_and_evaluate(self) -> Tuple[float, float]:
-        X_train, y_train = self._load_train_data()
-        self.clf.fit(X_train, y_train)
-        train_pred = self.clf.predict(X_train)
-        train_score = f1_score(y_train, train_pred)
-
-        # Validate
-        X_test, y_test = self._load_val_data()
-        val_pred = self.clf.predict(X_test)
-        val_score = f1_score(y_test, val_pred)
-
-        # Generate tree representation
-        keyword_statement = load_named_keyword_statement(self.keyword_name, self.subreddit)
-        statements = right(keyword_statement)
-        if self.augment_other:
-            statements = ["<ChatGPT None>"] + statements
-
-        return train_score, val_score
 
 
 def load_other_pred(sb, split):
@@ -128,11 +98,24 @@ def main(augment_other=False):
             continue
 
         try:
-            classifier = SubredditClassifier(
+            loader = FeatureLoaderFromPaired(
                 subreddit,
                 augment_other=augment_other
             )
-            train_score, val_score = classifier.train_and_evaluate()
+            X_train, y_train = loader.load_train_data()
+            clf = LogisticRegression()
+            clf.fit(X_train, y_train)
+            train_pred = clf.predict(X_train)
+            train_score = f1_score(y_train, train_pred)
+            # Validate
+            X_test, y_test = loader.load_val_data()
+            val_pred = clf.predict(X_test)
+            val_score = f1_score(y_test, val_pred)
+            # Generate tree representation
+            keyword_statement = load_named_keyword_statement(loader.keyword_name, loader.subreddit)
+            statements = right(keyword_statement)
+            if loader.augment_other:
+                statements = ["<ChatGPT None>"] + statements
             row = [subreddit, val_score]
             table.append(row)
 

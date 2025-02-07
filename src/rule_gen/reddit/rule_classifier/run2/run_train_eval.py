@@ -1,10 +1,10 @@
 import fire
 
-from rule_gen.reddit.rule_classifier.run2.run_train_eval_on_all import SubredditClassifier
+from rule_gen.reddit.rule_classifier.run2.run_train_eval_on_all import FeatureLoaderFromPaired
 
 
 def main(sb):
-    classifier = SubredditClassifier(
+    classifier = FeatureLoaderFromPaired(
         sb,
     )
     train_score, val_score = classifier.train_and_evaluate()

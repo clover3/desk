@@ -18,14 +18,12 @@ from rule_gen.reddit.keyword_building.retrieve_candidates.precision_at_k import 
 def main(sb="NeutralPolitics"):
     init_logging()
     keyword_statement = load_keyword_statement(sb)
-    keywords = left(keyword_statement)
     statements = right(keyword_statement)
     data = load_train_first_100(sb)
 
     gpt_res_path = os.path.join(output_root_path, "reddit",
                                  "rule_processing", "k_to_text_100", f"{sb}.csv")
     gpt_res = read_csv(gpt_res_path)
-
     est_save_path = os.path.join(output_root_path, "reddit",
                                  "rule_processing", "k_to_text_100_res", f"{sb}.csv")
     est = read_csv(est_save_path)

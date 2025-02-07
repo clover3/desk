@@ -21,6 +21,9 @@ class NLIProcessor:
             batch_size (int): Number of pairs to process at once
         """
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        self.model.to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.label_mapping = ['contradiction', 'entailment', 'neutral']
         self.batch_size = batch_size
@@ -57,14 +60,33 @@ class NLIProcessor:
                 padding=True,
                 truncation=True,
                 return_tensors="pt"
-            )
+            ).to(self.device)
+
 
             with torch.no_grad():
                 logits = self.model(**features).logits
                 probs = F.softmax(logits, dim=-1)
-                all_probs.append(probs.numpy())
+                all_probs.append(probs.cpu().numpy())
 
         return np.concatenate(all_probs, axis=0)
+
+    def process_pair(self,
+                     premise: str,
+                     hypothesis: str) -> np.ndarray:
+        self.model.eval()
+        features = self.tokenizer(
+            premise,
+            hypothesis,
+            padding=True,
+            truncation=True,
+            return_tensors="pt"
+        )
+
+        with torch.no_grad():
+            logits = self.model(**features).logits
+            probs = F.softmax(logits, dim=-1)
+
+        return probs.numpy()[0]  # Return just the first (and only) row
 
     def get_predictions(self,
                         sentence_pairs: List[Tuple[str, str]],
