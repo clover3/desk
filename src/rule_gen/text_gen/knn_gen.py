@@ -14,6 +14,7 @@ class Cluster:
     knn_labels: list[int]
     distances: np.ndarray
     embeddings: np.ndarray
+    orig_neighbor_indices: list[int]
 
     @property
     def cluster_labels(self) -> list[int]:
@@ -117,14 +118,14 @@ def generate_clusters_from_knn(
         texts_val: List[str],
         k: int = 3) -> List[Cluster]:
     """Generate clusters based on k-nearest neighbors from validation set points."""
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_val_scaled = scaler.transform(X_val)
+    # scaler = StandardScaler()
+    # X_train_scaled = scaler.fit_transform(X_train)
+    # X_val_scaled = scaler.transform(X_val)
 
     nbrs = NearestNeighbors(n_neighbors=k, n_jobs=-1)
-    nbrs.fit(X_train_scaled)
+    nbrs.fit(X_train)
 
-    distances, indices = nbrs.kneighbors(X_val_scaled)
+    distances, indices = nbrs.kneighbors(X_val)
 
     clusters = []
     for i, (neighbor_indices, neighbor_distances) in enumerate(zip(indices, distances)):
@@ -138,7 +139,8 @@ def generate_clusters_from_knn(
             knn_texts=knn_texts,
             knn_labels=knn_labels,
             distances=neighbor_distances,
-            embeddings=X_train_scaled
+            embeddings=X_train,
+            orig_neighbor_indices=neighbor_indices
         )
         clusters.append(cluster)
     return clusters
