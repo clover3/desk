@@ -12,7 +12,7 @@ from rule_gen.reddit.colbert.modeling import get_arch_class
 from rule_gen.reddit.colbert.query_builders import get_sb_to_query
 from rule_gen.reddit.colbert.train_common import train_bert_like_model
 from rule_gen.reddit.train_common import get_default_training_argument, get_data_arguments
-from rule_gen.reddit.predict_split import predict_sb_split
+from rule_gen.runner.predict_split import predict_sb_split
 
 LOG = logging.getLogger(__name__)
 

@@ -4,11 +4,11 @@ import os
 
 import fire
 from omegaconf import OmegaConf
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import BertForSequenceClassification
 from desk_util.io_helper import init_logging
 from rule_gen.reddit.base_bert.text_concat import text_concat_exp
 from rule_gen.reddit.colbert.query_builders import get_sb_to_query
-from rule_gen.reddit.predict_split import predict_sb_split
+from rule_gen.runner.predict_split import predict_sb_split
 from rule_gen.reddit.train_common import DatasetLoader
 from datasets import Dataset as HFDataset
 

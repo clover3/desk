@@ -11,7 +11,7 @@ from taskman_client.task_proxy import get_task_manager_proxy
 from desk_util.io_helper import init_logging
 from rule_gen.reddit.train_common import ClfDatasetLoader, get_default_training_argument, get_data_arguments, \
     get_datasets_from_dataset_arg, DatasetLoader, train_classification_single_score, DataArguments
-from rule_gen.reddit.predict_split import predict_sb_split
+from rule_gen.runner.predict_split import predict_sb_split
 from typing import Dict, Any
 
 
