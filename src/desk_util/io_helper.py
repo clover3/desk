@@ -57,12 +57,23 @@ def load_two_column_csv(file_path: str) -> Tuple[List[str], List[str]]:
     return ids, predictions
 
 
+
 def read_jsonl(file_path):
     data = []
     with open(file_path, 'r') as file:
         for line in file:
             data.append(json.loads(line.strip()))
     return data
+
+
+load_jsonl = read_jsonl
+
+
+def save_jsonl(itr, file_path):
+    make_parent_exists(file_path)
+    with open(file_path, 'w', newline='', encoding='utf-8') as f:
+        for row in itr:
+            f.write(json.dumps(row) + '\n')
 
 
 class IgnoreFilter(logging.Filter):

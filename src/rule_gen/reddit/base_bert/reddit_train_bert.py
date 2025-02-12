@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -13,7 +14,7 @@ from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_pa
 from rule_gen.reddit.base_bert.train_clf_common import get_compute_metrics
 from rule_gen.reddit.path_helper import get_reddit_train_data_path
 from rule_gen.reddit.predict_clf import predict_clf_main
-from rule_gen.reddit.train_bert import load_dataset_from_csv
+from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.train_common import compute_per_device_batch_size
 
 LOG = logging.getLogger("RedditTrainBert")
@@ -72,11 +73,15 @@ def finetune_bert(
     return eval_results
 
 
+def rel(p):
+    return os.path.relpath(p)
+
+
 def prepare_datasets(dataset_args: DataArguments, model_name):
     # Create datasets
-    LOG.info(f"Loading training data from {dataset_args.train_data_path}")
+    LOG.info(f"Loading training data from {rel(dataset_args.train_data_path)}")
     train_dataset = load_dataset_from_csv(dataset_args.train_data_path)
-    LOG.info(f"Loading evaluation data from {dataset_args.eval_data_path}")
+    LOG.info(f"Loading evaluation data from {rel(dataset_args.eval_data_path)}")
     eval_dataset = load_dataset_from_csv(dataset_args.eval_data_path)
     LOG.info("Creating datasets")
     # Load tokenizer and model

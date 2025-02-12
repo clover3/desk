@@ -3,8 +3,6 @@ import sys
 import requests
 
 
-
-
 class LLMClient:
     def __init__(self, host=None, port=8000,
                  max_prompt_len=10000,

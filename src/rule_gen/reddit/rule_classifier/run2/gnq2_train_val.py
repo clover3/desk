@@ -3,7 +3,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 from chair.tab_print import print_table
-from rule_gen.reddit.path_helper import get_split_subreddit_list
+from rule_gen.reddit.path_helper import get_split_subreddit_list, get_split_display_list
 from rule_gen.reddit.rule_classifier.clf_feature_loading import load_dataset_from_predictions
 
 
@@ -11,7 +11,9 @@ def main():
     table = []
     name = "gnq2"
     n_sub_item = 18
-    for sb in get_split_subreddit_list("train"):
+    scores = {}
+    split = "train"
+    for sb in get_split_subreddit_list(split):
         print(sb)
         run_name_iter = [f"chatgpt_v2_{name}_{idx}" for idx in range(n_sub_item)]
         try:
@@ -28,7 +30,7 @@ def main():
             val_pred = clf.predict(X_test)
             val_score = f1_score(y_test, val_pred)
             row = [sb, val_score]
-            table.append(row)
+            scores[sb] = val_score
 
             print(f"\nResults for subreddit: {sb}")
             print(f"Training F1 Score: {train_score:.4f}")
@@ -41,6 +43,13 @@ def main():
             print(e)
             break
 
+    table = []
+    for sb in get_split_display_list(split):
+        if sb not in scores:
+            s = "-"
+        else:
+            s = scores[sb]
+        table.append([sb, s])
     print_table(table)
 
 

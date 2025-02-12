@@ -20,6 +20,13 @@ def get_split_subreddit_list(split):
     return read_csv_column(get_split_subreddit_list_path(split), 0)
 
 
+def get_split_display_list(split):
+    all_items = get_split_subreddit_list(split)
+    all_items.sort(key=lambda item: item.lower())
+    all_items = [t for t in all_items if t not in ["Incels", "soccerstreams"]]
+    return all_items
+
+
 def get_group1_list():
     save_path = os.path.join(output_root_path, "reddit", "group", f"group1.txt")
     return read_csv_column(save_path, 0)

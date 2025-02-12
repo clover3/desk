@@ -95,3 +95,10 @@ def load_clf_pred(dataset, run_name):
     return preds
 
 
+
+def get_feature_pred_save_path(run_name: str, dataset_name: str) -> str:
+    dir_name: str = f"{dataset_name}"
+    file_name: str = f"{run_name}.jsonl"
+    save_path: str = os.path.join(output_root_path, "features", dir_name, file_name)
+    make_parent_exists(save_path)
+    return save_path

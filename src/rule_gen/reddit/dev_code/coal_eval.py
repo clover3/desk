@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from desk_util.path_helper import get_cola_train_data_path, get_model_save_path
-from rule_gen.reddit.train_bert import load_dataset_from_csv
+from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 
 
 def evaluate_model(

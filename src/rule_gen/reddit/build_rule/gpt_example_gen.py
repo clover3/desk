@@ -61,6 +61,24 @@ def build_prompt_from_true_false_items(sb, pos_items, neg_items):
     return prompt
 
 
+
+def build_prompt_from_json_importance(sb, pos_items, neg_items):
+    def wrap(text):
+        return f"<text>{text}</text>"
+
+    def combine_texts(texts):
+        itr = map(wrap, texts)
+        return "\n".join(itr)
+
+    inst = (f"These are the examples of deleted posts and not deleted posts in subreddit {sb}. "
+            f"Could you guess why they are deleted?")
+    p_text = combine_texts(pos_items)
+    n_text = combine_texts(neg_items)
+    prompt = f"{inst} \n<deleted>\n {p_text} \n</deleted> \n<not deleted>\n {n_text} \n</not deleted>"
+    prompt += "\n === Based on above, could you make list of rules?"
+    prompt += f"Starts with: The following is a list of rules for deletions on the {sb} subreddit:"
+    return prompt
+
 def build_rule_and_save(prompt, run_name, sb):
     client = OpenAIChatClient()
     response2 = client.request(prompt)

@@ -7,7 +7,7 @@ from chair.misc_lib import get_second
 from desk_util.io_helper import save_csv, read_csv
 from desk_util.path_helper import get_cola_train_data_path, get_model_save_path, \
     get_model_log_save_dir_path
-from rule_gen.reddit.train_bert import finetune_bert
+from rule_gen.reddit.base_bert.train_bert import finetune_bert
 
 
 def save_data():

@@ -9,6 +9,9 @@ def parse_openai_json(s):
     if lines[0] == "```json" and lines[-1] == "```":
         raw_j = "\n".join(lines[1:-1])
         return json.loads(raw_j)
+    if lines[0] == "```" and lines[-1] == "```":
+        raw_j = "\n".join(lines[1:-1])
+        return json.loads(raw_j)
     if lines[2] == "```json" and lines[-1] == "```":
         raw_j = "\n".join(lines[3:-1])
         return json.loads(raw_j)

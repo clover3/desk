@@ -8,7 +8,7 @@ from desk_util.io_helper import init_logging
 from rule_gen.open_ai_mod.path_helper import get_open_ai_mod_csv_path
 from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
 from rule_gen.reddit.predict_clf import predict_clf_main
-from rule_gen.reddit.reddit_train_bert import build_training_argument, DataArguments, finetune_bert
+from rule_gen.reddit.base_bert.reddit_train_bert import build_training_argument, DataArguments, finetune_bert
 
 LOG = logging.getLogger(__name__)
 
