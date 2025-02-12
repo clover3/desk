@@ -79,8 +79,10 @@ def get_apply_fn(run_name) -> Callable[[str], dict | list | str]:
         text = text[:max_text_len]
         output = []
         for q in q_list:
-            ret = api_fn(get_prompt(q, text))
-            output.append(ret)
+            ret: str = api_fn(get_prompt(q, text))
+            pos_keyword = "yes"
+            clf = pos_keyword in ret.lower()
+            output.append(clf)
         return output
 
     return predict
@@ -112,7 +114,8 @@ def apply_fn_to_dataset(
     print(f"Saved at {save_path}")
 
 
-def load_feature_pred(run_name, dataset):
+def load_feature_pred(run_name, dataset) -> list[dict]:
     save_path = get_feature_pred_save_path(run_name, dataset)
     predictions: list[dict] = read_jsonl(save_path)
     return predictions
+

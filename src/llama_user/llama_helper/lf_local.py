@@ -1,6 +1,16 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
+
+def get_parsing_key(tokenizer):
+    prompt = "hi"
+    t1 = tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=False,
+                                       add_generation_prompt=True)
+    t2 = tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=False,
+                                        add_generation_prompt=False)
+    return t1[len(t2):]
+
+
 class LlamaClient:
     def __init__(self, model_name="meta-llama/Meta-Llama-3-8B-Instruct", max_prompt_len=10000):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -8,6 +18,9 @@ class LlamaClient:
 
         self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
         self.max_prompt_len = max_prompt_len
+        self.response_header = get_parsing_key(self.tokenizer)
+        if not self.response_header:
+            raise KeyError()
 
     def len_filter(self, text):
         if text is None:
@@ -32,9 +45,13 @@ class LlamaClient:
         pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id
         outputs = self.model.generate(**inputs, max_new_tokens=10,
                                       pad_token_id=pad_token_id)
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return response.split("Assistant:")[-1].strip()
+        gen_text = self.tokenizer.decode(outputs[0] )
+        idx = gen_text.find(self.response_header)
+        if idx == -1:
+            raise ValueError()
+        response = gen_text[idx+len(self.response_header):]
 
+        return response
     def get_json_request(self, prompt, system_prompt):
         if system_prompt is None:
             return {
