@@ -67,10 +67,11 @@ def main(sb="askscience", model_name=""):
     inf = ProbeInference(model_path)
 
     output = extract_top_k_important(inf, texts)
-    for k, v in output:
-        print(f"<{k}>")
-        print(v)
-        print(f"</{k}>")
+    for item in output:
+        for k, v in item.items():
+            print(f"<{k}>")
+            print(v)
+            print(f"</{k}>")
 
 
 if __name__ == "__main__":

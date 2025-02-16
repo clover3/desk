@@ -88,7 +88,7 @@ def get_cola_train_data_path(role):
     return save_path
 
 
-def load_clf_pred(dataset, run_name):
+def load_clf_pred(dataset, run_name) -> list[tuple[str, int, float]]:
     save_path: str = get_clf_pred_save_path(run_name, dataset)
     raw_preds = read_csv(save_path)
     preds = [(data_id, int(pred), float(score)) for data_id, pred, score in raw_preds]

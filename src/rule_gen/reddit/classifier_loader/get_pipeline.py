@@ -3,6 +3,7 @@ from desk_util.path_helper import get_model_save_path
 from rule_gen.reddit.classifier_loader.torch_misc import get_device
 
 
+
 def get_classifier_pipeline(run_name):
     model_path = get_model_save_path(run_name)
     pipe = pipeline("text-classification", model=model_path, device=get_device())
