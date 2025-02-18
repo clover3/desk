@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -7,6 +6,7 @@ import logging
 from transformers import TrainingArguments, Trainer, BertTokenizer, BertForSequenceClassification
 import multiprocessing
 
+from chair.misc_lib import rel
 from taskman_client.task_proxy import get_task_manager_proxy
 from taskman_client.wrapper3 import JobContext
 from desk_util.io_helper import init_logging
@@ -30,7 +30,7 @@ class DataArguments:
     train_data_path: str = field(default=None)
     eval_data_path: Optional[str] = field(default=None)
     max_length: int = field(default=256)
-
+    debug: bool = field(default=False)
 
 def finetune_bert(
         model_name,
@@ -71,10 +71,6 @@ def finetune_bert(
     LOG.info(f"Final fine-tuned model and tokenizer are saved in: {final_model_dir}")
     LOG.info("BERT fine-tuning process completed")
     return eval_results
-
-
-def rel(p):
-    return os.path.relpath(p)
 
 
 def prepare_datasets(dataset_args: DataArguments, model_name):

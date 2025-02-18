@@ -5,6 +5,7 @@ import numpy as np
 import scipy.special
 from tokenizers import decoders
 
+from chair.tab_print import print_table
 from desk_util.path_helper import get_model_save_path, load_csv_dataset, load_clf_pred
 from desk_util.runnable.run_eval import load_labels
 from rule_gen.reddit.bert_probe.probe_inference import ProbeInference
@@ -37,6 +38,8 @@ def extract_top_k_important(inf: ProbeInference, t):
             print([scores[i] for i in indices])
             break
 
+    if indices is None:
+        return None
     important_list = []
     for idx, token in enumerate(tokens):
         if idx in indices:
@@ -61,30 +64,47 @@ def main(sb="askscience", model_name=""):
     model_path = get_model_save_path(model_name)
     dataset = f"{sb}_2_val_100"
 
-    gpt_none_pred = load_clf_pred(dataset, "chatgpt_none")
+    gpt_none_pred = load_clf_pred(dataset, f"chatgpt_{sb}_none")
     data = load_csv_dataset(dataset)
     labels = load_labels(dataset)
+    labels_d = dict(labels)
+    inf = ProbeInference(model_path)
+    # data = [t for t in data if "thank you for submitting to" not in t[1]]
+    # print("{} items after filtering bot reply".format(len(data)))
+
+    gpt_pred_d = {}
+    for k, v, _score in gpt_none_pred:
+        gpt_pred_d[k] = v
+
 
     counter = Counter()
     texts = []
-    for idx in range(len(data)):
-        data_id, label = labels[idx]
-        assert gpt_none_pred[idx][0] == data_id
-        gpt_pred = gpt_none_pred[idx][1]
+    for data_id, text in data:
+        label = labels_d[data_id]
+        gpt_pred = gpt_pred_d[data_id]
+        bert_pred = inf.predict_cls_label(text)
+        bot_msg = "thank you for submitting to" in text
+        counter[(gpt_pred, bert_pred, label, bot_msg)] += 1
         if gpt_pred == label:
             pass
         else:
-            counter[(gpt_pred, label)] += 1
-            texts.append(data[idx][1])
+            # counter[(gpt_pred, label)] += 1
+            texts.append(text)
 
-    print(counter)
+    table = []
+    head = ["gpt", "bert", "label", "bot_msg", "cnt"]
+    table.append(head)
+    for k, v in counter.most_common():
+        l = list(k)
+        l.append(v)
+        table.append(l)
+    print_table(table)
     print("{} items wrong out of {}".format(len(texts), len(data)))
     texts = [t for t in texts if "thank you for submitting to" not in t]
     print("After excluding bot ones, {}".format(len(texts)))
     # texts = texts[:1]
 
     print("Loading model")
-    inf = ProbeInference(model_path)
     for text in texts:
         item = extract_top_k_important(inf, text)
         if item is None:

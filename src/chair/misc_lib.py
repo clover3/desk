@@ -1080,3 +1080,6 @@ def group_iter(itr: Iterable[A], get_key: Callable[[A], Any]) -> Iterator[List[A
     if cur_group:
         yield cur_group
 
+
+def rel(p):
+    return os.path.relpath(p)

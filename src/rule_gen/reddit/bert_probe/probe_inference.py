@@ -54,8 +54,35 @@ class ProbeInference:
             return ProbeOutput(
                 all_layer_logits=all_layer_logits.cpu().numpy(),
                 bert_logits=bert_logits.cpu().numpy(),
-                layer_logits={k: v.cpu().numpy() for k, v in layer_logits.items()}
+                layer_logits={k: v.cpu().numpy() for k, v in layer_logits.items()},
             )
+
+    def predict_get_layer_mean(self, text):
+        inputs = self.tokenizer(
+            text,
+            padding='max_length',
+            truncation=True,
+            max_length=self.max_length,
+            return_tensors='pt'
+        )
+        inputs.to(self.device)
+        with torch.no_grad():
+            all_layer_logits, bert_logits, layer_logits = self.model(**inputs)
+        probe_list = []
+        for layer_no in range(len(layer_logits)):
+            layer_logit = layer_logits[f"layer_{layer_no}"]
+            probe_list.append(layer_logit)
+
+        probe_concat = torch.stack(probe_list, dim=2)
+        probes = torch.softmax(probe_concat, dim=-1)
+        probe = torch.mean(probes, dim=2)
+        return probe.cpu().numpy()
+
+
+    def predict_cls_label(self, str):
+        output = self.predict(str)
+        preds = np.argmax(output.bert_logits, axis=-1)
+        return preds[0]
 
 
 # Example usage:
