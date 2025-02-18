@@ -97,7 +97,12 @@ class IgnoreFilter(logging.Filter):
         return True
 
 
+
+f_init = False
 def init_logging(level=logging.INFO, ignore_rules: List[Tuple[str, str]] = None):
+    global f_init
+    if f_init:
+        return
     format_str = '%(levelname)s %(name)s %(asctime)s %(message)s'
     formatter = logging.Formatter(format_str,
                                   datefmt='%m-%d %H:%M:%S',
@@ -112,6 +117,7 @@ def init_logging(level=logging.INFO, ignore_rules: List[Tuple[str, str]] = None)
     root_logger = logging.getLogger()
     root_logger.addHandler(ch)
     root_logger.setLevel(level)
+    f_init = True
 
 
 def init_logging_rivanna():

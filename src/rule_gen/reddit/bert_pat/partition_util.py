@@ -22,19 +22,30 @@ def get_random_split_location(tokens) -> Tuple[int, int]:
 
 
 
-def select_random_loc_not_sharp(tokens, st, ed) -> int:
-    candidate = []
-    for i in range(st, ed):
-        if tokens[i].startswith("##"):
-            pass
-        else:
-            candidate.append(i)
+def select_random_loc_not_sharp(tokens, st=0, ed=None) -> int:
+    if ed is None:
+        ed = len(tokens)
+
+    candidate = get_non_sharp_indices(tokens, st, ed)
 
     if not candidate:
         return -1
     else:
         j = random.randint(0, len(candidate)-1)
         return candidate[j]
+
+
+def get_non_sharp_indices(tokens, st=0, ed=None):
+    if ed is None:
+        ed = len(tokens)
+
+    candidate = []
+    for i in range(st, ed):
+        if tokens[i].startswith("##"):
+            pass
+        else:
+            candidate.append(i)
+    return candidate
 
 
 def get_random_split_location2(tokens) -> Tuple[int, int]:
