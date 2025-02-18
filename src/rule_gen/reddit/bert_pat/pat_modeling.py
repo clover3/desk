@@ -74,3 +74,33 @@ class BertPAT(BertForSequenceClassification):
             logits1=logits1,
             logits2=logits2,
         )
+
+
+class BertPatFirst(BertForSequenceClassification):
+    def __init__(
+            self,
+            config,
+            combine_layer_factory,
+    ):
+        super().__init__(config)
+        self.combine_layer = combine_layer_factory()
+
+    def forward(
+            self,
+            input_ids1: torch.Tensor,
+            attention_mask1: torch.Tensor,
+            return_dict: Optional[bool] = None,
+    ) -> PATOutput:
+
+        def apply_bert_cls(input_ids, attention_mask):
+            outputs = self.bert(
+                input_ids,
+                attention_mask=attention_mask,
+            )
+            pooled_output = outputs[1]
+            pooled_output = self.dropout(pooled_output)
+            logits = self.classifier(pooled_output)
+            return logits
+
+        logits1 = apply_bert_cls(input_ids1, attention_mask1)
+        return logits1
