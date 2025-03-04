@@ -133,3 +133,5 @@ def get_n_rules(sb):
     rules = json.load(open(rule_save_path, "r"))
     n_rule = len(rules)
     return n_rule
+
+

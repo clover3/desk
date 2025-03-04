@@ -2,26 +2,20 @@ import os
 from collections import Counter
 
 import fire
-from sklearn.tree import DecisionTreeClassifier
 
 from chair.list_lib import right, dict_value_map
-from chair.tab_print import tab_print, print_table
+from chair.tab_print import print_table
 from desk_util.io_helper import read_csv
 from desk_util.path_helper import load_csv_dataset
-from rule_gen.reddit.keyword_building.apply_statement_common import load_train_first_100
-from sklearn.metrics import f1_score
-from sklearn.model_selection import train_test_split
 import ast
 
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.keyword_building.path_helper import load_named_keyword_statement
-from rule_gen.reddit.rule_classifier.common import build_feature_matrix_from_indice_paired
+from rule_gen.reddit.entail_helper import load_statement_appy_result
 
 
 def load(entail_save_path):
-    res: list[tuple[str, str, str]] = read_csv(entail_save_path)
-    d = {(int(t_idx), int(k_idx)): {"True": 1, "False": 0}[ret]
-         for k_idx, t_idx, ret in res}
+    d = load_statement_appy_result(entail_save_path)
     return d
 
 
@@ -35,11 +29,12 @@ def load_probs(entail_save_path):
     return d
 
 def load_condnli(entail_save_path, texts, features):
+    n = len(texts)
     res: list[tuple[str, str, str]] = read_csv(entail_save_path)
     data = [int(float(e[0]) > 0.5) for e in res]
     d = {}
     i = 0
-    for t_idx, t in enumerate(texts):
+    for t_idx in range(n):
         for k_idx, feature in enumerate(features):
             d[t_idx, k_idx] = data[i]
             i += 1

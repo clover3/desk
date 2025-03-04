@@ -100,9 +100,12 @@ class RedditCrawler:
                 continue_after_id=last_item_id
             )
 
-    def crawl(self, batch_size: int = 100):
+    def crawl(self, batch_size: int = 100, start_from_last=True):
         """Start crawling all subreddits in a single stream."""
-        last_item_id = self.get_last_item_info()
+        if start_from_last:
+            last_item_id = self.get_last_item_info()
+        else:
+            last_item_id = None
 
         if last_item_id:
             self.logger.info(f"Resuming crawl after {self.content_type[:-1]} ID: {last_item_id}")
@@ -343,7 +346,7 @@ def main(content_type):
         batch_size = 100
     else:
         batch_size = 1000
-    crawler.crawl(batch_size)
+    crawler.crawl(batch_size, False)
 
 
 if __name__ == "__main__":

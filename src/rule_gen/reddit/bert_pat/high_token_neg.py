@@ -1,11 +1,21 @@
+import time
+from collections import Counter
+
 import torch
 import logging
 
 import fire
 from transformers import AutoTokenizer
 
+from chair.misc_lib import Averager, print_dict_tab
+from desk_util.io_helper import init_logging
+from desk_util.path_helper import get_model_save_path
+from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.bert_pat.partition_util import get_non_sharp_indices
 from rule_gen.reddit.bert_pat.pat_modeling import BertPAT, CombineByScoreAdd, BertPatFirst
+from rule_gen.reddit.classifier_loader.load_by_name import get_classifier
+from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
+from taskman_client.wrapper3 import JobContext
 
 LOG = logging.getLogger("InfPat")
 
@@ -122,8 +132,8 @@ class PatInferenceFirst:
         if len(sp_tokens) < window_size:
             LOG.debug("Text is shorter than the window size. defaulting to full sequence")
             result = {
-                'sub_text': text,
-                'score': self.get_full_text_score(text).tolist(),
+                'sequence': text,
+                'score': self.get_full_text_score(text),
             }
             return [result]
 
@@ -146,11 +156,56 @@ class PatInferenceFirst:
 
             probs1 = torch.softmax(logits1, -1)
             result = {
-                'sub_text': sub_text,
-                'input_ids': encoded['input_ids'][0].cpu().numpy().tolist(),
-                'range': (i, i+window_size),
-                'score': probs1[0, 1].cpu().numpy().tolist(),
+                'sequence': sub_text,
+                'input_ids': encoded['input_ids'][0].cpu().numpy(),
+                'score': probs1[0, 1].cpu().numpy(),
             }
             ret.append(result)
         return ret
 
+
+
+def infer_tokens(sb="TwoXChromosomes"):
+    init_logging()
+    model_name = f"bert_ts_{sb}"
+    data_name = "train_data2"
+    LOG.setLevel(logging.INFO)
+
+    t = 0.8
+    t_strong = 0.9
+    n_item = 100
+    confusion = Counter()
+    print("High scoring tokens in negative examples")
+    with JobContext(model_name + "_train"):
+        train_dataset = load_dataset_from_csv(get_reddit_train_data_path_ex(
+            data_name, sb, "train"))
+        train_dataset = train_dataset.take(n_item)
+        bert_tms = get_classifier("bert2_train_mix_sel")
+
+        model_path = get_model_save_path(model_name)
+        pat = PatInferenceFirst(model_path)
+        for example in train_dataset:
+            text = example['text']
+            tms_pred, tms_score = bert_tms(text)
+            full_score = pat.get_full_text_score(text)
+            domain_pred = int(full_score > 0.5)
+            confusion[(tms_pred, domain_pred)] += 1
+            if full_score > 0.4:
+                continue
+
+            n_grams = []
+            for window_size in range(1, 4):
+                ret = pat.get_first_view_scores(text, window_size=window_size)
+                for result in ret:
+                    score = result["score"]
+                    if score > t_strong:
+                        max_score = score
+                        # print(result["sequence"], score)
+                        n_grams.append((result["sequence"], score, 2))
+            if n_grams:
+                print("Text", text)
+                print("label", example["label"])
+                print(n_grams)
+
+if __name__ == "__main__":
+    fire.Fire(infer_tokens)

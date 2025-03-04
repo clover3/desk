@@ -46,7 +46,11 @@ def apply_statement(keyword_statement, res_save_path, texts):
         csv_writer = csv.writer(out_f)
 
         for k_idx, ks in enumerate(keyword_statement):
-            keyword, statement = ks
+            if isinstance(ks, tuple):
+                keyword, statement = ks
+            else:
+                statement = ks
+
             for t_idx, text in enumerate(texts):
                 if (k_idx, t_idx) in completed_pairs:
                     continue

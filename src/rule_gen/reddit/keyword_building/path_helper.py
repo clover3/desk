@@ -43,3 +43,16 @@ def load_keyword_statement(sb) -> list[tuple[str, str]]:
 def load_named_keyword_statement(name, sb) -> list[tuple[str, str]]:
     parsed_path = get_named_keyword_statement_path(name, sb)
     return json.load(open(parsed_path, "r"))
+
+
+def get_entail_save_path(name, sb):
+    res_save_path = os.path.join(output_root_path, "reddit",
+                                 "rule_processing", f"k_{name}_to_text_100", f"{sb}.csv")
+    return res_save_path
+
+
+def get_statements_from_ngram(sb):
+    statement_path = os.path.join(
+        output_root_path, "reddit",
+        "ngram_based", f"{sb}.json")
+    return statement_path
