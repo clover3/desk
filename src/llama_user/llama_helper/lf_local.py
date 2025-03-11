@@ -1,3 +1,5 @@
+import math
+
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
@@ -11,25 +13,37 @@ def get_parsing_key(tokenizer):
     return t1[len(t2):]
 
 
+global_model_d = {}
+
 class LlamaClient:
     def __init__(self, model_name="meta-llama/Meta-Llama-3-8B-Instruct", max_prompt_len=10000):
+        global global_model_d
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+        if model_name not in global_model_d:
+            self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+            global_model_d[model_name] = self.model
+        else:
+            self.model = global_model_d[model_name]
         self.max_prompt_len = max_prompt_len
         self.response_header = get_parsing_key(self.tokenizer)
         if not self.response_header:
             raise KeyError()
+        self.truncate_count = 0
 
     def len_filter(self, text):
         if text is None:
             return text
+
         if len(text) < self.max_prompt_len:
             return text
-        else:
+
+        self.truncate_count += 1
+        if self.truncate_count == 1 or math.log10(self.truncate_count).is_integer():
             print(f"Text has {len(text)} characters. Truncate to {self.max_prompt_len}")
-            return text[:self.max_prompt_len]
+
+        return text[:self.max_prompt_len]
 
     def ask(self, prompt, system_prompt=None):
         prompt = self.len_filter(prompt)

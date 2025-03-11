@@ -1,0 +1,5 @@
+run_name: lf_name
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/sb_name
+prompt_type: sb_name
+
+

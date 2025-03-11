@@ -8,42 +8,16 @@ from chair.misc_lib import make_parent_exists
 from desk_util.io_helper import init_logging
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.bert_pat.ngram_common import load_ngram_outputs, NGramInfo
+from rule_gen.reddit.bert_pat.runs.cluster_ngrams import save_clusters_to_json, print_clusters
 
 LOG = logging.getLogger(__name__)
 
 import json
 
 
-def save_clusters_to_json(clusters, output_file):
-    cluster_data = {}
-    for cluster_id in clusters:
-        cluster_info = {
-            "total_members": len(clusters[cluster_id]),
-            "members": [
-                {"text": ngram.sub_text, "score": round(ngram.score, 4)}
-                for ngram in clusters[cluster_id]
-            ]
-        }
-        cluster_data[f"Cluster {cluster_id}"] = cluster_info
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(cluster_data, f, indent=4)
-
-
-def print_clusters(clusters, n_show=20):
-    for cluster_id in clusters:
-        print(f"Cluster {cluster_id} has {len(clusters[cluster_id])} members:")
-        for i, ngram in enumerate(clusters[cluster_id][:n_show]):  # Print first 10 for brevity
-            print(f"  {i + 1}. {ngram.sub_text} (score: {ngram.score:.4f})")
-
-        if len(clusters[cluster_id]) > n_show:
-            print(f"  ... and {len(clusters[cluster_id]) - n_show} more")
-        print()
-
-
 
 def main(sb="TwoXChromosomes"):
-    model_name = f"bert2_{sb}"
+    model_name = f"bert_ts_{sb}"
     init_logging()
     LOG.info("Loading library")
     from sklearn.cluster import KMeans, DBSCAN
@@ -59,18 +33,19 @@ def main(sb="TwoXChromosomes"):
     LOG.info(f"Computing embeddings ...")
     for data_idx in range(n):
         # check input id equals
-        text = pos[data_idx][0].text
         sub_text_list = [ngram.sub_text for ngram in pos[data_idx]]
         if not sub_text_list:
             continue
 
         if not isinstance(sub_text_list[0], str):
             continue
+        def get_emb(t):
+            return bert.get_sentence_embedding(t, [1, 4, 7, 11], 'mean')
 
-        embs_list = bert.get_sub_text_embeddings(text, sub_text_list, layer_no=-1)
+        embs_list = [get_emb(t) for t in sub_text_list]
         per_item = []
         for embs in embs_list:
-            ngram_rep = np.mean(embs, axis=0)
+            ngram_rep = np.mean(embs, axis=0)[0]
             per_item.append(ngram_rep)
         pos_reps.append(per_item)
 

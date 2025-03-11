@@ -85,7 +85,7 @@ def get_no_rule_instruction(run_name):
     tokens = run_name.split("_")
     sb = "_".join(tokens[1:-1])
     role = tokens[-1]
-    inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?"
+    inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
     inst += f"Answer Yes or No, as a single token.\n"
     return inst, "Yes"
 

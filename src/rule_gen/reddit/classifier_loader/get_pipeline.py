@@ -21,14 +21,6 @@ def get_classifier_pipeline(run_name):
             score = -score
         return label, score
 
-    def batch_predict(text_list):
-        for r in pipe(text_list, truncation=True):
-            label = label_map[r["label"]]
-            score = r["score"]
-            if label == "0":
-                score = -score
-            yield label, score
-
     return predict
 
 

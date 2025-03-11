@@ -1,7 +1,9 @@
 import random
 from typing import Callable
 
+from rule_gen.reddit.base_bert.concat_bert_inf import get_ce_predictor_w_conf
 from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf, load_api_based2, load_local_based
+from rule_gen.reddit.llama.load_llama_inst import get_lf_predictor_w_conf
 
 
 def get_random_classifier():
@@ -40,6 +42,8 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("llg_"):
         from rule_gen.reddit.classifier_loader.llama_guard_based import load_llama_guard_based
         return load_llama_guard_based(run_name)
+    elif run_name.startswith("lf"):
+        return get_lf_predictor_w_conf(run_name)
     elif run_name.startswith("chatgpt_"):
         from rule_gen.reddit.classifier_loader.prompt_based import load_chatgpt_based
         return load_chatgpt_based(run_name)
@@ -49,6 +53,9 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("col"):
         from rule_gen.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
         return get_qd_predictor_w_conf(run_name)
+    elif run_name.startswith("ce_"):
+        from rule_gen.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
+        return get_ce_predictor_w_conf(run_name)
     elif run_name.startswith("proto"):
         from rule_gen.reddit.classifier_loader.proto_predictor import get_proto_predictor
         return get_proto_predictor(run_name)

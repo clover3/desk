@@ -1,0 +1,5 @@
+run_name: both_rule
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/full/both_rule
+prompt_type: both_rule
+
+
