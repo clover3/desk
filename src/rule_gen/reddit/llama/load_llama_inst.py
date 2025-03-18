@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from llama_user.llama_helper.lf_local import LlamaClient
 from llama_user.llama_helper.llama_model_names import Llama3_8B_Instruct
-from rule_gen.reddit.llama.prompt_helper import get_prompt_fn_from_type
+from rule_gen.reddit.llama.prompt_helper import get_prompt_fn_from_type, get_pattern_prompt_fn_w_prepost
 
 
 def load_llama_inst(model_id: str = Llama3_8B_Instruct):
@@ -31,10 +31,16 @@ def load_llama_inst(model_id: str = Llama3_8B_Instruct):
 def get_lf_classifier(model_id, get_prompt, sb):
     pos_keyword = "yes"
     client = LlamaClient(model_id, max_prompt_len=5000)
+    is_first = True
 
     def predict(text):
         prompt = get_prompt(text, sb)
         ret_text = client.ask("", prompt)
+        nonlocal is_first
+        if is_first:
+            print(prompt)
+            print(ret_text)
+            is_first = False
         pred = int(pos_keyword.lower() in ret_text.lower())
         return pred, 0
 
@@ -45,7 +51,11 @@ def get_lf_predictor_w_conf(run_name):
     model_name, sb = run_name.split("/")
     conf_path = os.path.join("confs", "lf", f"{model_name}.yaml")
     conf = OmegaConf.load(conf_path)
-    get_prompt_fn = get_prompt_fn_from_type(conf.prompt_type)
+    if conf.prompt_type == "prepost":
+        get_prompt_fn = get_pattern_prompt_fn_w_prepost(conf.prefix, conf.postfix)
+    else:
+        get_prompt_fn = get_prompt_fn_from_type(conf.prompt_type)
+
     return get_lf_classifier(conf.model_path, get_prompt_fn, sb)
 
 

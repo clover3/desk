@@ -1,26 +1,11 @@
 import json
-import shutil
 from pathlib import Path
 from chair.misc_lib import make_parent_exists
 from desk_util.io_helper import read_csv
 from rule_gen.cpath import output_root_path
-from rule_gen.reddit.llama.prompt_helper import get_prompt_factory_both_rule, get_prompt_fn_from_type
+from rule_gen.reddit.llama.lf_util import register_dataset
+from rule_gen.reddit.llama.prompt_helper import get_prompt_fn_from_type
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
-
-
-
-def register_dataset(dataset_path, dataset_name):
-    dataset_info_path = "/sfs/gpfs/tardis/home/qdb5sn/work/LLaMA-Factory/data/dataset_info.json"
-    file_name = f"{dataset_name}.json"
-    with open(dataset_info_path, "r") as dataset_info_file:
-        dataset_info = json.load(dataset_info_file)
-
-    dataset_info[dataset_name] = {"filename": file_name}
-    with open(dataset_info_path, "w") as dataset_info_file:
-        json.dump(dataset_info, dataset_info_file, indent=4)
-
-    dst = Path("/sfs/gpfs/tardis/home/qdb5sn/work/LLaMA-Factory/data") / file_name
-    shutil.copyfile(dataset_path, dst)
 
 
 def save_json_payload(src_data_name, save_data_name, get_prompt):

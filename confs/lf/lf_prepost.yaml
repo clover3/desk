@@ -1,0 +1,10 @@
+run_name: lf_prepost1
+model_path: meta-llama/Meta-Llama-3-8B-Instruct
+prompt_type: prepost
+prefix: |
+    If the following text is posted in {} subreddit, will it be moderated (deleted)?
+    First, consider if the post is generally unacceptable.
+    Second, consider that these are common patterns found in texts that are deleted:
+postfix: |
+    Note that there could be moderated texts which are not captured by these patterns.
+    Answer Yes or No, as a single token.

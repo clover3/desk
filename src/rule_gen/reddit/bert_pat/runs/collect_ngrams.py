@@ -67,7 +67,7 @@ def infer_tokens(sb="TwoXChromosomes"):
         "pos": pos_ngram_list,
         "neg": neg_ngram_list
     }
-    save_path = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93", f"{sb}.json")
+    save_path = os.path.join(output_root_path, "reddit", "rule_processing", " ", f"{sb}.json")
     make_parent_exists(save_path)
     json.dump(output, open(save_path, "w"))
 

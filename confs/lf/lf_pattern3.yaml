@@ -1,0 +1,6 @@
+run_name: lf_pattern3
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/lf_pattern2
+prompt_type: 7sb_pattern3
+
+
+# This uses pattern for val split

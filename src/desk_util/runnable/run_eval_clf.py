@@ -15,7 +15,10 @@ def run_eval_clf(run_name,
     metrics_to_report = ["accuracy", "f1"]
     if print_metrics:
         if isinstance(print_metrics, str):
-            print_metrics = [print_metrics]
+            if print_metrics == "all":
+                print_metrics = list(score_d.keys())
+            else:
+                print_metrics = [print_metrics]
     else:
         print_metrics = ["accuracy", "f1", "auc", "n"]
 
