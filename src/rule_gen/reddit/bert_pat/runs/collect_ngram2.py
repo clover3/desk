@@ -25,7 +25,6 @@ def infer_tokens(sb="TwoXChromosomes"):
     t = 0.8
     t_strong = 0.93
     n_item = 100
-    confusion = Counter()
     pos_ngram_list = []
     neg_ngram_list = []
     train_dataset = load_dataset_from_csv(get_reddit_train_data_path_ex(
@@ -40,9 +39,9 @@ def infer_tokens(sb="TwoXChromosomes"):
         tms_pred, tms_score = bert_tms(text)
         full_score = pat.get_full_text_score(text)
         domain_pred = int(full_score > 0.5)
-        confusion[(tms_pred, domain_pred)] += 1
         if full_score < t - 0.1:
             continue
+
         text_sp_rev = " ".join(text.split())
         pos_ngrams = []
         neg_ngrams = []
@@ -64,10 +63,6 @@ def infer_tokens(sb="TwoXChromosomes"):
             pos_ngram_list.append(pos_ngrams)
             neg_ngram_list.append(neg_ngrams)
 
-    output = {
-        "pos": pos_ngram_list,
-        "neg": neg_ngram_list
-    }
     def apply_group(l: list[list[dict]]):
         output = []
         for entries in l:
@@ -83,9 +78,6 @@ def infer_tokens(sb="TwoXChromosomes"):
         "neg": apply_group(neg_ngram_list)
     }
 
-    save_path = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93", f"{sb}.json")
-    make_parent_exists(save_path)
-    json.dump(output, open(save_path, "w"))
     ngram_path2 = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93_g", f"{sb}.json")
     json.dump(output2, open(ngram_path2, "w"))
 

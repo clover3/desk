@@ -15,3 +15,7 @@ def register_dataset(dataset_path, dataset_name):
 
     dst = Path("/sfs/gpfs/tardis/home/qdb5sn/work/LLaMA-Factory/data") / file_name
     shutil.copyfile(dataset_path, dst)
+
+
+def get_lf_config_path(file_name):
+    return Path("/sfs/gpfs/tardis/home/qdb5sn/work/LLaMA-Factory/reddit_confs") / f"{file_name}.yaml"

@@ -17,8 +17,8 @@ def save_json_payload(src_data_name, save_data_name, get_prompt):
     for sb, text, label in data:
         prompt = get_prompt(text, sb)
         e = {
-            "instruction": prompt,
-            "input": "",
+            "instruction": "",
+            "input": prompt,
             "output": label_mapping[int(label)]
         }
         save_data.append(e)

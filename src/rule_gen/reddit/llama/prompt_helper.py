@@ -1,5 +1,6 @@
 import json
 import os
+from json import JSONDecodeError
 
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.classifier_loader.inst_builder import get_instruction_from_run_name, get_no_rule_instruction
@@ -98,30 +99,27 @@ def get_7sb_pattern3_prompt_fn():
 
 
 def get_pattern4_prompt_fn():
-    train_sb_list = [
-        "Android", "fantasyfootball", "space", "TwoXChromosomes",
-        "askscience", "pokemontrades", "TheSilphRoad"
-    ]
-    val_sb_list = [
-        "SuicideWatch"
-    ]
-    sb_list_w_pattern = train_sb_list + val_sb_list
     instruction_d = {}
-    for sb in sb_list_w_pattern:
-        pattern_path = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93_g_sel", f"{sb}.json")
-        patterns = json.load(open(pattern_path, "r"))
-        instruction_d[sb] = get_pattern_instruction2(sb, patterns)
-
     all_sb_list = load_subreddit_list()
+    found_list = []
     for sb in all_sb_list:
-        if sb not in sb_list_w_pattern:
+        pattern_path = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93_g_sel", f"{sb}.json")
+        if os.path.exists(pattern_path):
+            try:
+                patterns = json.load(open(pattern_path, "r"))
+            except JSONDecodeError:
+                print(pattern_path)
+                raise
+            instruction_d[sb] = get_pattern_instruction2(sb, patterns)
+            found_list.append(sb)
+        else:
             inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
             inst += f"Answer Yes or No, as a single token.\n"
             instruction_d[sb] = inst
 
+    print("Sb with patterns: ", found_list)
     def get_prompt(text, sb):
         inst = instruction_d[sb]
-        print(inst)
         prompt = f"<Instruction>{inst}</Instruction>\n<BEGIN TEXT>{text}\n<END TEXT>"
         return prompt
     return get_prompt

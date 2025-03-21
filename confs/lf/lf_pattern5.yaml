@@ -1,0 +1,5 @@
+run_name: lf_pattern5
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/lf_pattern5
+prompt_type: pattern4
+
+
