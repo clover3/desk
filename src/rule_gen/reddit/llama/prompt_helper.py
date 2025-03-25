@@ -6,7 +6,7 @@ from rule_gen.cpath import output_root_path
 from rule_gen.reddit.classifier_loader.inst_builder import get_instruction_from_run_name, get_no_rule_instruction
 from rule_gen.reddit.llama.train_prompt_gen import get_pattern_instruction, get_pattern_instruction2, \
     get_pattern_instruction_w_prepost
-from rule_gen.reddit.path_helper import get_split_subreddit_list, load_subreddit_list
+from rule_gen.reddit.path_helper import get_split_subreddit_list, load_subreddit_list, get_rp_path
 
 
 def get_prompt_factory_both_rule():
@@ -52,6 +52,10 @@ def get_prompt_fn_from_type(prompt_type):
         get_prompt_fn = get_7sb_pattern_prompt_fn()
     elif prompt_type == "pattern4":
         get_prompt_fn = get_pattern4_prompt_fn()
+    elif prompt_type == "pattern_f":
+        get_prompt_fn = get_pattern_f_prompt_fn()
+    elif prompt_type == "pattern_g":
+        get_prompt_fn = get_pattern_g_prompt_fn()
     else:
         raise ValueError()
     return get_prompt_fn
@@ -118,6 +122,95 @@ def get_pattern4_prompt_fn():
             instruction_d[sb] = inst
 
     print("Sb with patterns: ", found_list)
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        prompt = f"<Instruction>{inst}</Instruction>\n<BEGIN TEXT>{text}\n<END TEXT>"
+        return prompt
+    return get_prompt
+
+
+def get_pattern_f_prompt_fn():
+    instruction_d = {}
+    all_sb_list = load_subreddit_list()
+
+    def format_prompt(sb, patterns):
+        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        inst += "Here are common patterns that are deleted, with the key part makred with <reason>: \n" \
+                "<Patterns>\n"
+        pattern_str = "\n".join(patterns)
+        inst += pattern_str + "\n</Patterns>"
+        inst += "\nNote that there could be moderated texts which are not captured by these patterns."
+        inst += f"\n    Answer Yes or No, as a single token.\n"
+        return inst
+
+    found_list = []
+    not_found_list = []
+    for sb in all_sb_list:
+        pattern_path = get_rp_path("ngram_93_rule1", f"{sb}.json")
+        try:
+            patterns = json.load(open(pattern_path, "r"))
+        except FileNotFoundError:
+            patterns = []
+        except JSONDecodeError:
+            print(pattern_path)
+            raise
+
+        if patterns:
+            instruction_d[sb] = format_prompt(sb, patterns)
+            found_list.append(sb)
+        else:
+            inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+            inst += f"Answer Yes or No, as a single token.\n"
+            instruction_d[sb] = inst
+            not_found_list.append(sb)
+
+    print("Sb with patterns: ", found_list)
+    print("Sb without patterns: ", not_found_list)
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        prompt = f"<Instruction>{inst}</Instruction>\n<BEGIN TEXT>{text}\n<END TEXT>"
+        return prompt
+    return get_prompt
+
+def get_pattern_g_prompt_fn():
+    instruction_d = {}
+    all_sb_list = load_subreddit_list()
+
+    def format_prompt(sb, patterns):
+        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        inst += "Here are common patterns that are deleted, with the key part makred with <reason>: \n" \
+                "<Patterns>\n"
+
+        pattern_str_list = [f"<text> {t} </text>" for t in patterns]
+        pattern_str = "\n".join(pattern_str_list)
+        inst += pattern_str + "\n</Patterns>"
+        inst += "\nNote that there could be moderated texts which are not captured by these patterns."
+        inst += f"\n    Answer Yes or No, as a single token.\n"
+        return inst
+
+    found_list = []
+    not_found_list = []
+    for sb in all_sb_list:
+        pattern_path = get_rp_path("ngram_93_rule1", f"{sb}.json")
+        try:
+            patterns = json.load(open(pattern_path, "r"))
+        except FileNotFoundError:
+            patterns = []
+        except JSONDecodeError:
+            print(pattern_path)
+            raise
+
+        if patterns:
+            instruction_d[sb] = format_prompt(sb, patterns)
+            found_list.append(sb)
+        else:
+            inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+            inst += f"Answer Yes or No, as a single token.\n"
+            instruction_d[sb] = inst
+            not_found_list.append(sb)
+
+    print("Sb with patterns: ", found_list)
+    print("Sb without patterns: ", not_found_list)
     def get_prompt(text, sb):
         inst = instruction_d[sb]
         prompt = f"<Instruction>{inst}</Instruction>\n<BEGIN TEXT>{text}\n<END TEXT>"

@@ -1,0 +1,6 @@
+run_name: lf_pattern6_mini
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/lf_pattern6_mini
+prompt_type: pattern_f
+data_name: lf_pattern_f
+
+

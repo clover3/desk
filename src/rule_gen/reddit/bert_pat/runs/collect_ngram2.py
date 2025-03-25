@@ -4,19 +4,20 @@ import logging
 import os
 from collections import Counter
 
+from tqdm import tqdm
+
 from chair.misc_lib import make_parent_exists
 from desk_util.io_helper import init_logging
 from desk_util.path_helper import get_model_save_path
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.bert_pat.infer_tokens import LOG, PatInferenceFirst
-from rule_gen.reddit.bert_pat.ngram_common import NGramInfo
 from rule_gen.reddit.classifier_loader.load_by_name import get_classifier
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
-from taskman_client.wrapper3 import JobContext
 
 
 def infer_tokens(sb="TwoXChromosomes"):
+    print(sb)
     init_logging()
     model_name = f"bert_ts_{sb}"
     data_name = "train_data2"
@@ -24,17 +25,17 @@ def infer_tokens(sb="TwoXChromosomes"):
 
     t = 0.8
     t_strong = 0.93
-    n_item = 100
     pos_ngram_list = []
-    neg_ngram_list = []
     train_dataset = load_dataset_from_csv(get_reddit_train_data_path_ex(
         data_name, sb, "train"))
+    n_item = 2000
     train_dataset = train_dataset.take(n_item)
+
     bert_tms = get_classifier("bert2_train_mix_sel")
 
     model_path = get_model_save_path(model_name)
     pat = PatInferenceFirst(model_path)
-    for example in train_dataset:
+    for example in tqdm(train_dataset):
         text = example['text']
         tms_pred, tms_score = bert_tms(text)
         full_score = pat.get_full_text_score(text)
@@ -42,44 +43,32 @@ def infer_tokens(sb="TwoXChromosomes"):
         if full_score < t - 0.1:
             continue
 
+        if int(tms_pred) == domain_pred:
+            continue
+
+        # print(f"{tms_pred} {domain_pred} {text}")
+        # print("")
         text_sp_rev = " ".join(text.split())
-        pos_ngrams = []
-        neg_ngrams = []
-        for window_size in range(1, 4):
+        strong_sub_texts = []
+        for window_size in [1, 3, 5]:
             ret = pat.get_first_view_scores(text, window_size=window_size)
             for result in ret:
                 score = result["score"]
-                out_res = {
-                    'text': text_sp_rev,
-                    'sub_text': result["sub_text"],
-                    'score': score,
-                }
                 if score > t_strong:
-                    pos_ngrams.append(out_res)
-                elif score < 0.3:
-                    neg_ngrams.append(out_res)
+                    sub_text = result["sub_text"]
+                    strong_sub_texts.append({
+                        'sub_text': sub_text,
+                        'score': score,
+                    })
+        if strong_sub_texts:
+            out_res = {
+                'text': text_sp_rev,
+                'strong_sub_texts': strong_sub_texts,
+            }
+            pos_ngram_list.append(out_res)
 
-        if pos_ngrams:
-            pos_ngram_list.append(pos_ngrams)
-            neg_ngram_list.append(neg_ngrams)
-
-    def apply_group(l: list[list[dict]]):
-        output = []
-        for entries in l:
-            if not entries:
-                continue
-            key = entries[0]['text']
-            subs = [(e['sub_text'], e['score']) for e in entries]
-            output.append({"text": key, "subs": subs})
-        return output
-
-    output2 = {
-        "pos": apply_group(pos_ngram_list),
-        "neg": apply_group(neg_ngram_list)
-    }
-
-    ngram_path2 = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93_g", f"{sb}.json")
-    json.dump(output2, open(ngram_path2, "w"))
+    ngram_path2 = os.path.join(output_root_path, "reddit", "rule_processing", "ngram_93_all", f"{sb}.json")
+    json.dump(pos_ngram_list, open(ngram_path2, "w"), indent=4)
 
 
 if __name__ == "__main__":

@@ -135,3 +135,7 @@ def get_n_rules(sb):
     return n_rule
 
 
+def get_rp_path(dir_name, file_name):
+    p = os.path.join(output_root_path, "reddit", "rule_processing", dir_name, file_name)
+    make_parent_exists(p)
+    return p
