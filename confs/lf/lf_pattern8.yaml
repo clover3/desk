@@ -1,0 +1,6 @@
+run_name: lf_pattern8
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/lf_pattern8
+prompt_type: pattern_h
+data_name: lf_pattern_h
+
+

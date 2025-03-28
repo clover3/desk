@@ -43,11 +43,75 @@ def get_prompt_factory_no_rule():
     return get_prompt
 
 
+def get_prompt_factory_strict():
+    sb_list = load_subreddit_list()
+    instruction_d = {}
+    for sb in sb_list:
+        run_name = f"api_{sb}_both"
+        tokens = run_name.split("_")
+        sb = "_".join(tokens[1:-1])
+        role = tokens[-1]
+        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        inst += f"Note that {sb} has very strict moderation criteria.\n"
+        inst += f"Answer Yes or No, as a single token.\n"
+        instruction_d[sb] = inst
+
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        prompt = f"{inst}\n<BEGIN TEXT>{text}\n<END TEXT>"
+        return prompt
+    return get_prompt
+
+
+def get_prompt_factory_generous():
+    sb_list = load_subreddit_list()
+    instruction_d = {}
+    for sb in sb_list:
+        run_name = f"api_{sb}_both"
+        tokens = run_name.split("_")
+        sb = "_".join(tokens[1:-1])
+        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        inst += f"Note that the {sb} subreddit has very generous moderation criteria.\n"
+        inst += f"Answer Yes or No, as a single token.\n"
+        instruction_d[sb] = inst
+
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        prompt = f"{inst}\n<BEGIN TEXT>{text}\n<END TEXT>"
+        return prompt
+    return get_prompt
+
+
+def get_prompt_factory_say_why():
+    sb_list = load_subreddit_list()
+    instruction_d = {}
+    for sb in sb_list:
+        run_name = f"api_{sb}_both"
+        tokens = run_name.split("_")
+        sb = "_".join(tokens[1:-1])
+        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        inst += f"Explain why it is predicted so (even heuristic).\n"
+        inst += f"Finish the response with '#### Yes' or '#### No'\n"
+        instruction_d[sb] = inst
+
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        prompt = f"{inst}\n<BEGIN TEXT>{text}\n<END TEXT>"
+        return prompt
+    return get_prompt
+
+
 def get_prompt_fn_from_type(prompt_type):
     if prompt_type == "both_rule":
         get_prompt_fn = get_prompt_factory_both_rule()
     elif prompt_type == "sb_name":
         get_prompt_fn = get_prompt_factory_no_rule()
+    elif prompt_type == "sb_name_strict":
+        get_prompt_fn = get_prompt_factory_strict()
+    elif prompt_type == "sb_name_generous":
+        get_prompt_fn = get_prompt_factory_generous()
+    elif prompt_type == "sb_name_say_why":
+        get_prompt_fn = get_prompt_factory_say_why()
     elif prompt_type == "7sb_pattern":
         get_prompt_fn = get_7sb_pattern_prompt_fn()
     elif prompt_type == "pattern4":
@@ -56,8 +120,11 @@ def get_prompt_fn_from_type(prompt_type):
         get_prompt_fn = get_pattern_f_prompt_fn()
     elif prompt_type == "pattern_g":
         get_prompt_fn = get_pattern_g_prompt_fn()
+    elif prompt_type == "pattern_h":
+        get_prompt_fn = get_pattern_h_prompt_fn()
     else:
         raise ValueError()
+
     return get_prompt_fn
 
 
@@ -133,14 +200,16 @@ def get_pattern_f_prompt_fn():
     instruction_d = {}
     all_sb_list = load_subreddit_list()
 
+    inst_first_line_fmt =  "If the following text is posted in {} subreddit, removed by a moderator or AutoMod based on subreddit rules?\n"
+    inst_line_line = f"\nOutput only 'Yes' or 'No' as a single token, without explanation.\n"
     def format_prompt(sb, patterns):
-        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        inst = inst_first_line_fmt.format(sb)
         inst += "Here are common patterns that are deleted, with the key part makred with <reason>: \n" \
                 "<Patterns>\n"
         pattern_str = "\n".join(patterns)
         inst += pattern_str + "\n</Patterns>"
-        inst += "\nNote that there could be moderated texts which are not captured by these patterns."
-        inst += f"\n    Answer Yes or No, as a single token.\n"
+        inst += "\nNote that there could be moderated texts which are not captured by these patterns.\n"
+        inst += inst_line_line
         return inst
 
     found_list = []
@@ -159,8 +228,8 @@ def get_pattern_f_prompt_fn():
             instruction_d[sb] = format_prompt(sb, patterns)
             found_list.append(sb)
         else:
-            inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
-            inst += f"Answer Yes or No, as a single token.\n"
+            inst = inst_first_line_fmt.format(sb)
+            inst += inst_line_line
             instruction_d[sb] = inst
             not_found_list.append(sb)
 
@@ -175,10 +244,11 @@ def get_pattern_f_prompt_fn():
 def get_pattern_g_prompt_fn():
     instruction_d = {}
     all_sb_list = load_subreddit_list()
+    inst_first_line_fmt =  "If the following text is posted in {} subreddit, removed by a moderator or AutoMod based on subreddit rules?\n"
 
     def format_prompt(sb, patterns):
-        inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
-        inst += "Here are common patterns that are deleted, with the key part makred with <reason>: \n" \
+        inst = inst_first_line_fmt.format(sb)
+        inst += "Here are common patterns that are deleted, with the key part marked with <reason>: \n" \
                 "<Patterns>\n"
 
         pattern_str_list = [f"<text> {t} </text>" for t in patterns]
@@ -204,7 +274,7 @@ def get_pattern_g_prompt_fn():
             instruction_d[sb] = format_prompt(sb, patterns)
             found_list.append(sb)
         else:
-            inst = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+            inst = inst_first_line_fmt.format(sb)
             inst += f"Answer Yes or No, as a single token.\n"
             instruction_d[sb] = inst
             not_found_list.append(sb)
@@ -218,6 +288,57 @@ def get_pattern_g_prompt_fn():
     return get_prompt
 
 
+def get_pattern_h_prompt_fn():
+    instruction_d = {}
+    all_sb_list = load_subreddit_list()
+    inst_first_line_fmt =  "If the following text is posted in {} subreddit, removed by a moderator or AutoMod based on subreddit rules?\n"
+
+    def format_prompt(sb, patterns):
+        inst = inst_first_line_fmt.format(sb)
+        inst += "Here are common patterns that are deleted, with the key part marked with <reason>: \n" \
+                "<Patterns>\n"
+
+        def modify(pattern):
+            pattern = pattern.replace("<reason>", "<reason> ")
+            pattern = pattern.replace("</reason>", " </reason>")
+            return pattern
+
+        patterns = map(modify, patterns)
+        pattern_str_list = [f"<pattern> {t} </pattern>" for t in patterns]
+        pattern_str = "\n".join(pattern_str_list)
+        inst += pattern_str + "\n</Patterns>"
+        inst += "\nNote that there could be moderated texts which are not captured by these patterns."
+        inst += f"\n    Answer Yes or No, as a single token.\n"
+        return inst
+
+    found_list = []
+    not_found_list = []
+    for sb in all_sb_list:
+        pattern_path = get_rp_path("ngram_93_rule1", f"{sb}.json")
+        try:
+            patterns = json.load(open(pattern_path, "r"))
+        except FileNotFoundError:
+            patterns = []
+        except JSONDecodeError:
+            print(pattern_path)
+            raise
+
+        if patterns:
+            instruction_d[sb] = format_prompt(sb, patterns)
+            found_list.append(sb)
+        else:
+            inst = inst_first_line_fmt.format(sb)
+            inst += f"Answer Yes or No, as a single token.\n"
+            instruction_d[sb] = inst
+            not_found_list.append(sb)
+
+    print("Sb with patterns: ", found_list)
+    print("Sb without patterns: ", not_found_list)
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        prompt = f"<Instruction>{inst}</Instruction>\n<BEGIN TEXT>{text}\n<END TEXT>"
+        return prompt
+    return get_prompt
 
 def get_pattern_prompt_fn_w_prepost(prefix, postfix):
     train_sb_list = [

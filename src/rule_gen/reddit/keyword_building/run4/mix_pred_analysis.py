@@ -11,22 +11,27 @@ import numpy as np
 
 
 def pos_rate_per_clf():
-    train_data_path = get_reddit_train_data_path_ex("train_data2", "train_mix", "train")
+    train_data_path = get_reddit_train_data_path_ex(
+        "train_data2", "train_mix", "train")
     items = read_csv(train_data_path)
     subreddit_list = get_split_subreddit_list("train")
-    sc = SuccessCounter()
     output = []
     for sb in subreddit_list:
         try:
+            sc = SuccessCounter()
             run_name = "bert2_{}".format(sb)
             dataset = "train_data2_mix"
             preds = load_clf_pred(dataset, run_name)
             for t in preds:
                 sc.add(t[1])
+
             output.append((sb, sc.get_suc_prob()))
             if len(preds) != len(items):
-                print("{} != {}".format(len(preds), len(items)))
-                raise ValueError()
+                n_missing = len(items) - len(preds)
+                preds = preds + [0] * (n_missing)
+                print("For {} {} != {}".format(sb, len(preds), len(items)))
+                print("Filling missing predictions with 0")
+                # raise ValueError()
         except FileNotFoundError as e:
             raise e
     output.sort(key=lambda x: x[1], reverse=True)
@@ -108,4 +113,4 @@ def save_as_np():
 
 
 if __name__ == "__main__":
-    save_as_np()
+    pos_rate_per_clf()

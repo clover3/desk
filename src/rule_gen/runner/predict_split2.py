@@ -13,6 +13,7 @@ def predict_sb_split(
         run_name_fmt: str,
         split: str,
         do_eval=False,
+        overwrite=False,
 ) -> None:
     todo = get_split_subreddit_list(split)
     dataset_fmt = "{}_2_val_100"
@@ -21,7 +22,7 @@ def predict_sb_split(
         run_name = run_name_fmt.format(sb)
         dataset = dataset_fmt.format(sb)
         predict_fn = get_classifier(run_name)
-        clf_predict_w_predict_fn(dataset, run_name, predict_fn)
+        clf_predict_w_predict_fn(dataset, run_name, predict_fn, overwrite)
         if do_eval:
             run_eval_clf(run_name, dataset,
                          True)

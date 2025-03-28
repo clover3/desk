@@ -1,3 +1,4 @@
+import math
 import os
 import random
 import shutil
@@ -1083,3 +1084,7 @@ def group_iter(itr: Iterable[A], get_key: Callable[[A], Any]) -> Iterator[List[A
 
 def rel(p):
     return os.path.relpath(p)
+
+
+def is_power_of_ten(n):
+    return n == 1 or math.log10(n).is_integer()

@@ -1,5 +1,7 @@
 import json
 import os
+import sys
+from typing import Iterable
 
 import pyzstd
 
@@ -34,13 +36,17 @@ def filter_dump_by_subreddits(input_file_path, save_path, subreddits):
             f.write(line)
 
 
+
+
+
+
 def main():
     # 304008295
-    file_key = "RC_2024-10"
     subreddit_list = load_subreddit_list()
     subreddits = set(subreddit_list)
-    input_file_path = os.path.join(data_root_path, "reddit", "dump", f"{file_key}.zst")
-    save_path = os.path.join(output_root_path, "reddit", "dump", f"{file_key}_filtered.zst")
+    input_file_path = sys.argv[1]
+    save_name = os.path.basename(input_file_path)
+    save_path = os.path.join(output_root_path, "reddit", "dump", f"{save_name}_filtered.zst")
     filter_dump_by_subreddits(input_file_path, save_path, subreddits)
 
 

@@ -1,6 +1,6 @@
 run_name: lf_pattern7
 model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/lf_pattern7
-prompt_type: pattern_e
+prompt_type: pattern_g
 data_name: lf_pattern_e
 
 

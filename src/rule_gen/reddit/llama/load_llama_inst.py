@@ -28,7 +28,7 @@ def load_llama_inst(model_id: str = Llama3_8B_Instruct):
     return request
 
 
-def get_lf_classifier(model_id, get_prompt, sb):
+def get_lf_classifier(model_id, get_prompt, sb, hook_fn):
     pos_keyword = "yes"
     client = LlamaClient(model_id, max_prompt_len=5000)
     is_first = True
@@ -37,6 +37,9 @@ def get_lf_classifier(model_id, get_prompt, sb):
         prompt = get_prompt(text, sb)
         ret_text = client.ask("", prompt)
         nonlocal is_first
+
+        if hook_fn is not None:
+            hook_fn(prompt, ret_text)
         if is_first:
             print(prompt)
             print(ret_text)
@@ -45,6 +48,8 @@ def get_lf_classifier(model_id, get_prompt, sb):
         return pred, 0
 
     return predict
+
+
 
 
 def get_lf_predictor_w_conf(run_name):
@@ -56,6 +61,15 @@ def get_lf_predictor_w_conf(run_name):
     else:
         get_prompt_fn = get_prompt_fn_from_type(conf.prompt_type)
 
-    return get_lf_classifier(conf.model_path, get_prompt_fn, sb)
+    hook_fn = None
+    if "hook" in conf :
+        if conf.hook == "stdout":
+            def hook_fn(prompt, ret_text):
+                print("--- prompt")
+                print(prompt)
+                print("--- ret text")
+                print(ret_text)
+
+    return get_lf_classifier(conf.model_path, get_prompt_fn, sb, hook_fn)
 
 
