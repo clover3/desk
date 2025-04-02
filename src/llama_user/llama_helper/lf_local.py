@@ -83,6 +83,77 @@ class LlamaClient:
                 ]
             }
 
+
+class LlamaClient2:
+    def __init__(self, model_name="meta-llama/Meta-Llama-3-8B-Instruct", max_prompt_len=10000):
+        global global_model_d
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+
+        if model_name not in global_model_d:
+            self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+            global_model_d[model_name] = self.model
+        else:
+            self.model = global_model_d[model_name]
+        self.max_prompt_len = max_prompt_len
+        self.response_header = get_parsing_key(self.tokenizer)
+        if not self.response_header:
+            raise KeyError()
+        self.truncate_count = 0
+
+    def len_filter(self, text):
+        if text is None:
+            return text
+
+        if len(text) < self.max_prompt_len:
+            return text
+
+        self.truncate_count += 1
+        if self.truncate_count == 1 or math.log10(self.truncate_count).is_integer():
+            print(f"Text has {len(text)} characters. Truncate to {self.max_prompt_len}")
+
+        return text[:self.max_prompt_len]
+
+    def ask(self, prompt, system_prompt=None) -> tuple[str, float]:
+        prompt = self.len_filter(prompt)
+        system_prompt = self.len_filter(system_prompt)
+        j = self.get_json_request(prompt, system_prompt)
+        return self._generate_response(j)
+
+    def _generate_response(self, request_json) -> tuple[str, float]:
+        input_text = self.tokenizer.apply_chat_template(
+            request_json["messages"], tokenize=False,
+            add_generation_prompt=True)
+        inputs = self.tokenizer(input_text, return_tensors="pt").to(self.model.device)
+        prompt_len = inputs["input_ids"].shape[-1]
+        pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id
+        output = self.model.generate(**inputs, max_new_tokens=10,
+                                      return_dict_in_generate=True,
+                                      output_scores=True,
+                                      pad_token_id=pad_token_id)
+        generated_seq = output.sequences[0][prompt_len:]
+        first_token_score = output.scores[0]
+        confidence = first_token_score[0][generated_seq[0]]
+        gen_text = self.tokenizer.decode(generated_seq)
+        return gen_text, float(confidence)
+
+    def get_json_request(self, prompt, system_prompt):
+        if system_prompt is None:
+            return {
+                "model": self.model.config.name_or_path,
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ]
+            }
+        else:
+            return {
+                "model": self.model.config.name_or_path,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ]
+            }
+
 #
 # from vllm import LLM, SamplingParams
 # from transformers import AutoTokenizer

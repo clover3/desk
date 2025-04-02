@@ -18,6 +18,14 @@ def main2():
     save_json_payload(src_data_name, save_data_name, get_prompt)
 
 
+def main3():
+    src_data_name = "train_comb4"
+    prompt_type = "sb_name2"
+    get_prompt = get_prompt_fn_from_type(prompt_type)
+    save_data_name = "sb_name3"
+    save_json_payload(src_data_name, save_data_name, get_prompt, "val")
+
+
+
 if __name__ == "__main__":
-    main()
-    main2()
+    main3()

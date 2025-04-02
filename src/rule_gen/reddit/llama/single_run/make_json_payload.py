@@ -8,10 +8,13 @@ from rule_gen.reddit.llama.prompt_helper import get_prompt_fn_from_type
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
 
 
-def save_json_payload(src_data_name, save_data_name, get_prompt):
+def save_json_payload(src_data_name, save_data_name, get_prompt, role="train"):
     label_mapping = {1: "yes", 0: "no"}
-    src_data_path = get_reddit_train_data_path_ex("train_data2", src_data_name, "train")
+    src_data_path = get_reddit_train_data_path_ex("train_data2", src_data_name, role)
     data = read_csv(src_data_path)
+
+    if role != "train":
+        save_data_name += "_{}".format(role)
     save_path = Path(output_root_path) / "reddit" / "lf_data" / "{}.json".format(save_data_name)
     save_data = []
     for sb, text, label in data:

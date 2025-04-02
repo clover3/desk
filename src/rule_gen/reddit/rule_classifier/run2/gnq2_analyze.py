@@ -1,11 +1,13 @@
 import json
 import os
+import fire
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import numpy as np
 
 from chair.list_lib import right
+from chair.tab_print import print_table
 from desk_util.path_helper import load_csv_dataset
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.path_helper import get_split_subreddit_list
@@ -55,17 +57,19 @@ def load_features_names():
 
 
 # Add to your main function:
-def main():
+def main(sb= "TwoXChromosomes"):
     name = "gnq2"
     n_sub_item = 18
     features = load_features_names()
-    features_short = [" ".join(t.split(" ")[:2]) for t in features]
+    features_short = [t.split(":")[0] for t in features]
     for i, t in enumerate(features):
         print(i, t)
     print("----")
-    for sb in get_split_subreddit_list("train"):
-        print(sb)
-        run_name_iter = [f"chatgpt_v2_{name}_{idx}" for idx in range(n_sub_item)]
+    head = ["sb"] + features_short + ["bias"]
+    table = [head]
+    sb_list = get_split_subreddit_list("train")
+    run_name_iter = [f"chatgpt_v2_{name}_{idx}" for idx in range(n_sub_item)]
+    for sb in sb_list:
         try:
             dataset = f"{sb}_2_train_100"
             texts = right(load_csv_dataset(dataset))
@@ -77,20 +81,23 @@ def main():
 
             clf = LogisticRegression()
             clf.fit(X_train, y_train)
-            train_pred = clf.predict(X_train)
-
+            assert len(clf.coef_[0]) == 18
+            c_w = clf.coef_[0].tolist()
+            c_w.append(clf.intercept_[0].tolist())
+            row = [sb] + list(map(lambda x: round(x, 2), c_w))
+            table.append(row)
+            # train_pred = clf.predict(X_train)
+            #
+            #
             # Analyze feature importance
-            print_top_features_for_instances(clf, X_train, y_train, train_pred, n_instances=100,
-                                             feature_names=features_short, texts=texts)
+            # print_top_features_for_instances(clf, X_train, y_train, train_pred, n_instances=100,
+            #                                  feature_names=features_short, texts=texts)
         except (ValueError, KeyError) as e:
             print(f"Error processing subreddit {sb}: {str(e)}")
-            continue
         except FileNotFoundError as e:
             print(e)
-            break
-
-        break
+    print_table(table)
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    fire.Fire(main)

@@ -43,6 +43,25 @@ def get_prompt_factory_no_rule():
     return get_prompt
 
 
+def get_prompt_factory_no_rule2(max_len):
+    sb_list = load_subreddit_list()
+    instruction_d = {}
+    for sb in sb_list:
+        run_name = f"api_{sb}_both"
+        tokens = run_name.split("_")
+        sb = "_".join(tokens[1:-1])
+        instruction = f"If the following text is posted in {sb} subreddit, will it be moderated (deleted)?\n"
+        instruction_d[sb] = instruction
+
+    def get_prompt(text, sb):
+        inst = instruction_d[sb]
+        if max_len is not None:
+            text = text[:max_len]
+        prompt = f"{inst}\n<BEGIN TEXT>{text}\n<END TEXT>\n"
+        return prompt
+    return get_prompt
+
+
 def get_prompt_factory_strict():
     sb_list = load_subreddit_list()
     instruction_d = {}
@@ -106,6 +125,8 @@ def get_prompt_fn_from_type(prompt_type):
         get_prompt_fn = get_prompt_factory_both_rule()
     elif prompt_type == "sb_name":
         get_prompt_fn = get_prompt_factory_no_rule()
+    elif prompt_type == "sb_name2":
+        get_prompt_fn = get_prompt_factory_no_rule2()
     elif prompt_type == "sb_name_strict":
         get_prompt_fn = get_prompt_factory_strict()
     elif prompt_type == "sb_name_generous":

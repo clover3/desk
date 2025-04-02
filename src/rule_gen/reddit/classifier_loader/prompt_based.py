@@ -69,12 +69,12 @@ def dummy_counter(run_name):
 
 def load_local_based(run_name):
     max_text_len = 5000
-    from llama_user.llama_helper.lf_local import LlamaClient
+    from llama_user.llama_helper.lf_local import LlamaClient2
 
     run_name = run_name.replace("llama_", "api_")
     instruction, pos_keyword = get_instruction_from_run_name(run_name)
 
-    client = LlamaClient(max_prompt_len=5000)
+    client = LlamaClient2(max_prompt_len=5000)
 
     def predict(text):
         text = text[:max_text_len]
@@ -82,10 +82,12 @@ def load_local_based(run_name):
             prompt = instruction + "\n" + text[:max_text_len]
         else:
             prompt = instruction(text)
-        ret_text = client.ask(prompt)
+        ret_text, score = client.ask(prompt)
         pred = pos_keyword.lower() in ret_text.lower()
         ret = int(pred)
-        return ret, 0
+        if not ret:
+            score = -score
+        return ret, score
     return predict
 
 

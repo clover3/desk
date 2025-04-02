@@ -31,7 +31,6 @@ def main():
             val_score = f1_score(y_test, val_pred)
             row = [sb, val_score]
             table.append(row)
-
             print(f"\nResults for subreddit: {sb}")
             print(f"Training F1 Score: {train_score:.4f}")
             print(f"Validation F1 Score: {val_score:.4f}")
