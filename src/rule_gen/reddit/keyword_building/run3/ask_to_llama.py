@@ -50,30 +50,13 @@ class SpeedCounter:
             print(self.counter)
 
 
-def get_apply_fn(run_name) -> Callable[[str], dict | list | str]:
-    tokens = run_name.split("_")
-    engine_name = tokens[0]
-    api_fn = get_llm_engine_predict_fn(engine_name)
-    text_name = tokens[1]
-    if text_name == "rp": #  rp = rule_processing
-        short_name = tokens[2]
-        sb = tokens[3]
-        d = {
-            "cq": "cluster_questions",
-            "cpq": "cluster_probe_questions",
-        }
-        rule_name = d[short_name]
-        q_list: list[str] = load_rule_processed_json(rule_name, sb)
-        assert_type_list_of_str(q_list)
-    else:
-        raise KeyError(text_name)
+def get_prompt(question, text) -> str:
+    prompt = f"<text> {text} </text>"
+    prompt += f"\n <instruction> {question} Output as Yes/No.</instruction>"
+    return prompt
 
-    def get_prompt(question, text) -> str:
-        prompt = f"<text> {text} </text>"
-        prompt += f"\n <instruction> {question} Output as Yes/No.</instruction>"
-        return prompt
 
-    max_text_len = 5000
+def get_predict_fn_text_list(max_text_len, q_list, api_fn):
     def predict(text):
         assert isinstance(text, str)
         text = text[:max_text_len]
@@ -86,6 +69,57 @@ def get_apply_fn(run_name) -> Callable[[str], dict | list | str]:
         return output
 
     return predict
+
+
+def get_predict_fn_text_score_pairs(max_text_len, q_list, api_fn):
+    def predict(text) -> list[tuple]:
+        assert isinstance(text, str)
+        text = text[:max_text_len]
+        output = []
+        for q in q_list:
+            ret_text, score = api_fn(get_prompt(q, text))
+            pos_keyword = "yes"
+            clf = pos_keyword in ret_text.lower()
+            output.append((clf, score))
+        return output
+
+    return predict
+
+
+
+def get_apply_fn(run_name) -> Callable[[str], dict | list | str]:
+    tokens = run_name.split("_")
+    engine_name = tokens[0]
+    api_fn = get_llm_engine_predict_fn(engine_name)
+    text_name = tokens[1]
+    short_name = tokens[2]
+    sb = tokens[3]
+    q_list = load_q_lists(text_name, short_name, sb)
+    max_text_len = 5000
+
+    if engine_name == "llama2":
+        predict = get_predict_fn_text_score_pairs(max_text_len, q_list, api_fn)
+    else:
+        predict = get_predict_fn_text_list(max_text_len, q_list, api_fn)
+    return predict
+
+
+
+def load_q_lists(text_name, short_name, sb):
+    if text_name == "rp":  # rp = rule_processing
+        d = {
+            "cq": "cluster_questions",
+            "cpq": "cluster_probe_questions",
+        }
+        try:
+            rule_name = d[short_name]
+        except KeyError:
+            rule_name = short_name
+        q_list: list[str] = load_rule_processed_json(rule_name, sb)
+        assert_type_list_of_str(q_list)
+    else:
+        raise KeyError(text_name)
+    return q_list
 
 
 def apply_fn_to_dataset(

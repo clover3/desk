@@ -24,5 +24,6 @@ def main100(k):
 
 
 if __name__ == "__main__":
-    main100(k=1)
+    for k in range(2, 11):
+        main100(k=1)
 

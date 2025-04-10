@@ -17,6 +17,9 @@ class _LLMClientWrapper:
         elif engine_name == "llama":
             from llama_user.llama_helper.lf_local import LlamaClient
             client = LlamaClient(max_prompt_len=max_prompt_len)
+        elif engine_name == "llama2":
+            from llama_user.llama_helper.lf_local import LlamaClient2
+            client = LlamaClient2(max_prompt_len=max_prompt_len)
         elif engine_name == "vllama":
             from llama_user.llama_helper.vllama import VllmClient
             client = VllmClient(max_prompt_len=max_prompt_len)

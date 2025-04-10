@@ -1,3 +1,4 @@
+import numpy as np
 import math
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -134,8 +135,13 @@ class LlamaClient2:
         generated_seq = output.sequences[0][prompt_len:]
         first_token_score = output.scores[0]
         confidence = first_token_score[0][generated_seq[0]]
+        transition_scores = self.model.compute_transition_scores(
+            output.sequences, output.scores, normalize_logits=True
+        )
+        confidence = transition_scores[0][0]
+        prob = np.exp(confidence.cpu().numpy())
         gen_text = self.tokenizer.decode(generated_seq)
-        return gen_text, float(confidence)
+        return gen_text, float(prob)
 
     def get_json_request(self, prompt, system_prompt):
         if system_prompt is None:

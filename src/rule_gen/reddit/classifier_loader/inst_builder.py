@@ -167,6 +167,10 @@ def get_instruction_from_run_name(run_name):
         postfix = run_name[len("api_man_"):]
         pos_keyword = "yes"
         instruction = get_manual_instruction(postfix, pos_keyword)
+    elif run_name.startswith("api_cq"):
+        postfix = run_name[len("api_cq"):]
+        pos_keyword = "yes"
+        instruction = get_manual_instruction(postfix, pos_keyword)
     elif run_name.startswith("api_auto_"):
         postfix = run_name[len("api_auto_"):]
         pos_keyword = "yes"
