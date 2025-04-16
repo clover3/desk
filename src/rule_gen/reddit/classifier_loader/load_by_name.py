@@ -14,6 +14,16 @@ def get_random_classifier():
     return predict
 
 
+def get_random_rate_classifier(name):
+    _, number_s = name.split("_")
+    rate = float("0.{}".format(number_s))
+    def predict(text):
+        pred = random.random() < rate
+        ret = int(pred)
+        return ret, 0
+    return predict
+
+
 def get_always_one_clf():
     def predict(text):
         return 1, 0
@@ -27,6 +37,8 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     if run_name.startswith("bert"):
         from rule_gen.reddit.classifier_loader.get_pipeline import get_classifier_pipeline
         return get_classifier_pipeline(run_name)
+    elif run_name.startswith("random_"):
+        return get_random_rate_classifier(run_name)
     elif run_name == "random":
         return get_random_classifier()
     elif run_name == "always_one":

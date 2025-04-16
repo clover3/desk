@@ -99,13 +99,16 @@ class OpenAIEmptyResponse(ValueError):
     pass
 
 
-def complete_with_retry(client, model, messages, max_retries=5, sleep_seconds=20):
+def complete_with_retry(client, model, messages, max_retries=5, sleep_seconds=20, logprobs=None, top_logprobs=None):
     initial_sleep = sleep_seconds
     for attempt in range(max_retries):
         try:
+            # Add logprobs parameters to the request
             chat_completion = client.chat.completions.create(
                 model=model,
-                messages=messages
+                messages=messages,
+                logprobs=logprobs,
+                top_logprobs=top_logprobs
             )
             if not chat_completion.choices:
                 raise OpenAIEmptyResponse()
@@ -125,18 +128,22 @@ def complete_with_retry(client, model, messages, max_retries=5, sleep_seconds=20
 
 
 class OpenAIChatClient:
-    def __init__(self, model="gpt-4o", db_client=None):
+    def __init__(self, model="gpt-4o", db_client=None, logprobs=False, top_logprobs=1):
         self.logger = setup_file_logger("openai")
         self.client = get_open_ai()
         self.model = model
         self.total_tokens_used = 0  # Track total tokens used
-        self.db_client = TokenUsageDB()  # Accepts an instance of TokenUsageDB
+        self.db_client = TokenUsageDB() if db_client is None else db_client
+        self.logprobs = logprobs  # Whether to request token probabilities
+        self.top_logprobs = top_logprobs  # Number of top probabilities to return
 
     def request(self, message):
         chat_completion = complete_with_retry(
             client=self.client,
             model=self.model,
-            messages=[{"role": "user", "content": message}]
+            messages=[{"role": "user", "content": message}],
+            logprobs=self.logprobs,
+            top_logprobs=self.top_logprobs
         )
         # Track tokens used
         try:
@@ -148,16 +155,71 @@ class OpenAIChatClient:
             print("chat_completion", chat_completion)
             raise e
 
-        # Log message with tokens
+        # Extract token probabilities if available
+        token_probs = None
+        if self.logprobs and hasattr(chat_completion.choices[0], 'logprobs'):
+            token_probs = chat_completion.choices[0].logprobs
+
+        # Log message with tokens and token probabilities
         msg = {
             "request": message,
             "response": chat_completion.choices[0].message.content,
             "tokens_used": last_request_tokens,
             "total_tokens_used": self.total_tokens_used
         }
+
+        # Add token probabilities to the log if available
+        if token_probs:
+            msg["token_probs"] = token_probs.to_dict() if hasattr(token_probs, 'to_dict') else token_probs
+
         self.logger.info(json.dumps(msg))
 
+        # Store token probability data in database if enabled
+
         return chat_completion.choices[0].message.content
+
+    def request_with_probs(self, message):
+        """Return both the response content and the token probabilities."""
+        chat_completion = complete_with_retry(
+            client=self.client,
+            model=self.model,
+            messages=[{"role": "user", "content": message}],
+            logprobs=True,
+            top_logprobs=self.top_logprobs
+        )
+
+        # Track tokens used
+        try:
+            last_request_tokens = chat_completion.usage.total_tokens
+            self.total_tokens_used += last_request_tokens
+        except (openai.OpenAIError, AttributeError) as e:
+            print("Error tracking tokens:", e)
+
+        # Extract token probabilities
+        token_probs = None
+        if hasattr(chat_completion.choices[0], 'logprobs'):
+            token_probs = chat_completion.choices[0].logprobs
+
+        # Log message with tokens and probabilities
+        msg = {
+            "request": message,
+            "response": chat_completion.choices[0].message.content,
+            "tokens_used": last_request_tokens if 'last_request_tokens' in locals() else None,
+            "total_tokens_used": self.total_tokens_used
+        }
+
+        if token_probs:
+            msg["token_probs"] = token_probs.to_dict() if hasattr(token_probs, 'to_dict') else token_probs
+
+        self.logger.info(json.dumps(msg))
+
+        # Store data in database
+        token_probs = [(item.token, item.logprob) for item in token_probs.content]
+
+        return {
+            "content": chat_completion.choices[0].message.content,
+            "token_probs": token_probs
+        }
 
     def __del__(self):
         """Update the database with total token usage upon destruction."""
@@ -226,5 +288,12 @@ def main():
     print(chat_completion.choices[0].message.content)
 
 
+def test_log_prob():
+    client = OpenAIChatClient(logprobs=True)
+    ret = client.request_with_probs("Hi")
+    print(ret)
+
+
+
 if __name__ == "__main__":
-    main()
+    test_log_prob()

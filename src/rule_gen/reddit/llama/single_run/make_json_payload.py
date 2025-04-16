@@ -8,11 +8,15 @@ from rule_gen.reddit.llama.prompt_helper import get_prompt_fn_from_type
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
 
 
-def save_json_payload(src_data_name, save_data_name, get_prompt, role="train"):
-    label_mapping = {1: "yes", 0: "no"}
-    src_data_path = get_reddit_train_data_path_ex("train_data2", src_data_name, role)
-    data = read_csv(src_data_path)
+def save_json_payload_from_train_data2(src_data_name, save_data_name, get_prompt, role="train"):
+    root_data_name = "train_data2"
+    save_json_payload(root_data_name, src_data_name, save_data_name, get_prompt, role)
 
+
+def save_json_payload(root_data_name, src_data_name, save_data_name, get_prompt, role="train"):
+    label_mapping = {1: "yes", 0: "no"}
+    src_data_path = get_reddit_train_data_path_ex(root_data_name, src_data_name, role)
+    data = read_csv(src_data_path)
     if role != "train":
         save_data_name += "_{}".format(role)
     save_path = Path(output_root_path) / "reddit" / "lf_data" / "{}.json".format(save_data_name)
@@ -25,7 +29,6 @@ def save_json_payload(src_data_name, save_data_name, get_prompt, role="train"):
             "output": label_mapping[int(label)]
         }
         save_data.append(e)
-
     make_parent_exists(save_path)
     json.dump(save_data, open(save_path, "w"), indent=4)
     register_dataset(save_path, save_data_name)
@@ -36,7 +39,7 @@ def main():
     prompt_type = "both_rule"
     get_prompt = get_prompt_fn_from_type(prompt_type)
     save_data_name = "both_rule"
-    save_json_payload(src_data_name, save_data_name, get_prompt)
+    save_json_payload_from_train_data2(src_data_name, save_data_name, get_prompt)
 
 
 def main2():
@@ -44,7 +47,7 @@ def main2():
     prompt_type = "sb_name"
     get_prompt = get_prompt_fn_from_type(prompt_type)
     save_data_name = "sb_name2"
-    save_json_payload(src_data_name, save_data_name, get_prompt)
+    save_json_payload_from_train_data2(src_data_name, save_data_name, get_prompt)
 
 
 if __name__ == "__main__":

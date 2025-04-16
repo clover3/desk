@@ -122,6 +122,7 @@ class JobContext:
             self.server_active = True
         except requests.exceptions.ConnectTimeout as e:
             print(e)
+            print("Server is not on")
 
         g_job_context_list.append(self)
         return self

@@ -10,7 +10,7 @@ from typing import List, Optional, Literal
 from prawcore.exceptions import ResponseException
 from requests.exceptions import HTTPError
 
-from rule_gen.reddit.path_helper import load_subreddit_list, get_reddit_db_path
+from rule_gen.reddit.path_helper import load_subreddit_list, get_reddit_db_dir_path
 
 
 class RedditCrawler:
@@ -333,11 +333,11 @@ class RedditCrawler:
             return stats
 
 
-def main(content_type):
+def main(content_type="comments"):
     # content_type = 'posts'
     # Example usage
     subreddits = load_subreddit_list()
-    db_path = get_reddit_db_path()
+    db_path = get_reddit_db_dir_path()
     # Crawl comments
     crawler = RedditCrawler(
         subreddits, content_type, db_path, run_time=None)

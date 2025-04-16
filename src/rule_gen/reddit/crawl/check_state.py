@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 import praw
 from prawcore import ResponseException
-from rule_gen.reddit.path_helper import get_reddit_db_path
+from rule_gen.reddit.path_helper import get_reddit_db_dir_path
 import time
 from collections import deque
 
@@ -343,8 +343,8 @@ class DeletedCommentProcessor:
 
 
 def main(batch_size: int = 100):
-    read_path = os.path.join(get_reddit_db_path(), "comments.sqlite")
-    write_path = os.path.join(get_reddit_db_path(), "deleted_comments.sqlite")
+    read_path = os.path.join(get_reddit_db_dir_path(), "comments.sqlite")
+    write_path = os.path.join(get_reddit_db_dir_path(), "deleted_comments.sqlite")
 
     processor = DeletedCommentProcessor(read_path, write_path, batch_size)
     # processor.process_comments()

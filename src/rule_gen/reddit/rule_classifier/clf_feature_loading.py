@@ -23,3 +23,22 @@ def load_dataset_from_predictions(run_name_iter, dataset):
     return X, y
 
 
+
+
+def load_scores_as_features(run_name_iter, dataset):
+    xs_list = []
+    for run_name in run_name_iter:
+        preds = load_clf_pred(dataset, run_name)
+        xs = [e[2] for e in preds]
+        xs_list.append(xs)
+    per_feature = np.array(xs_list)
+    X = np.transpose(per_feature, [1, 0])
+    return X
+
+
+def load_dataset_from_predictions2(run_name_iter, dataset):
+    X = load_scores_as_features(run_name_iter, dataset)
+    labels = load_labels(dataset)
+    y = right(labels)
+    return X, y
+

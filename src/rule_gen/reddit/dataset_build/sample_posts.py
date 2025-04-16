@@ -58,7 +58,6 @@ class SubredditSampler:
 
 def main():
     subreddit_list = load_subreddit_list()
-    # input_file_path = os.path.join(data_root_path, "reddit", "dump", "RC_2016-05.zst")
     input_file_path = os.path.join(output_root_path, "reddit", "dump", "RC_2016-05_filtered.jsonl")
 
     save_dir = os.path.join(output_root_path, "reddit", "subreddit_samples")

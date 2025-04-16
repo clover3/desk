@@ -6,6 +6,7 @@ from typing import Iterable, Dict
 from chair.misc_lib import is_power_of_ten
 
 from rule_gen.cpath import output_root_path
+from rule_gen.reddit.handle_dump.db_helper import read_db, group_by_created
 
 
 def get_time_from_ts(ts):
@@ -27,57 +28,6 @@ def enum_parsed_dump():
             if is_power_of_ten(cnt):
                 print("dump iter", cnt)
                 print( get_time_from_ts(j['created']))
-
-
-def read_db(read_path):
-    read_conn = sqlite3.connect(read_path)
-    last_timestamp = 1733011200 - 1
-    query = """
-        SELECT *
-        FROM comments
-        WHERE created_utc > ?
-        ORDER BY created_utc ASC
-    """
-    cursor = read_conn.execute(query, (last_timestamp,))
-    cnt = 0
-    for comment in cursor:
-        comment_dict = {
-            'id': comment[0],
-            'subreddit': comment[1],
-            'created_utc': comment[2],
-            'author': comment[3],
-            'score': comment[4],
-            'body': comment[5],
-            'post_id': comment[7],
-            'parent_id': comment[8],
-            'is_submitter': comment[9],
-            'processed_at': comment[10],
-        }
-        comment_dict['created'] = comment_dict['created_utc']
-        yield comment_dict
-        cnt += 1
-        if is_power_of_ten(cnt):
-            print("db iter", cnt)
-
-
-def group_by_created(iterator):
-    prev_key = None
-    cur_group = []
-    for e in iterator:
-        key = e['created']
-        if prev_key is None:
-            prev_key = key
-            cur_group.append(e)
-        elif prev_key != key:
-            yield cur_group
-            cur_group = []
-            prev_key = key
-            cur_group.append(e)
-        else:
-            cur_group.append(e)
-
-    if cur_group:
-        yield cur_group
 
 
 class DBwriter:
@@ -178,7 +128,8 @@ def compare_iter(itr1: Iterable[Dict], itr2: Iterable[Dict]):
 
 
 def main():
-    itr1 = read_db("outputs/reddit/db/march3/comments.sqlite")
+
+    itr1 = read_db("outputs/reddit/db/march3/comments.sqlite", 1733011200 - 1)
     itr2 = enum_parsed_dump()
     compare_iter(itr1, itr2)
 

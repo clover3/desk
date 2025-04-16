@@ -123,7 +123,7 @@ def load_reddit_rule_para(sb):
 
 
 
-def get_reddit_db_path():
+def get_reddit_db_dir_path():
     return os.path.join(
         output_root_path, "reddit", "db")
 

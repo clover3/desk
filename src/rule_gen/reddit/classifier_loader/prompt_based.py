@@ -126,6 +126,16 @@ def load_api_based2(run_name):
     return predict
 
 
+def get_score_from_token_probs(post_keyword, token_probs):
+    t = post_keyword.lower()
+    for token, score in token_probs:
+        if t in token.lower():
+            return score
+
+    return token_probs[0][1]
+
+
+
 def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
     from desk_util.open_ai import OpenAIChatClient
     client = OpenAIChatClient("gpt-4o")
@@ -138,10 +148,13 @@ def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
             prompt = instruction + "\n" + text[:max_prompt_len]
         else:
             prompt = instruction(text)
-        ret_text = client.request(prompt)
+        ret = client.request_with_probs(prompt)
+        ret_text = ret["content"]
+        token_probs = ret["token_probs"]
+        score = get_score_from_token_probs(pos_keyword, token_probs)
         pred = pos_keyword.lower() in ret_text.lower()
         ret = int(pred)
-        return ret, 0
+        return ret, score
     return predict
 
 

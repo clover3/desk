@@ -1,4 +1,4 @@
-from rule_gen.reddit.handle_dump.compare_dumps_and_db import read_db
+from rule_gen.reddit.handle_dump.db_helper import read_db
 from datetime import datetime
 
 
