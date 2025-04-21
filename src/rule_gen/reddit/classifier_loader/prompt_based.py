@@ -126,7 +126,7 @@ def load_api_based2(run_name):
     return predict
 
 
-def get_score_from_token_probs(post_keyword, token_probs):
+def fetch_score_from_token_probs(post_keyword, token_probs):
     t = post_keyword.lower()
     for token, score in token_probs:
         if t in token.lower():
@@ -151,7 +151,7 @@ def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
         ret = client.request_with_probs(prompt)
         ret_text = ret["content"]
         token_probs = ret["token_probs"]
-        score = get_score_from_token_probs(pos_keyword, token_probs)
+        score = fetch_score_from_token_probs(pos_keyword, token_probs)
         pred = pos_keyword.lower() in ret_text.lower()
         ret = int(pred)
         return ret, score

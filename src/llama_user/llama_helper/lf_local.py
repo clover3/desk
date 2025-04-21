@@ -139,9 +139,11 @@ class LlamaClient2:
             output.sequences, output.scores, normalize_logits=True
         )
         confidence = transition_scores[0][0]
+
         prob = np.exp(confidence.cpu().numpy())
         gen_text = self.tokenizer.decode(generated_seq)
-        return gen_text, float(prob)
+        return gen_text, float(confidence.cpu().numpy())
+        # return gen_text, float(prob)
 
     def get_json_request(self, prompt, system_prompt):
         if system_prompt is None:

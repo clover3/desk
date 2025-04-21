@@ -11,7 +11,6 @@ from rule_gen.reddit.entail_helper import load_statement_appy_result_as_table
 from rule_gen.reddit.keyword_building.apply_statement_common import load_train_first_100
 from rule_gen.reddit.keyword_building.path_helper import get_entail_save_path, get_statements_from_ngram
 from rule_gen.reddit.single_run2.info_gain import information_gain
-from taskman_client.wrapper3 import JobContext
 
 
 def main(sb):

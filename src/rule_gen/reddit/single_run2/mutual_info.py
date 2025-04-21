@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.feature_selection import mutual_info_classif
-import matplotlib.pyplot as plt
 
 
 def compute_mi_from_confusion(tp, fp, fn, tn):

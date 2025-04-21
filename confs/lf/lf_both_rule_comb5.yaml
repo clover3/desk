@@ -1,0 +1,5 @@
+run_name: lf_both_rule_comb5
+model_path: /home/qdb5sn/work/LLaMA-Factory/saves/llama3-8b/lora/lf_both_rule_comb5
+prompt_type: both_rule
+data_name: both_rule_comb5
+
