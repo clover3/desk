@@ -16,9 +16,9 @@ def predict_sb_split(
         split: str,
         do_eval=False,
         overwrite=False,
+        dataset_fmt="{}_2_val_100"
 ) -> None:
     todo = get_split_subreddit_list(split)
-    dataset_fmt = "{}_2_val_100"
 
     for sb in todo:
         run_name = run_name_fmt.format(sb)

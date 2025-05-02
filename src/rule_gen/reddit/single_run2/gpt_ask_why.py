@@ -31,7 +31,7 @@ def main(sb="fantasyfootball"):
 
     res_save_path = os.path.join(
         output_root_path, "reddit",
-        "gpt_res", dataset, f"{run_name}.json")
+        "j_res", dataset, f"{run_name}.json")
     make_parent_exists(res_save_path)
     json.dump(output, open(res_save_path, "w"), indent=4)
 

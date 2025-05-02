@@ -1,30 +1,18 @@
-import multiprocessing
+import logging
+from typing import Dict
 
-import tqdm
-import os
-import json
 import fire
-from tqdm import tqdm
-from rule_gen.cpath import output_root_path
-from desk_util.io_helper import read_csv, init_logging
+from transformers import Trainer, TrainingArguments, AutoTokenizer
+
+from chair.misc_lib import rel
+from desk_util.io_helper import init_logging
 from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
+from rule_gen.reddit.base_bert.reddit_train_bert import prepare_datasets, build_training_argument, DataArguments
 from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.base_bert.train_clf_common import get_compute_metrics
 from rule_gen.reddit.bert_pat.pat_modeling import BertPAT, CombineByScoreAdd
 from rule_gen.reddit.bert_pat.scratch import tokenize_and_split
-from rule_gen.reddit.bert_probe.probe_inference import ProbeInference
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
-import logging
-from typing import Dict
-
-import numpy as np
-import torch
-from torch.nn import CrossEntropyLoss
-from transformers import Trainer, TrainingArguments, AutoConfig, AutoTokenizer
-
-from rule_gen.reddit.bert_probe.probe_model import BertProbe
-from rule_gen.reddit.base_bert.reddit_train_bert import prepare_datasets, build_training_argument, DataArguments
-from chair.misc_lib import rel
 from taskman_client.task_proxy import get_task_manager_proxy
 from taskman_client.wrapper3 import JobContext
 
@@ -100,7 +88,7 @@ def train_two_seg(
     return eval_results
 
 
-def reddit_train_pat_exp(sb = "TwoXChromosomes" , debug=False):
+def reddit_train_pat_exp(sb="TwoXChromosomes", debug=False):
     init_logging()
     model_name = f"bert_ts_{sb}"
     data_name = "train_data2"

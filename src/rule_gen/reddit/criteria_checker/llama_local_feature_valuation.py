@@ -1,7 +1,8 @@
 import fire
 import logging
 from llama_user.llama_helper.lf_local import LlamaClient2
-from rule_gen.reddit.april.feature_valuation import feature_valuation
+from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation
+
 
 def setup_log():
     logger = logging.getLogger("feature_valuation")

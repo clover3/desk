@@ -33,7 +33,7 @@ def llm_predict_w_predict_fn(
     clf_preds = []
     output = []
     for data_id, text in tqdm(payload):
-        label, score, ret_text = predict_fn(text)
+        label, ret_text, score = predict_fn(text)
         clf_preds.append((data_id, label, score))
         save_e = data_id, label, score, ret_text
         output.append(save_e)
@@ -42,7 +42,7 @@ def llm_predict_w_predict_fn(
     print(f"Clf pred saved at {save_path}")
     res_save_path = os.path.join(
         output_root_path, "reddit",
-        "gpt_res", dataset, f"{run_name}.json")
+        "j_res", dataset, f"{run_name}.json")
     make_parent_exists(res_save_path)
     json.dump(output, open(res_save_path, "w"), indent=4)
 

@@ -1,6 +1,5 @@
 import fire
-
-from rule_gen.reddit.april.feature_valuation import feature_valuation
+from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation
 
 
 def main(sb="askscience", feature: str =""):

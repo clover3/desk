@@ -120,12 +120,20 @@ def load_llg2_custom(category_desc,
     return check_conversation
 
 
+model_d = {}
+
+
 def load_llg2_custom2(category_list: list[tuple[str, str]],
                      model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
                      ) -> Callable[[list[str]], tuple[str, float]]:
     quantization_config = BitsAndBytesConfig(load_in_8bit=True)
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+    global model_d
+    if model_id in model_d:
+        model = model_d[model_id]
+    else:
+        model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+        model_d[model_id] = model
 
     def check_conversation(conversation: List[str]) -> tuple[str, float]:
         categories = [

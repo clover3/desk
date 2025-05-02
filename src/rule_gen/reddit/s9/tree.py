@@ -18,7 +18,7 @@ from taskman_client.task_proxy import get_task_manager_proxy
 def load(dataset, run_name, seq, convert_score_fn):
     res_save_path = os.path.join(
         output_root_path, "reddit",
-        "gpt_res", dataset, f"{run_name}.json")
+        "j_res", dataset, f"{run_name}.json")
     j = json.load(open(res_save_path))
     labels = load_labels(dataset)
 
@@ -28,7 +28,6 @@ def load(dataset, run_name, seq, convert_score_fn):
         d = {}
         for code, term, score in output:
             prob = convert_score_fn(score, term)
-
             d[code] = prob
         try:
             x = [d[item] for item in seq]
@@ -81,7 +80,6 @@ def main():
         clf = DecisionTreeClassifier(criterion="entropy", max_depth=4)
         clf.fit(X_train, y_train)
         train_pred = clf.predict(X_train)
-
         train_score = f1_score(y_train, train_pred)
         val_pred = clf.predict(X_test)
         val_score = f1_score(y_test, val_pred)

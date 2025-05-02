@@ -9,10 +9,12 @@ from transformers.modeling_outputs import SequenceClassifierOutput
 import torch
 import torch.nn.functional as F
 
+
 @dataclass
 class PATOutput(SequenceClassifierOutput):
     logits1: torch.Tensor = None
     logits2: torch.Tensor = None
+
 
 class CombineByLogitAdd(nn.Module):
     def forward(self, local_decision_a, local_decision_b):

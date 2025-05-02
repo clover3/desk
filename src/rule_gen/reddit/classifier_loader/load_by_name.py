@@ -34,7 +34,10 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     if run_name.startswith('bert_ts_'):
         from rule_gen.reddit.bert_pat.pat_classifier import get_pat_predictor
         return get_pat_predictor(run_name)
-    if run_name.startswith("bert"):
+    elif run_name.startswith('bert_c'):
+        from rule_gen.reddit.bert_c.inference import get_bert_c_predictor_by_run_name
+        return get_bert_c_predictor_by_run_name(run_name)
+    elif run_name.startswith("bert"):
         from rule_gen.reddit.classifier_loader.get_pipeline import get_classifier_pipeline
         return get_classifier_pipeline(run_name)
     elif run_name.startswith("random_"):

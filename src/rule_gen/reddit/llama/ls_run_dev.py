@@ -1,4 +1,4 @@
-from rule_gen.reddit.llama.token_scoring import get_predictor_from_run_name
+from rule_gen.reddit.s9.token_scoring import get_predictor_from_run_name
 
 
 def main():

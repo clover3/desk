@@ -99,7 +99,7 @@ def prepare_datasets(dataset_args: DataArguments, model_name):
     return tokenized_train, tokenized_eval
 
 
-def build_training_argument(logging_dir, output_dir):
+def build_training_argument(logging_dir, output_dir, debug=False):
     # Set up training parameters
     num_train_epochs = 3
     learning_rate = 5e-5
@@ -123,6 +123,7 @@ def build_training_argument(logging_dir, output_dir):
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
+        report_to=None if debug else "all",
     )
     return training_args
 

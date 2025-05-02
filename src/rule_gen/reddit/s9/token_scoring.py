@@ -110,11 +110,38 @@ S9 Link restriction
     return inst, target_seq
 
 
+def get_s9_inst_target_seq_no_sb():
+    inst = f"The following text is a comment posted in Reddit."
+    inst += f"Does this text violate any of the policy listed?\n"
+    inst += f"Output in a format like 'S1 Yes S2 No ...', with no additional texts. \n"
+    policy_list = """
+S1 Toxic speech
+S2 Hate speech
+S3 Off topic
+S4 Low-Quality
+S5 Politics
+S6 Moderation blame
+S7 Advertising
+S8 Sexual Content
+S9 Link restriction
+"""
+    inst += policy_list
+    inst += "\n Text: "
+    target_seq = [f"S{i}" for i in range(1, 10)]
+    return inst, target_seq
+
+
 def get_predictor_from_run_name(run_name):
     tokens = run_name.split("_")
     p_name = tokens[1]
-    sb = "_".join(tokens[2:])
-    inst, target_seq = get_s9_inst_target_seq(sb)
+    if p_name == "s9":
+        sb = "_".join(tokens[2:])
+        inst, target_seq = get_s9_inst_target_seq(sb)
+    elif p_name == "s9nosb":
+        inst, target_seq = get_s9_inst_target_seq_no_sb()
+    else:
+        raise ValueError()
+
     client = LlamaCriteriaScorer()
     def predict_fn(text):
         prompt = inst + text
