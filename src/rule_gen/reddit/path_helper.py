@@ -16,8 +16,22 @@ def get_split_subreddit_list_path(split):
     return save_path
 
 
+def get_2024_split_subreddit_list_path(split):
+    save_path = os.path.join(data_root_path, "reddit", f"subreddits_2024_{split}.csv")
+    return save_path
+
+def load_2024_split_subreddit_list(split):
+    if split == "both":
+        return load_2024_split_subreddit_list("train") + load_2024_split_subreddit_list("val")
+    else:
+        return read_csv_column(get_2024_split_subreddit_list_path(split), 0)
+
+
 def get_split_subreddit_list(split):
-    return read_csv_column(get_split_subreddit_list_path(split), 0)
+    if split == "both":
+        return get_split_subreddit_list("train") + get_split_subreddit_list("val")
+    else:
+        return read_csv_column(get_split_subreddit_list_path(split), 0)
 
 
 def get_split_display_list(split):
@@ -135,7 +149,21 @@ def get_n_rules(sb):
     return n_rule
 
 
-def get_rp_path(dir_name, file_name):
-    p = os.path.join(output_root_path, "reddit", "rule_processing", dir_name, file_name)
+def get_rp_path(dir_name, file_name=None):
+    if file_name is None:
+        p = os.path.join(output_root_path, "reddit", "rule_processing", dir_name)
+    else:
+        p = os.path.join(output_root_path, "reddit", "rule_processing", dir_name, file_name)
     make_parent_exists(p)
     return p
+
+
+def get_j_res_save_path(run_name, dataset):
+    res_save_path = os.path.join(
+        output_root_path, "reddit",
+        "j_res", dataset, f"{run_name}.json")
+    return res_save_path
+
+
+def load_j_res(run_name, dataset):
+    return json.load(open(get_j_res_save_path(run_name, dataset), "r"))

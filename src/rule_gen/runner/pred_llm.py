@@ -2,7 +2,7 @@ import fire
 import logging
 from desk_util.llm_clf_util import llm_predict_w_predict_fn
 from desk_util.runnable.run_eval_clf import run_eval_clf
-from rule_gen.reddit.questions.llm_inf_saver import get_llm_predictor
+from rule_gen.reddit.llm_inf.get_predictor import get_llm_predictor
 
 LOG = logging.getLogger(__name__)
 

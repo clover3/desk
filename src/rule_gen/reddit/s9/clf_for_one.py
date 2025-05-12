@@ -23,7 +23,10 @@ def compute_f_k(y_true, y_pred, k = 9):
 
     prec = tp / (fp * k + tp)
     recall = tp / (tp + fn)
-    return 2 * prec * recall / (prec + recall)
+    if prec + recall == 0:
+        return 0
+    else:
+        return 2 * prec * recall / (prec + recall)
 
 
 def load_s9(dataset, run_name, seq, convert_score_fn) -> np.array:

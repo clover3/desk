@@ -6,7 +6,7 @@ import numpy as np
 
 from desk_util.io_helper import read_csv
 # import seaborn as sns
-# import matplotlib.pyplot as plt
+# import matplotlib.pyplot a's plt
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.keyword_building.run4.pca import analyze_pca_components, load_key
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex, get_split_subreddit_list
@@ -36,12 +36,15 @@ def main():
         print(f"PC{i + 1}: {var:.3f} (cumulative: {np.sum(results['explained_variance_ratio'][:i + 1]):.3f})")
 
     X_transformed = results["X_transformed"]
-    print("X_transformed", X_transformed.shape)
-    for i in range(len(X_transformed)):
-        top_indices = np.argsort(np.abs(X_transformed[i]))[-5:][::-1]
-        top_s = ", ".join(["{0} ({1:.2f})".format(j, X_transformed[i, j]) for j in top_indices])
-        print(subreddit_list[i], top_s)
+    components = results["components"]
+    print("components", components.shape)
+    for i in range(len(components)):
+        row = results["components"].iloc[i]
+        sorted_column_indices = row.values.argsort()[::-1][:5]
+        # top_s = ", ".join(["{0} ({1:.2f})".format(j, X_transformed[i, j]) for j in top_indices])
+        print(subreddit_list[i], sorted_column_indices)
 
+    return
     # Print top contributing features for each component
     print("\nTop contributing features per component:")
     for pc, features in results['top_features'].items():

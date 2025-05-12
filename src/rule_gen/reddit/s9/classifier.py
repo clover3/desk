@@ -25,7 +25,6 @@ def load_s9(dataset, run_name, seq, convert_score_fn) -> np.array:
         d = {}
         for code, term, score in output:
             prob = convert_score_fn(score, term)
-
             d[code] = prob
         try:
             x = [d[item] for item in seq]
@@ -61,11 +60,12 @@ def main():
     print("load_run_name_fmt", s9_run_name)
     # sb_list = get_split_subreddit_list("train")
     f_name = "table"
+    # sb_list = get_split_subreddit_list("val")
     sb_list = get_split_subreddit_list("val")
+
     def load_here(dataset):
         X = load_s9(dataset, s9_run_name, target_seq, convert_score_fn)
         # x_i = load_feature_csv(train_dataset, f_name)
-        print((X))
         labels = load_labels(dataset)
         y = right(labels)
         return X, y
@@ -83,7 +83,7 @@ def main():
             convert_score_fn = convert_score
             X_train, y_train = load_here(f"{sb}_2_train_100")
             X_test, y_test = load_here(val_dataset)
-            clf = LogisticRegression()
+            clf = LogisticRegression(penalty="l1", solver="liblinear")
             clf.fit(X_train, y_train)
             train_pred = clf.predict(X_train)
             train_score = f1_score(y_train, train_pred)

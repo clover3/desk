@@ -1,9 +1,7 @@
 import random
 from typing import Callable
 
-from rule_gen.reddit.base_bert.concat_bert_inf import get_ce_predictor_w_conf
-from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf, load_api_based2, load_local_based
-from rule_gen.reddit.llama.load_llama_inst import get_lf_predictor_w_conf
+from rule_gen.reddit.keyword_building.run6.corpus_based_analysis.table_scorer import get_table_clf
 
 
 def get_random_classifier():
@@ -46,6 +44,8 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
         return get_random_classifier()
     elif run_name == "always_one":
         return get_always_one_clf()
+    elif run_name.startswith("table_"):
+        return get_table_clf(run_name)
     elif run_name.startswith("dummy_"):
         from rule_gen.reddit.classifier_loader.prompt_based import dummy_counter
         return dummy_counter(run_name)
@@ -55,12 +55,17 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("api2_"):
         from rule_gen.reddit.classifier_loader.prompt_based import load_api_based2
         return load_api_based2(run_name)
+    elif run_name.startswith("llama_s9"):
+        from rule_gen.reddit.classifier_loader.s9 import get_s9_classifiers
+        return get_s9_classifiers(run_name)
     elif run_name.startswith("llama_"):
+        from rule_gen.reddit.classifier_loader.prompt_based import load_local_based
         return load_local_based(run_name)
     elif run_name.startswith("llg_"):
         from rule_gen.reddit.classifier_loader.llama_guard_based import load_llama_guard_based
         return load_llama_guard_based(run_name)
     elif run_name.startswith("lf"):
+        from rule_gen.reddit.llama.load_llama_inst import get_lf_predictor_w_conf
         return get_lf_predictor_w_conf(run_name)
     elif run_name.startswith("chatgpt_"):
         from rule_gen.reddit.classifier_loader.prompt_based import load_chatgpt_based
@@ -73,11 +78,13 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
         return get_qd_predictor_w_conf(run_name)
     elif run_name.startswith("ce_"):
         from rule_gen.reddit.classifier_loader.get_qd_predictor import get_qd_predictor_w_conf
+        from rule_gen.reddit.base_bert.concat_bert_inf import get_ce_predictor_w_conf
         return get_ce_predictor_w_conf(run_name)
     elif run_name.startswith("proto"):
         from rule_gen.reddit.classifier_loader.proto_predictor import get_proto_predictor
         return get_proto_predictor(run_name)
     elif run_name.startswith("conf_"):
+        from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf
         return load_from_conf(run_name)
     else:
         raise ValueError(f"{run_name} is not expected")

@@ -3,10 +3,7 @@ import time
 from typing import Any
 
 import torch
-from transformers import LlamaTokenizer, LlamaForCausalLM, AutoTokenizer, AutoModel, AutoModelForCausalLM
-import math
-
-from transformers.modeling_outputs import BaseModelOutputWithPast
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from chair.list_lib import list_equal
 from desk_util.io_helper import init_logging
@@ -24,6 +21,7 @@ class TrieNode:
     def set_children_key_tensor(self, device):
         keys = list(self.children.keys())
         self.children_key_tensor = torch.tensor(keys, device=device)
+
 
 def build_trie(post_fix_token_ids):
     root = TrieNode()
@@ -131,14 +129,14 @@ class LlamaProbabilityCalculator:
         st = time.time()
         probs = self.compute_log_probability(prefix, post_fix_list)
         ed = time.time()
-        LOG.info("compute_probability took {}".format(ed-st))
+        LOG.info("compute_probability took {}".format(ed - st))
         diff_sorted = []
         for i in range(0, len(post_fix_list), 2):
             p1 = probs[i]
-            p2 = probs[i+1]
+            p2 = probs[i + 1]
             diff_sorted.append((i // 2, post_fix_list[i], p1 - p2))
             LOG.info(f"Result ({i}): '{post_fix_list[i]}' (log prob: {p1:.4f})")
-            LOG.info(f"Result ({i+1}): '{post_fix_list[i+1]}' (log prob: {p2:.4f})")
+            LOG.info(f"Result ({i + 1}): '{post_fix_list[i + 1]}' (log prob: {p2:.4f})")
 
         diff_sorted.sort(key=lambda x: x[2], reverse=True)
         LOG.info("\nDiff sorted results:")
@@ -323,4 +321,3 @@ def main2():
 
 if __name__ == "__main__":
     main2()
-

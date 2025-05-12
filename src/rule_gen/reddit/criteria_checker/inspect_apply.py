@@ -10,6 +10,17 @@ from desk_util.path_helper import get_feature_pred_save_path
 from rule_gen.reddit.keyword_building.run3.ask_to_llama import load_q_lists
 
 
+def parse_per_feature_outputs(j_list, q_list) -> dict[int, list[tuple[int, bool, float]]]:
+    per_q = defaultdict(list)
+    for i, out_d in enumerate(j_list):
+        for q_i, q in enumerate(q_list):
+            pred, score = out_d["result"][q_i]
+            if not pred:
+                score = -score
+            per_q[q_i].append((i, pred, score))
+    return per_q
+
+
 def main(sb="fantasyfootball"):
     dataset = f"{sb}_2_val_100"
     run_name = f"llama2_rp_cpq2_{sb}2"
@@ -40,17 +51,6 @@ def main(sb="fantasyfootball"):
             row = [pred, score, text]
             table.append(row)
         print_table(table)
-
-
-def parse_per_feature_outputs(j_list, q_list) -> dict[int, list[tuple[int, bool, float]]]:
-    per_q = defaultdict(list)
-    for i, out_d in enumerate(j_list):
-        for q_i, q in enumerate(q_list):
-            pred, score = out_d["result"][q_i]
-            if not pred:
-                score = -score
-            per_q[q_i].append((i, pred, score))
-    return per_q
 
 
 if __name__ == "__main__":

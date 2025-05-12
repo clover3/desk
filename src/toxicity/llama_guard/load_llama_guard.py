@@ -50,6 +50,7 @@ def load_llama_guard_model(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
     return check_conversation
 
 
+g_model_d = {}
 def load_llg2(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
                            llama_guard_version: LlamaGuardVersion = LlamaGuardVersion.LLAMA_GUARD_2,
                            use_toxicity=True) -> Callable[[list[str]], tuple[str, float]]:
@@ -59,7 +60,13 @@ def load_llg2(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
     if device.type == "cpu":
         quantization_config = None
 
-    model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+    global g_model_d
+    if model_id in g_model_d:
+        model = g_model_d[model_id]
+    else:
+        model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quantization_config, device_map="auto")
+        g_model_d[model_id] = model
+
     def check_conversation(conversation: List[str], agent_type: AgentType = AgentType.USER) -> tuple[str, float]:
         if isinstance(conversation, str):
             print("Warning: expected list of string but got string")

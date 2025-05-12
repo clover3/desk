@@ -11,11 +11,11 @@ def main():
     search = NamedNumberProxy()
     output = []
     for src in subreddit_list:
-        model_name = f"bert_{src}"
+        model_name = f"bert2_{src}"
         row = [model_name, ]
 
         for dst in subreddit_list:
-            condition = f"{dst}_val_1K"
+            condition = f"{dst}_2_val_100"
             ret = search.get_number(model_name, "f1", condition)
             row.append(ret)
 

@@ -142,8 +142,6 @@ class OpenAIChatClient:
             client=self.client,
             model=self.model,
             messages=[{"role": "user", "content": message}],
-            logprobs=self.logprobs,
-            top_logprobs=self.top_logprobs
         )
         # Track tokens used
         try:
@@ -241,7 +239,8 @@ def get_open_ai(deployment=None):
     with open(api_key_path, "r") as f:
         key = f.read().strip()
     azure_endpoint = "https://rtp2-shared.openai.azure.com"
-    client = AzureOpenAI(api_key=key, api_version="2024-10-21",
+    client = AzureOpenAI(api_key=key,
+                         api_version="2024-10-21",
                          azure_endpoint=azure_endpoint, azure_deployment=deployment)
     return client
 

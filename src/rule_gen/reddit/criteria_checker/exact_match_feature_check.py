@@ -1,5 +1,5 @@
 import fire
-from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation
+from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation_over_train_data2
 
 
 def main(sb="askscience", feature: str =""):
@@ -12,7 +12,7 @@ def main(sb="askscience", feature: str =""):
     n_item = 3000
     n_train = 2000
 
-    feature_valuation(extract_feature, n_item, n_train, sb)
+    feature_valuation_over_train_data2(extract_feature, n_item, n_train, sb)
 
 
 if __name__ == "__main__":

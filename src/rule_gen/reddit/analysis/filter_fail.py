@@ -26,7 +26,8 @@ def do_reddit_pred_compare(dataset, run_name, stdout=False):
     for data_id, pred, score in preds:
         l = labels_d[data_id]
         t = payload_d[data_id]
-        output.append((data_id, l, pred, t))
+        if int(l) != int(pred):
+            output.append((data_id, l, pred, t))
 
 
     run_name = f"{run_name}"

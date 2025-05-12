@@ -113,4 +113,4 @@ def save_as_np():
 
 
 if __name__ == "__main__":
-    pos_rate_per_clf()
+    save_as_np()

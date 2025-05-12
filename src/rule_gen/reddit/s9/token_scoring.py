@@ -1,11 +1,9 @@
 import math
-import time
+from typing import Callable
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from llama_user.llama_helper.lf_local import get_parsing_key
-
-
 
 global_model_d = {}
 
@@ -39,7 +37,7 @@ class LlamaCriteriaScorer:
 
         return text[:self.max_prompt_len]
 
-    def ask(self, prompt, target_seq) -> tuple[str, list[tuple[str, float]]]:
+    def ask(self, prompt, target_seq) -> tuple[str, list[tuple[str, str, float]]]:
         prompt = self.len_filter(prompt)
         j = self.get_json_request(prompt, None)
         n_retry = 2
@@ -131,7 +129,7 @@ S9 Link restriction
     return inst, target_seq
 
 
-def get_predictor_from_run_name(run_name):
+def get_llama_criteria_scorer(run_name) -> Callable[[str], tuple[int, str, list[tuple[str, float]]]]:
     tokens = run_name.split("_")
     p_name = tokens[1]
     if p_name == "s9":
@@ -143,7 +141,7 @@ def get_predictor_from_run_name(run_name):
         raise ValueError()
 
     client = LlamaCriteriaScorer()
-    def predict_fn(text):
+    def predict_fn(text) -> tuple[int, str, list[tuple[str, str, float]]]:
         prompt = inst + text
         ret_text, scores = client.ask(prompt, target_seq)
         pred = "Yes" in ret_text
@@ -152,8 +150,7 @@ def get_predictor_from_run_name(run_name):
     return predict_fn
 
 
-
-def get_token_scores(model, tokenizer, output, prompt_len, target_seq):
+def get_token_scores(model, tokenizer, output, prompt_len, target_seq) -> list[tuple[str, str, float]]:
     transition_scores = model.compute_transition_scores(
         output.sequences, output.scores, normalize_logits=True
     )
@@ -165,7 +162,7 @@ def get_token_scores(model, tokenizer, output, prompt_len, target_seq):
         return token.replace('Ġ', '').replace('Ċ', '\n')
     clean_token_texts = [clean_token(token) for token in token_texts]
     t_idx = 0
-    paired_scores = []
+    paired_scores: list[tuple[str, str, float]] = []
     parse_error = False
     for i, token in enumerate(clean_token_texts):
         if t_idx >= len(target_seq):

@@ -64,11 +64,17 @@ class PatBasedClassifier(PatInferenceFirst):
 
 
 def get_pat_predictor(run_name):
+    if run_name.endswith(".m"):
+        run_name = run_name[:-2]
+        strategy = "max"
+    else:
+        strategy = "logit_avg"
+
     model_path = get_model_save_path(run_name)
     pat = PatBasedClassifier(model_path)
 
     def predict(text):
-        score = pat.classify(text, "logit_avg", [3])
+        score = pat.classify(text, strategy, [3])
         label = int(score > 0.5)
         return label, score
     return predict

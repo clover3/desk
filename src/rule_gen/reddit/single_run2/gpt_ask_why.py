@@ -10,7 +10,7 @@ from desk_util.path_helper import get_clf_pred_save_path
 from rule_gen.cpath import output_root_path
 import os
 
-from rule_gen.reddit.questions.llm_inf_saver import get_llm_predictor
+from rule_gen.reddit.llm_inf.llm_inf_saver import get_llm_predictor
 
 
 def main(sb="fantasyfootball"):

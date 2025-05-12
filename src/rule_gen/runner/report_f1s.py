@@ -7,11 +7,10 @@ from rule_gen.reddit.path_helper import get_split_subreddit_list
 from taskman_client.task_proxy import get_task_manager_proxy
 
 
-def main(run_name_fmt, dataset_fmt="{}_2_val_100"):
+def main(run_name_fmt, dataset_fmt="{}_2_val_100", metric = "f1"):
     print("run_name_fmt", run_name_fmt)
     print("dataset_fmt", dataset_fmt)
     proxy = get_task_manager_proxy()
-    metric = "f1"
     for split in ["train", "val"]:
         subreddit_list = get_split_subreddit_list(split)
         for sb in subreddit_list:

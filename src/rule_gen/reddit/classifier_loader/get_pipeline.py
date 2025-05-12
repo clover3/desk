@@ -14,11 +14,15 @@ def get_classifier_pipeline(run_name):
     }
 
     def predict(text):
-        r = pipe(text, truncation=True)[0]
-        label = label_map[r["label"]]
-        score = r["score"]
-        if label == "0":
-            score = -score
+        try:
+            r = pipe(text, truncation=True)[0]
+            label = label_map[r["label"]]
+            score = r["score"]
+            if label == "0":
+                score = -score
+        except RuntimeError:
+            label = "0"
+            score = 0
         return label, score
 
     return predict

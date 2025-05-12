@@ -15,11 +15,11 @@ from collections import Counter
 
 from rule_gen.reddit.single_run2.info_gain import information_gain
 
-nltk.download('punkt')
+# nltk.download('punkt')
 
 
-def extract_ngram_features(text):
-    list_n = [1, 2, 3]
+def extract_ngram_features(text, st=1, ed=10):
+    list_n = list(range(st, ed+1))
     tokens = nltk.word_tokenize(text.lower())
     all_ngram_counts = Counter()
 
@@ -28,7 +28,7 @@ def extract_ngram_features(text):
         all_ngram_counts.update(n_grams)
 
     # Convert tuple keys to readable strings
-    feature_dict = {'_'.join(gram): count for gram, count in all_ngram_counts.items()}
+    feature_dict = {tuple(gram): count for gram, count in all_ngram_counts.items()}
 
     return Counter(feature_dict)
 
@@ -47,7 +47,7 @@ def get_value(y_true, y_pred):
 
 def main(sb= "TwoXChromosomes"):
     train_dataset = f"{sb}_2_train_100"
-    min_df = 3
+    min_df = 10
 
     data = load_csv_dataset(train_dataset)
     labels = load_labels(train_dataset)
@@ -55,7 +55,7 @@ def main(sb= "TwoXChromosomes"):
     text_list = right(data)
     y_true = right(labels)
 
-    featured: list[dict[str, int]] = list(map(extract_ngram_features, text_list))
+    featured: list[dict[tuple, int]] = list(map(extract_ngram_features, text_list))
 
 
     df = Counter()

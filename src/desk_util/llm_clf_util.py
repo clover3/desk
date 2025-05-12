@@ -1,21 +1,20 @@
 import json
-import os
 from typing import Callable, Any
 
 from chair.misc_lib import make_parent_exists
-from rule_gen.cpath import output_root_path
-import os 
+import os
 
 from tqdm import tqdm
 
 from desk_util.clf_util import load_csv_dataset_by_name
 from desk_util.io_helper import save_csv, read_csv
 from desk_util.path_helper import get_clf_pred_save_path
+from rule_gen.reddit.path_helper import get_j_res_save_path
 
 
 def llm_predict_w_predict_fn(
         dataset, run_name,
-        predict_fn: Callable[[str], tuple[int, Any, str]],
+        predict_fn: Callable[[str], tuple[int, str, Any]],
         overwrite_existing=False,
 ):
     payload = load_csv_dataset_by_name(dataset)
@@ -40,9 +39,7 @@ def llm_predict_w_predict_fn(
         
     save_csv(clf_preds, save_path)
     print(f"Clf pred saved at {save_path}")
-    res_save_path = os.path.join(
-        output_root_path, "reddit",
-        "j_res", dataset, f"{run_name}.json")
+    res_save_path = get_j_res_save_path(run_name, dataset)
     make_parent_exists(res_save_path)
     json.dump(output, open(res_save_path, "w"), indent=4)
 

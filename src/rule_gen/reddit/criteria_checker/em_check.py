@@ -5,7 +5,7 @@ from sklearn.metrics import confusion_matrix
 from chair.list_lib import right
 from desk_util.clf_util import load_csv_dataset_by_name
 from desk_util.runnable.run_eval import load_labels
-from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation
+from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation_over_train_data2
 
 
 def main(dataset, feature: str =""):

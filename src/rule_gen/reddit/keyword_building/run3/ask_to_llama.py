@@ -122,7 +122,7 @@ def load_q_lists(text_name, short_name, sb):
     return q_list
 
 
-def apply_fn_to_dataset(
+def apply_feature_fn_to_dataset(
     dataset, run_name,
     predict: Callable[[str], dict|list|str],
     overwrite_existing=False,

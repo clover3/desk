@@ -20,7 +20,7 @@ def run_eval_clf(run_name,
             else:
                 print_metrics = [print_metrics]
     else:
-        print_metrics = ["accuracy", "f1", "auc", "n"]
+        print_metrics = list(score_d.keys())
 
     for metric in print_metrics:
         print(f"{metric}\t{score_d[metric]}")
