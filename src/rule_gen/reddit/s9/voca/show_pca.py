@@ -34,41 +34,53 @@ def run_show_pca(W, H, row_names, column_names,
         print("over 0.1: ", np.count_nonzero(topic > 0.1))
         print("under -0.1: ", np.count_nonzero(topic < -0.1))
 
-        print(f"\nComponent {topic_idx}: Top features")
+        print(f"\nComponent {topic_idx}: Top features (Terms)")
         top_features_idx = topic.argsort()[::-1][:n_show_features]
         print_features(column_names, top_features_idx, topic)
 
-        print(f"\nComponent {topic_idx}: Bottom features")
-        bottom_features_idx = topic.argsort()[:n_show_features]
-        print_features(column_names, bottom_features_idx, topic)
-
         component_scores = W[:, topic_idx]
-        print(f"\nComponent {topic_idx} - Top Items:")
+        print(f"\nComponent {topic_idx} - Top Items (subreddit):")
         top_item_indices = component_scores.argsort()[::-1][:n_show_columns]  # Top 30 rows
         print_features(row_names, top_item_indices, component_scores)
 
-        print(f"\nComponent {topic_idx} - Bottom Rows:")
+        print(f"\nComponent {topic_idx}: Bottom features (Terms)")
+        bottom_features_idx = topic.argsort()[:n_show_features]
+        print_features(column_names, bottom_features_idx, topic)
+
+        print(f"\nComponent {topic_idx} - Bottom Rows (subreddit):")
         bottom_item_indices = component_scores.argsort()[:n_show_columns]  # Bottom 30 rows
+        bottom_item_indices = [i for i in bottom_item_indices if component_scores[i] < 0]
         print_features(row_names, bottom_item_indices, component_scores)
-
-
-    dim_len = H.shape[1]
-    dim_random = random.sample(range(dim_len), 30)
-    for i in dim_random:
-        top_comps = H[:, i].argsort()[::-1][:n_show_features]
-        s = "\t".join(["{0}: {1:.2f}".format(j, H[j, i]) for j in top_comps])
-        print(i, column_names[i], s)
-
+    #
+    #
+    # dim_len = H.shape[1]
+    # dim_random = random.sample(range(dim_len), 30)
+    # for i in dim_random:
+    #     top_comps = H[:, i].argsort()[::-1][:n_show_features]
+    #     s = "\t".join(["{0}: {1:.2f}".format(j, H[j, i]) for j in top_comps])
+    #     print(i, column_names[i], s)
+    #
 
 
 def print_features(column_names, indices, vector):
     weights = vector[indices]
-    items = []
-    for i, (idx, weight) in enumerate(zip(indices, weights)):
-        feature_name = column_names[idx] if idx < len(column_names) else f"Feature_{idx}"
-        item = f"({feature_name}: {weight:.2f})"
-        items.append(item)
-    print(", ".join(items))
+    if len(indices) > 10:
+        items = []
+        for i, (idx, weight) in enumerate(zip(indices, weights)):
+            feature_name = column_names[idx] if idx < len(column_names) else f"Feature_{idx}"
+            item = f"{feature_name}"
+            items.append(item)
+        head = "{0:.2f} ~ {1:.2f}: ".format(weights[0], weights[-1])
+        print(head, items)
+    else:
+        items = []
+        for i, (idx, weight) in enumerate(zip(indices, weights)):
+            feature_name = column_names[idx] if idx < len(column_names) else f"Feature_{idx}"
+            item = f"({feature_name}: {weight:.2f})"
+            items.append(item)
+        print(", ".join(items))
+
+
 
 
 def recover_voca_ngram(new_voca):

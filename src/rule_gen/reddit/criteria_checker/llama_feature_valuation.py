@@ -1,8 +1,7 @@
 import fire
 import logging
 
-from rule_gen.reddit.april.feature_valuation import feature_valuation
-
+from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation_over_train_data2
 
 
 def setup_log():
@@ -42,7 +41,7 @@ def main(sb="askscience", rule_text: str =""):
     n_item = 300
     n_train = 200
 
-    feature_valuation(extract_feature, n_item, n_train, sb)
+    feature_valuation_over_train_data2(extract_feature, n_item, n_train, sb)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,11 @@ from rule_gen.reddit.criteria_checker.feature_valuation import feature_valuation
 def main(sb="askscience", feature: str =""):
     print(sb)
 
+
+
+
     def extract_feature(text):
+
         x_i = feature.lower() in text.lower()
         return x_i
 

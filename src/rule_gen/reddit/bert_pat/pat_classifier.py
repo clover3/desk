@@ -1,3 +1,4 @@
+import numpy as np
 import logging
 
 import torch
@@ -42,6 +43,40 @@ class PatBasedClassifier(PatInferenceFirst):
                 logits = self.model(**inputs, return_dict=True)
                 logits_list.append(logits)
         return logits_list
+
+    def get_sub_text_scores(self, text, window_size_list=None) -> list[tuple[str, np.array]]:
+        if window_size_list is None:
+            window_size_list = [1, 3, 5]
+        sp_tokens = text.split()
+        range_list = []
+        for window_size in window_size_list:
+            for i in range(len(sp_tokens) - window_size):
+                range_list.append((i, i + window_size))
+        if not range_list:
+            if len(sp_tokens) > min(window_size_list):
+                print("Something wrong")
+                raise ValueError()
+            range_list.append((0, len(sp_tokens)))
+
+        output = []
+        for st, ed in range_list:
+            sub_text: str = " ".join(sp_tokens[st: ed])
+            encoded = self.tokenizer(
+                sub_text,
+                truncation=True,
+                max_length=self.max_length,
+                padding='max_length',
+                return_tensors='pt'
+            )
+            inputs = {
+                'input_ids1': encoded['input_ids'].to(self.device),
+                'attention_mask1': encoded['attention_mask'].to(self.device),
+            }
+            with torch.no_grad():
+                logits = self.model(**inputs, return_dict=True)
+
+            output.append((sub_text, logits.cpu().numpy()))
+        return output
 
     def classify(self, text, strategy, window_size_list=[1, 3, 5]):
         if strategy == "max":

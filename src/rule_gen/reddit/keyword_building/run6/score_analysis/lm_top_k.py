@@ -35,4 +35,4 @@ def save_pickl():
 
 
 if __name__ == "__main__":
-    save_pickl()
+    save_text()

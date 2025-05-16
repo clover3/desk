@@ -167,6 +167,8 @@ def load_llg2_custom2(category_list: list[tuple[str, str]],
         return result, unsafe_score
     return check_conversation
 
+
+
 def main(model_id: str = "meta-llama/Meta-Llama-Guard-2-8B",
          llama_guard_version: LlamaGuardVersion = LlamaGuardVersion.LLAMA_GUARD_2):
     """

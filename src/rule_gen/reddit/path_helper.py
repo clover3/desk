@@ -46,6 +46,11 @@ def get_group1_list():
     return read_csv_column(save_path, 0)
 
 
+def get_group2_list():
+    save_path = os.path.join(output_root_path, "reddit", "group", f"group2.txt")
+    return read_csv_column(save_path, 0)
+
+
 def get_reddit_delete_post_path():
     save_path = os.path.join(data_root_path, "reddit", "reddit-removal-log.csv")
     return save_path

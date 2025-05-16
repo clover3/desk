@@ -25,9 +25,13 @@ def save_text_list_as_csv(text_itr, file_path: str) -> None:
             f.flush()
 
 
-def read_csv(file_path: str):
+def read_csv(file_path: str, return_itr=False):
+    # if not return_itr:
     with open(file_path, 'r', newline='', encoding='utf-8') as f:
         return list(csv.reader(f))
+    # else:
+    #     with open(file_path, 'r', newline='', encoding='utf-8') as f:
+    #         yield from csv.reader(f)
 
 
 def read_csv_column(file_path: str, column_i):
