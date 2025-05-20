@@ -4,8 +4,9 @@ import logging
 import fire
 from transformers import AutoTokenizer
 
-from rule_gen.reddit.bert_pat.partition_util import get_non_sharp_indices
+from rule_gen.reddit.bert_pat.partition_util import get_non_sharp_indices, random_token_split
 from rule_gen.reddit.bert_pat.pat_modeling import BertPAT, CombineByScoreAdd, BertPatFirst
+from rule_gen.reddit.bert_pat.scratch import tokenize_and_split
 
 LOG = logging.getLogger("InfPat")
 
@@ -23,7 +24,12 @@ class PatInference:
         """Initialize the model and tokenizer"""
         model_path = self.model_path
         LOG.info("Loading PAT model from %s", model_path)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        except OSError:
+            base_model = 'bert-base-uncased'
+            self.tokenizer = AutoTokenizer.from_pretrained(base_model)
+
         self.model = BertPAT.from_pretrained(
             model_path,
             combine_layer_factory=CombineByScoreAdd
@@ -73,6 +79,23 @@ class PatInference:
             'labels': torch.tensor([1], device=self.device)
         }
         return encoded, inputs
+
+
+    def predict_bipartition(self, text):
+        inputs = tokenize_and_split([text], self.tokenizer, self.max_length, "pt")
+        new_inputs = {}
+        for k, v in inputs.items():
+            # v = torch.unsqueeze(v, 0)
+            new_inputs[k] = v.to(self.device)
+
+        new_inputs['labels'] = torch.tensor([1], device=self.device)
+
+        with torch.no_grad():
+            outputs = self.model(**new_inputs, return_dict=True)
+        probs = torch.softmax(outputs.logits, -1)
+        return float(probs[:, 1].cpu().numpy())
+
+
 
 
 class PatInferenceFirst:

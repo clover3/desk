@@ -186,7 +186,11 @@ def get_instruction_from_run_name(run_name):
         sb = "_".join(tokens[1:-1])
         role = tokens[-1]
         if role in ["summary", "detail", "both"]:
-            instruction, pos_keyword = get_rule_showing_instruction(sb, role)
+            try:
+                instruction, pos_keyword = get_rule_showing_instruction(sb, role)
+            except FileNotFoundError:
+                print("Rules does not exist for {}. Run with no rule".format(sb))
+                instruction, pos_keyword = get_no_rule_instruction(run_name)
         elif role == "none":
             instruction, pos_keyword = get_no_rule_instruction(run_name)
         else:

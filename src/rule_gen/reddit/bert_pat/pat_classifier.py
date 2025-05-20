@@ -102,6 +102,9 @@ def get_pat_predictor(run_name):
     if run_name.endswith(".m"):
         run_name = run_name[:-2]
         strategy = "max"
+    elif run_name.endswith(".b"):
+        run_name = run_name[:-2]
+        return get_pat_bipart_predictor(run_name)
     else:
         strategy = "logit_avg"
 
@@ -110,6 +113,19 @@ def get_pat_predictor(run_name):
 
     def predict(text):
         score = pat.classify(text, strategy, [3])
+        label = int(score > 0.5)
+        return label, score
+    return predict
+
+
+
+
+def get_pat_bipart_predictor(run_name):
+    model_path = get_model_save_path(run_name)
+    pat = PatInference(model_path)
+
+    def predict(text):
+        score = pat.predict_bipartition(text)
         label = int(score > 0.5)
         return label, score
     return predict

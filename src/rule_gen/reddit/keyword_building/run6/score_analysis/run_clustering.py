@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from collections import Counter
 
 from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_text
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.keyword_building.run6.score_common.score_loaders import load_run_score_matrix
 
 
 def run_clustering(df, eps, min_samples, terms):

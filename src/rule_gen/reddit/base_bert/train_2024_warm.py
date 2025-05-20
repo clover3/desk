@@ -3,20 +3,23 @@ import os
 
 import fire
 
-from taskman_client.task_proxy import get_task_manager_proxy
-from taskman_client.wrapper3 import JobContext
-from desk_util.io_helper import init_logging
-from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
-from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
-from rule_gen.runner.predict_clf import predict_clf_main
+from desk_util.path_helper import get_model_log_save_dir_path
 from rule_gen.reddit.base_bert.reddit_train_bert import build_training_argument, DataArguments, finetune_bert
+from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
+from taskman_client.task_proxy import get_task_manager_proxy
 
 LOG = logging.getLogger(__name__)
+
+from desk_util.io_helper import init_logging
+from desk_util.path_helper import get_model_save_path
+from rule_gen.reddit.base_bert.train2 import train_subreddit_classifier_inner
+from taskman_client.wrapper3 import JobContext
 
 
 def train_subreddit_classifier_inner(data_name, model_name, sb):
     with JobContext(model_name + "_train"):
-        base_model = 'bert-base-uncased'
+        base_model = 'bert2_train_mix'
+        base_model_dir = get_model_save_path(base_model)
 
         output_dir = get_model_save_path(model_name)
         final_model_dir = get_model_save_path(model_name)
@@ -33,7 +36,7 @@ def train_subreddit_classifier_inner(data_name, model_name, sb):
         )
 
         eval_result = finetune_bert(
-            model_name=base_model,
+            model_name=base_model_dir,
             training_args=training_args,
             dataset_args=dataset_args,
             final_model_dir=final_model_dir,
@@ -46,13 +49,17 @@ def train_subreddit_classifier_inner(data_name, model_name, sb):
             proxy.report_number(model_name, eval_result[metric], dataset, metric_short)
 
 
-def train_subreddit_classifier(sb="askscience_head"):
+LOG = logging.getLogger(__name__)
+
+
+def train_sb_classifier(sb="askscience_head"):
     init_logging()
-    data_name = "train_data2"
-    model_name = f"bert2_{sb}"
+    data_name = "2024_2"
+    model_name = f"bert2024m_{sb}"
+
     train_subreddit_classifier_inner(data_name, model_name, sb)
 
 
 # Example usage:
 if __name__ == "__main__":
-    fire.Fire(train_subreddit_classifier)
+    fire.Fire(train_sb_classifier)

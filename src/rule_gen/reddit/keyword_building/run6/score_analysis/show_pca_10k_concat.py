@@ -1,10 +1,10 @@
 import fire
 import numpy as np
-from sklearn.decomposition import PCA, SparsePCA, NMF
+from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 
 from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_text
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.keyword_building.run6.score_common.score_loaders import load_run_score_matrix
 from rule_gen.reddit.s9.voca.show_pca import run_show_pca
 
 

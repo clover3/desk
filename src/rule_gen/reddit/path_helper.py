@@ -30,6 +30,8 @@ def load_2024_split_subreddit_list(split):
 def get_split_subreddit_list(split):
     if split == "both":
         return get_split_subreddit_list("train") + get_split_subreddit_list("val")
+    elif split == "all":
+        return load_subreddit_list()
     else:
         return read_csv_column(get_split_subreddit_list_path(split), 0)
 

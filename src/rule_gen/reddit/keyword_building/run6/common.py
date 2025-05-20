@@ -20,6 +20,13 @@ def load_run6_term_text_to_term(n):
     return {e[1]: e[0] for e in voca}
 
 
+def load_run6_term_to_text(n):
+    topk_path = get_rp_path("run6_voca_lm_prob_10k", f"{n}.pkl")
+    voca = pickle.load(open(topk_path, "rb"))
+    return {e[0]: e[1] for e in voca}
+
+
+
 def load_run6_10k_text(n):
     return load_run6_10k_terms_column(1, n)
 

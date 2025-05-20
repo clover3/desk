@@ -154,6 +154,8 @@ def load_chatgpt_based(run_name) -> Callable[[str], tuple[int, float]]:
         score = fetch_score_from_token_probs(pos_keyword, token_probs)
         pred = pos_keyword.lower() in ret_text.lower()
         ret = int(pred)
+        if not ret:
+            score = score - 1e5
         return ret, score
     return predict
 

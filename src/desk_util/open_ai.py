@@ -23,7 +23,7 @@ def setup_file_logger(logger_name):
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
 
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                                   datefmt='%m-%d %H:%M:%S',

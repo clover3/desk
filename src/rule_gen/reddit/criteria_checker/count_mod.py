@@ -5,7 +5,7 @@ from chair.misc_lib import group_by
 from desk_util.io_helper import read_csv
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_text
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.keyword_building.run6.score_common.score_loaders import load_run_score_matrix
 
 
 def get_term_score(term):
@@ -25,8 +25,6 @@ def main():
     table_scores = dict(zip(sb_list, scores))
     groups = group_by(data, lambda x: x[0])
 
-
-
     table = []
     for sb, entries in groups.items():
         counter = Counter()
@@ -45,6 +43,30 @@ def main():
     table.sort(key=lambda x: x[2], reverse=True)
     for sb, portion, score in table:
         print(sb, portion, score)
+
+
+
+
+def main():
+    text_path = os.path.join(output_root_path, "reddit", "subset", "mod.csv")
+    data = read_csv(text_path)
+    groups = group_by(data, lambda x: x[0])
+
+    table = []
+    for sb, entries in groups.items():
+        counter = Counter()
+        for _sb, _text, label_s in entries:
+            counter[int(label_s)] += 1
+        total = sum(counter.values())
+        table.append((sb, counter[1] / total))
+
+    # table.sort(key=lambda x: x[2], reverse=True)
+    cnt = 0
+    for sb, portion in table:
+        if portion > 0.8:
+            cnt += 1
+        print(sb, portion, )
+    print(cnt / len(table))
 
 
 if __name__ == "__main__":

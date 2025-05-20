@@ -20,8 +20,8 @@ def main():
             text_list.append(text)
 
     random.shuffle(text_list)
-
-    neg_path = os.path.join(output_root_path, "reddit", "subset", "mod_neg.csv")
+    label_name = "neg"
+    neg_path = os.path.join(output_root_path, "reddit", "subset", f"mod_{label_name}.csv")
     json.dump(text_list[:70], open(neg_path, "w"), indent=4)
 
 

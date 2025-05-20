@@ -1,7 +1,7 @@
 from transformers import PreTrainedTokenizer, AutoTokenizer
 from datasets import Dataset
 import pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from transformers.tokenization_utils_base import PreTokenizedInput
 
@@ -15,8 +15,9 @@ from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
 def tokenize_and_split(
         texts: list[str],
         tokenizer: PreTrainedTokenizer,
-        max_length: int = 512
-) -> Dict[str, List]:
+        max_length: int = 512,
+        return_tensor=None
+) -> Dict[str, List | Any]:
     def partition(text) -> tuple[list[str], list[str]]:
         str_tokens = tokenizer.tokenize(text)
         first, second = random_token_split(str_tokens)
@@ -32,14 +33,14 @@ def tokenize_and_split(
         truncation=True,
         max_length=max_length,
         padding='max_length',
-        return_tensors=None
+        return_tensors=return_tensor
     )
     tokenized2 = tokenizer(
         second,
         is_split_into_words=True,  # Add this flag to indicate pre-tokenized input
         truncation=True,
         max_length=max_length,
-        return_tensors=None,
+        return_tensors=return_tensor,
         padding='max_length'
     )
     for i in range(len(tokenized1["input_ids"])):

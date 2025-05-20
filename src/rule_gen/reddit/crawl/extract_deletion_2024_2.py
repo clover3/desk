@@ -7,20 +7,15 @@ import os
 from rule_gen.reddit.crawl.compute_deletion_rate import read_deleted_comments_db
 from rule_gen.reddit.handle_dump.db_helper import read_db, group_by_created
 
-
-def main():
-    itr1 = read_db("outputs/reddit/db/2024/comments.sqlite")
-    read_path = "outputs/reddit/db/2024/deleted_comments.sqlite"
-    itr2 =  read_deleted_comments_db(read_path)
+def extract_deletion_only_remove_inner(comment_db_path, read_path, save_dir):
+    itr1 = read_db(comment_db_path)
+    itr2 = read_deleted_comments_db(read_path)
     group1 = group_by_created(itr1)
     group2 = group_by_created(itr2)
     g2_itr = iter(group2)
     g2 = next(g2_itr, None)
-
     all_items = defaultdict(list)
-    p = os.path.join(output_root_path, "reddit", "2024data2")
-    exist_or_mkdir(p)
-
+    exist_or_mkdir(save_dir)
     try:
         for g1 in group1:
             for e in g1:
@@ -55,17 +50,26 @@ def main():
                     all_items[sb1, "neg"].append(e["body"])
     except TypeError:
         pass
-
     for key, entries in all_items.items():
         sb, label = key
         label_i = {
             "pos": 1,
             "neg": 0,
         }[label]
-        save_path = os.path.join(p, f"{sb}-{label}.jsonl")
+        save_path = os.path.join(save_dir, f"{sb}-{label}.jsonl")
         with open(save_path, "w") as f:
             for e in entries:
                 f.write(json.dumps({"text": e, "label": label_i}) + "\n")
+
+
+def main():
+    deleted_comment_db_path = "outputs/reddit/db/2024/deleted_comments.sqlite"
+    comment_db_path = "outputs/reddit/db/2024/comments.sqlite"
+
+    save_path = os.path.join(output_root_path, "reddit", "2024data2")
+
+    extract_deletion_only_remove_inner(comment_db_path, deleted_comment_db_path, save_path)
+
 
 
 if __name__ == '__main__':

@@ -87,12 +87,8 @@ def train_two_seg(
     LOG.info("BERT fine-tuning process completed")
     return eval_results
 
-
-def reddit_train_pat_exp(sb="TwoXChromosomes", debug=False):
+def reddit_train_pat_exp_inner(data_name, debug, model_name, sb):
     init_logging()
-    model_name = f"bert_ts_{sb}"
-    data_name = "train_data2"
-
     with JobContext(model_name + "_train"):
         base_model = 'bert-base-uncased'
         output_dir = get_model_save_path(model_name)
@@ -120,6 +116,14 @@ def reddit_train_pat_exp(sb="TwoXChromosomes", debug=False):
             dataset = sb + "_val"
             metric_short = metric[len("eval_"):]
             proxy.report_number(model_name, eval_result[metric], dataset, metric_short)
+
+
+
+def reddit_train_pat_exp(sb="TwoXChromosomes", debug=False):
+    model_name = f"bert_ts_{sb}"
+    data_name = "train_data2"
+
+    reddit_train_pat_exp_inner(data_name, debug, model_name, sb)
 
 
 if __name__ == "__main__":

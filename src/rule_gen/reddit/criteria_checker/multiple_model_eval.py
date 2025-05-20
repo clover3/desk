@@ -10,10 +10,10 @@ import json
 
 def main():
     subreddit_list = get_split_subreddit_list("train")
-    # save_path = os.path.join(output_root_path, "reddit", "mod_sents.json")
-    # sents = json.load(open(save_path))
-    save_path = os.path.join(output_root_path, "reddit", "subset", "mod_neg.json")
+    save_path = os.path.join(output_root_path, "reddit", "mod_sents.json")
     sents = json.load(open(save_path))
+    # save_path = os.path.join(output_root_path, "reddit", "subset", "mod_neg.json")
+    # sents = json.load(open(save_path))
     n_sb = 60
 
     counter = Counter()

@@ -5,7 +5,7 @@ import numpy as np
 import fire
 
 from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_text
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.keyword_building.run6.score_common.score_loaders import load_run_score_matrix
 from rule_gen.reddit.keyword_building.run6.score_analysis.median_delta import save_mean_delta
 from rule_gen.reddit.path_helper import get_rp_path
 

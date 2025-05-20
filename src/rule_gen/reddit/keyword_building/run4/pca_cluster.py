@@ -3,7 +3,6 @@ from sklearn.cluster import KMeans
 
 from chair.misc_lib import group_by
 
-44
 
 import pickle
 import os

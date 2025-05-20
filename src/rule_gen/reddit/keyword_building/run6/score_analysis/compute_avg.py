@@ -4,7 +4,7 @@ import pickle
 import fire
 import numpy as np
 
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.keyword_building.run6.score_common.score_loaders import load_run_score_matrix
 from rule_gen.reddit.path_helper import get_rp_path
 
 

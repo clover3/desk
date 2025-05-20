@@ -6,7 +6,6 @@ from nltk import ngrams
 from chair.misc_lib import average
 from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_terms
 from rule_gen.reddit.keyword_building.run6.corpus_based_analysis.term_norm_match import get_bert_basic_tokenizer
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
 from rule_gen.reddit.path_helper import get_rp_path
 
 
