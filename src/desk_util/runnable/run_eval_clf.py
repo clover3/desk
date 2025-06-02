@@ -24,6 +24,8 @@ def run_eval_clf(run_name,
 
     for metric in print_metrics:
         print(f"{metric}\t{score_d[metric]}")
+    for metric in print_metrics:
+        print(f"{metric}\t{score_d[metric]}")
 
     if len(preds) != score_d['n']:
         msg = f"Evaluated on {score_d['n']} samples"

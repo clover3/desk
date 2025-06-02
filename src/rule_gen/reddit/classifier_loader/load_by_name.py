@@ -83,6 +83,9 @@ def get_classifier(run_name) -> Callable[[str], tuple[int, float]]:
     elif run_name.startswith("proto"):
         from rule_gen.reddit.classifier_loader.proto_predictor import get_proto_predictor
         return get_proto_predictor(run_name)
+    elif run_name.startswith("ngramlogit"):
+        from rule_gen.reddit.baseline.classifier_loader import get_ngram_logit_classifiers
+        return get_ngram_logit_classifiers(run_name)
     elif run_name.startswith("conf_"):
         from rule_gen.reddit.classifier_loader.prompt_based import load_from_conf
         return load_from_conf(run_name)
