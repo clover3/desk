@@ -20,7 +20,7 @@ def main(n=1):
         pat = PatInferenceFirst(get_model_save_path(model_name))
         save_path = get_rp_path("run6_voca", f"{sb}.{n}.pkl")
         if os.path.exists(save_path):
-            print(save_path, "already not exist")
+            print(save_path, "already exist")
             continue
 
         make_parent_exists(save_path)
