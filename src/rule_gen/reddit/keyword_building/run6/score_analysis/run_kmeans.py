@@ -11,23 +11,18 @@ from scipy.spatial.distance import correlation
 
 
 def run_clustering(df, k, terms, distance_threshold=1.5):
-    # Standardize features
-    # scaler = StandardScaler()
-    # X_scaled = scaler.fit_transform(df)
-    X_scaled = df.values
+    X = df.values
 
-    # Fit KMeans
     kmeans = KMeans(n_clusters=k, random_state=42)
-    labels = kmeans.fit_predict(X_scaled)
+    labels = kmeans.fit_predict(X)
     centroids = kmeans.cluster_centers_
 
     # Calculate distances from each point to its assigned centroid
     distances = np.zeros(len(df))
     for i in range(len(df)):
         cluster_label = labels[i]
-        distances[i] = correlation(X_scaled[i], centroids[cluster_label])
+        distances[i] = correlation(X[i], centroids[cluster_label])
 
-    # Create mask for points that are within the threshold distance
     mask = distances <= distance_threshold
 
     # Add cluster labels, terms and distances to original data
