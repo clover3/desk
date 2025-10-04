@@ -4,7 +4,7 @@ import re
 
 from sklearn.model_selection import train_test_split
 
-from chair.misc_lib import group_by, get_second
+from desk_util.misc_lib import group_by, get_second
 from desk_util.io_helper import read_csv, read_jsonl, save_csv
 from rule_gen.cpath import output_root_path
 from rule_gen.reddit.path_helper import get_reddit_delete_post_path

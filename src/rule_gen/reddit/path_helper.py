@@ -1,6 +1,6 @@
 import os
 
-from chair.misc_lib import make_parent_exists
+from desk_util.misc_lib import make_parent_exists
 from desk_util.io_helper import read_csv_column
 from rule_gen.cpath import data_root_path, output_root_path
 

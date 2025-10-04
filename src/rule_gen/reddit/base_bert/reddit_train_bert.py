@@ -6,6 +6,8 @@ from typing import Optional
 import fire
 from transformers import TrainingArguments, Trainer, BertTokenizer, BertForSequenceClassification
 
+from desk_util.io_helper import init_logging
+from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
 from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.base_bert.train_clf_common import get_compute_metrics
 from rule_gen.reddit.train_common import compute_per_device_batch_size
@@ -119,9 +121,3 @@ def build_training_argument(logging_dir, output_dir, debug=False):
     )
     return training_args
 
-    # predict_clf_main(model_name, subreddit + "_val", do_eval=True, do_report=True)
-
-
-# Example usage:
-if __name__ == "__main__":
-    fire.Fire(train_subreddit_classifier)

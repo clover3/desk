@@ -1,6 +1,6 @@
 import os
 
-from chair.misc_lib import make_parent_exists
+from desk_util.misc_lib import make_parent_exists
 from rule_gen.cpath import output_root_path
 
 

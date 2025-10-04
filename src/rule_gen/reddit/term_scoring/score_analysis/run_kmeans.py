@@ -5,8 +5,8 @@ import pandas as pd
 from scipy.spatial.distance import correlation
 from sklearn.cluster import KMeans
 
-from rule_gen.reddit.keyword_building.run6.common import load_top_10k_text
-from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.term_scoring.score_analysis.common import load_run_score_matrix
+from rule_gen.reddit.term_scoring.voca_loader import load_top_10k_text
 
 
 def run_clustering(df, k, terms, distance_threshold=1.5):

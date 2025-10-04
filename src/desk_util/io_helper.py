@@ -4,7 +4,7 @@ import logging
 import sys
 from typing import List, Tuple
 
-from chair.misc_lib import make_parent_exists
+from desk_util.misc_lib import make_parent_exists
 
 
 def save_csv(tuple_itr, file_path: str) -> None:
