@@ -6,18 +6,12 @@ from typing import Optional
 import fire
 from transformers import TrainingArguments, Trainer, BertTokenizer, BertForSequenceClassification
 
-from chair.misc_lib import rel
-from desk_util.io_helper import init_logging
-from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
 from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.base_bert.train_clf_common import get_compute_metrics
-from rule_gen.reddit.path_helper import get_reddit_train_data_path
 from rule_gen.reddit.train_common import compute_per_device_batch_size
 
 LOG = logging.getLogger("RedditTrainBert")
 
-
-# ... (keep all the existing import statements and helper functions)
 
 @dataclass
 class DataArguments:
@@ -73,9 +67,9 @@ def finetune_bert(
 
 def prepare_datasets(dataset_args: DataArguments, model_name):
     # Create datasets
-    LOG.info(f"Loading training data from {rel(dataset_args.train_data_path)}")
+    LOG.info(f"Loading training data from {dataset_args.train_data_path}")
     train_dataset = load_dataset_from_csv(dataset_args.train_data_path)
-    LOG.info(f"Loading evaluation data from {rel(dataset_args.eval_data_path)}")
+    LOG.info(f"Loading evaluation data from {dataset_args.eval_data_path}")
     eval_dataset = load_dataset_from_csv(dataset_args.eval_data_path)
     LOG.info("Creating datasets")
     # Load tokenizer and model
@@ -124,30 +118,6 @@ def build_training_argument(logging_dir, output_dir, debug=False):
         report_to=None if debug else "all",
     )
     return training_args
-
-
-def train_subreddit_classifier(subreddit="askscience_head"):
-    init_logging()
-    model_name = f"bert_{subreddit}"
-    base_model = 'bert-base-uncased'
-
-    output_dir = get_model_save_path(model_name)
-    final_model_dir = get_model_save_path(model_name)
-    logging_dir = get_model_log_save_dir_path(model_name)
-    max_length = 256
-    training_args = build_training_argument(logging_dir, output_dir)
-    dataset_args = DataArguments(
-        train_data_path=get_reddit_train_data_path(subreddit, "train"),
-        eval_data_path=get_reddit_train_data_path(subreddit, "val"),
-        max_length=max_length
-    )
-
-    eval_result = finetune_bert(
-        model_name=base_model,
-        training_args=training_args,
-        dataset_args=dataset_args,
-        final_model_dir=final_model_dir,
-    )
 
     # predict_clf_main(model_name, subreddit + "_val", do_eval=True, do_report=True)
 

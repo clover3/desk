@@ -1,12 +1,13 @@
 import os
 import random
+import re
+
 from sklearn.model_selection import train_test_split
 
 from chair.misc_lib import group_by, get_second
-from rule_gen.cpath import output_root_path
 from desk_util.io_helper import read_csv, read_jsonl, save_csv
+from rule_gen.cpath import output_root_path
 from rule_gen.reddit.path_helper import get_reddit_delete_post_path
-import re
 
 
 def preprocess_text(text_list):
@@ -14,8 +15,6 @@ def preprocess_text(text_list):
     text_list = [text.lower() for text in text_list]
     text_list = [" ".join(re.findall(r'[\w]+', text)) for text in text_list]
     return text_list
-
-# Added filter conditions
 
 
 def main():

@@ -325,6 +325,8 @@ class ProjectAnalyzer:
         for file_path in reachable_files:
             self._remove_dead_code_from_file(file_path, reachable_functions, reachable_classes)
 
+        self._remove_empty_directories()
+
     def _remove_dead_code_from_file(self, file_path, reachable_functions, reachable_classes):
         """Remove dead functions and classes from a specific file."""
         if file_path not in self.file_analyzers:
@@ -364,6 +366,84 @@ class ProjectAnalyzer:
                 if line_num not in lines_to_remove:
                     f.write(line)
 
+    def _has_valid_python_files(self, directory):
+        """Check if directory has any valid (non-backup) Python files."""
+        for item in directory.iterdir():
+            if item.is_file():
+                # Check if it's a valid Python file (not .removed or .bak)
+                if item.suffix == '.py' and not item.name.endswith('.removed') and not item.name.endswith('.bak'):
+                    return True
+        return False
+
+    def _find_empty_directories(self, dry_run=False):
+        """Find directories that don't contain valid Python code."""
+        empty_dirs = []
+
+        # Walk through all directories in project root
+        for dirpath, dirnames, filenames in os.walk(self.project_root, topdown=False):
+            current_dir = Path(dirpath)
+
+            # Skip the root directory itself
+            if current_dir == self.project_root:
+                continue
+
+            # Check if directory has any valid Python files
+            has_valid_files = False
+            for filename in filenames:
+                if filename.endswith('.py') and not filename.endswith('.removed.py') and not filename.endswith(
+                        '.bak.py'):
+                    # Also check the actual file path format
+                    file_path = current_dir / filename
+                    if not str(file_path).endswith('.removed') and not str(file_path).endswith('.bak'):
+                        has_valid_files = True
+                        break
+
+            # Check if directory has any subdirectories with valid files
+            has_valid_subdirs = False
+            for dirname in dirnames:
+                subdir = current_dir / dirname
+                if subdir not in empty_dirs:  # If subdir wasn't marked as empty
+                    has_valid_subdirs = True
+                    break
+
+            # If no valid files and no valid subdirs, mark as empty
+            if not has_valid_files and not has_valid_subdirs:
+                empty_dirs.append(current_dir)
+
+        return empty_dirs
+
+    def _remove_empty_directories(self):
+        """Remove directories that don't contain any valid Python code."""
+        import os
+
+        removed_count = 0
+        # Multiple passes to handle nested empty directories
+        for _ in range(10):  # Max 10 passes to clean up nested structures
+            empty_dirs = self._find_empty_directories()
+            if not empty_dirs:
+                break
+
+            for directory in sorted(empty_dirs, reverse=True):  # Sort to handle deepest first
+                try:
+                    # Double-check it's still empty (in case previous removal affected it)
+                    if directory.exists() and not self._has_valid_python_files(directory):
+                        # Check if it has any non-empty subdirectories
+                        has_content = False
+                        for item in directory.iterdir():
+                            if item.is_dir():
+                                has_content = True
+                                break
+
+                        if not has_content:
+                            print(f"Removing empty directory: {directory}")
+                            shutil.rmtree(directory)
+                            removed_count += 1
+                except Exception as e:
+                    print(f"Warning: Could not remove directory {directory}: {e}")
+
+        if removed_count > 0:
+            print(f"Removed {removed_count} empty directories")
+
 
 def main():
     # Example usage
@@ -374,6 +454,7 @@ def main():
         r"C:\work\code\desk\src\rule_gen\reddit\bert_pat\train_pat.py",
         r"C:\work\code\desk\src\rule_gen\reddit\keyword_building\run6\pat_inf_filter.py",
         r"C:\work\code\desk\src\rule_gen\reddit\keyword_building\run6\score_analysis\run_kmeans.py",
+        r"C:\work\code\desk\src\code_release_helper\analyze_2.py"
     ]
     # Validate entry files exist
     for entry_file in entry_files:
@@ -393,7 +474,7 @@ def main():
     print("Finding reachable code...")
 
     # First run in dry-run mode
-    analyzer.remove_dead_code(entry_files, dry_run=True)
+    analyzer.remove_dead_code(entry_files, dry_run=False)
 
     # Ask for confirmation
     # response = input("\nProceed with actual removal? (yes/no): ").strip().lower()

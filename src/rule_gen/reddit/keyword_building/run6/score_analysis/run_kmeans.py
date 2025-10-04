@@ -2,12 +2,11 @@ from collections import Counter
 
 import numpy as np
 import pandas as pd
+from scipy.spatial.distance import correlation
 from sklearn.cluster import KMeans
 
-from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_text
+from rule_gen.reddit.keyword_building.run6.common import load_top_10k_text
 from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run_score_matrix
-from sklearn.preprocessing import StandardScaler
-from scipy.spatial.distance import correlation
 
 
 def run_clustering(df, k, terms, distance_threshold=1.5):
@@ -102,7 +101,7 @@ def load_mat_terms(n_list) -> tuple[np.array, list[str], list[str]]:
             sb_len = len(valid_sb_list)
         else:
             assert sb_len == len(valid_sb_list)
-        term_list = load_run6_10k_text(n)
+        term_list = load_top_10k_text(n)
         term_list_ex.extend(term_list)
     score_mat = np.concatenate(score_mat_list, axis=0)
     term_list = term_list_ex

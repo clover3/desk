@@ -1,13 +1,12 @@
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import torch
+import torch.nn.functional as F
 from torch import nn as nn
 from torch.nn import CrossEntropyLoss
-from transformers import BertForSequenceClassification, BertPreTrainedModel
+from transformers import BertForSequenceClassification
 from transformers.modeling_outputs import SequenceClassifierOutput
-import torch
-import torch.nn.functional as F
 
 
 @dataclass
@@ -48,7 +47,6 @@ class BertPAT(BertForSequenceClassification):
             labels: Optional[torch.Tensor] = None,
             return_dict: Optional[bool] = None,
     ) -> PATOutput:
-
         def apply_bert_cls(input_ids, attention_mask):
             outputs = self.bert(
                 input_ids,
@@ -93,7 +91,6 @@ class BertPatFirst(BertForSequenceClassification):
             attention_mask1: torch.Tensor,
             return_dict: Optional[bool] = None,
     ) -> PATOutput:
-
         def apply_bert_cls(input_ids, attention_mask):
             outputs = self.bert(
                 input_ids,

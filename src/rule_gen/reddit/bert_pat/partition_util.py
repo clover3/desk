@@ -1,25 +1,5 @@
 import random
-from typing import List, Iterable, Callable, Dict, Tuple, Set, Iterator
-
-
-def get_random_split_location(tokens) -> Tuple[int, int]:
-    retry = True
-    n_retry = 0
-    while retry:
-        st = random.randint(0, len(tokens) - 1)
-        while 0 <= st < len(tokens) - 1 and tokens[st].startswith("##"):
-            st += 1
-
-        # st is located at end of the text
-        if st + 1 > len(tokens) and n_retry < 4:
-            n_retry += 1
-            retry = True
-            continue
-
-        ed = random.randint(st+1, len(tokens))
-        retry = False
-        return st, ed
-
+from typing import Tuple
 
 
 def select_random_loc_not_sharp(tokens, st=0, ed=None) -> int:
@@ -31,7 +11,7 @@ def select_random_loc_not_sharp(tokens, st=0, ed=None) -> int:
     if not candidate:
         return -1
     else:
-        j = random.randint(0, len(candidate)-1)
+        j = random.randint(0, len(candidate) - 1)
         return candidate[j]
 
 
@@ -59,11 +39,10 @@ def get_random_split_location2(tokens) -> Tuple[int, int]:
             retry = True
             continue
 
-        ed = select_random_loc_not_sharp(tokens, st+1, len(tokens))
+        ed = select_random_loc_not_sharp(tokens, st + 1, len(tokens))
         if ed == -1:
             ed = len(tokens)
         return st, ed
-
 
 
 def random_token_split(tokens):

@@ -4,7 +4,6 @@ from typing import Dict
 import fire
 from transformers import Trainer, TrainingArguments, AutoTokenizer
 
-from chair.misc_lib import rel
 from desk_util.io_helper import init_logging
 from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
 from rule_gen.reddit.base_bert.reddit_train_bert import prepare_datasets, build_training_argument, DataArguments
@@ -19,9 +18,9 @@ LOG = logging.getLogger("TrainPat")
 
 def prepare_datasets(dataset_args: DataArguments, model_name):
     # Create datasets
-    LOG.info(f"Loading training data from {rel(dataset_args.train_data_path)}")
+    LOG.info(f"Loading training data from {dataset_args.train_data_path}")
     train_dataset = load_dataset_from_csv(dataset_args.train_data_path)
-    LOG.info(f"Loading evaluation data from {rel(dataset_args.eval_data_path)}")
+    LOG.info(f"Loading evaluation data from {dataset_args.eval_data_path}")
     eval_dataset = load_dataset_from_csv(dataset_args.eval_data_path)
     LOG.info("Creating datasets")
     # Load tokenizer and model
@@ -85,6 +84,7 @@ def train_two_seg(
 
 def reddit_train_pat_exp(subreddit="TwoXChromosomes", debug=False):
     init_logging()
+    LOG.info("Starting BERT fine-tuning process for PAT")
     model_name = f"bert_ts_{subreddit}"
     data_name = "train_data2"
 
@@ -108,6 +108,7 @@ def reddit_train_pat_exp(subreddit="TwoXChromosomes", debug=False):
         dataset_args=dataset_args,
         final_model_dir=final_model_dir,
     )
+
 
 if __name__ == "__main__":
     fire.Fire(reddit_train_pat_exp)

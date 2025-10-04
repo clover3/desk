@@ -1,18 +1,19 @@
 import os
 import pickle
+
 import fire
 import tqdm
+
 from chair.misc_lib import make_parent_exists
 from desk_util.path_helper import get_model_save_path
 from rule_gen.reddit.bert_pat.infer_tokens import PatInferenceFirst
-from rule_gen.reddit.keyword_building.run6.common import load_run6_10k_terms
+from rule_gen.reddit.keyword_building.run6.common import load_top_10k_term
 from rule_gen.reddit.path_helper import get_split_subreddit_list, get_rp_path
 
 
-
-
 def main(n=1):
-    term_list = load_run6_10k_terms(n)
+
+    term_list = load_top_10k_term(n)
     subreddit_list = get_split_subreddit_list("train")
     for sb in subreddit_list:
         model_name = f"bert_ts_{sb}"

@@ -1,11 +1,10 @@
 import csv
-from typing import List, Tuple
-from chair.misc_lib import make_parent_exists
-
+import json
 import logging
 import sys
+from typing import List, Tuple
 
-import json
+from chair.misc_lib import make_parent_exists
 
 
 def save_csv(tuple_itr, file_path: str) -> None:
@@ -16,22 +15,9 @@ def save_csv(tuple_itr, file_path: str) -> None:
             writer.writerow(row)
 
 
-def save_text_list_as_csv(text_itr, file_path: str) -> None:
-    make_parent_exists(file_path)
-    with open(file_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        for text in text_itr:
-            writer.writerow([text])
-            f.flush()
-
-
 def read_csv(file_path: str, return_itr=False):
-    # if not return_itr:
     with open(file_path, 'r', newline='', encoding='utf-8') as f:
         return list(csv.reader(f))
-    # else:
-    #     with open(file_path, 'r', newline='', encoding='utf-8') as f:
-    #         yield from csv.reader(f)
 
 
 def read_csv_column(file_path: str, column_i):
@@ -40,26 +26,6 @@ def read_csv_column(file_path: str, column_i):
         for row in csv.reader(f):
             output.append(row[column_i])
         return output
-
-
-def load_two_column_csv(file_path: str) -> Tuple[List[str], List[str]]:
-    ids = []
-    predictions = []
-
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        next(reader)  # Skip the header row
-        for row in reader:
-            if len(row) == 2:
-                id, prediction = row
-                ids.append(id)
-                predictions.append(prediction)
-            else:
-                print(f"Skipping malformed row: {row}")
-
-    print(f"Loaded {len(ids)} items from {file_path}")
-    return ids, predictions
-
 
 
 def read_jsonl(file_path):
@@ -71,13 +37,6 @@ def read_jsonl(file_path):
 
 
 load_jsonl = read_jsonl
-
-
-def save_jsonl(itr, file_path):
-    make_parent_exists(file_path)
-    with open(file_path, 'w', newline='', encoding='utf-8') as f:
-        for row in itr:
-            f.write(json.dumps(row) + '\n')
 
 
 class IgnoreFilter(logging.Filter):
@@ -101,8 +60,9 @@ class IgnoreFilter(logging.Filter):
         return True
 
 
-
 f_init = False
+
+
 def init_logging(level=logging.INFO, ignore_rules: List[Tuple[str, str]] = None):
     global f_init
     if f_init:
@@ -122,14 +82,3 @@ def init_logging(level=logging.INFO, ignore_rules: List[Tuple[str, str]] = None)
     root_logger.addHandler(ch)
     root_logger.setLevel(level)
     f_init = True
-
-
-def init_logging_rivanna():
-    ignore_rules = [
-        ('root', 'gcc -pthread -B'),  # Ignore urllib3 logs containing "Connection pool"
-        ('boto', ''),  # Ignore all boto3 logs
-        ('accelerate.utils.other', 'Detected kernel version')  # Ignore any log containing "DEBUG information"
-    ]
-
-    init_logging(level=logging.INFO, ignore_rules=ignore_rules)
-
