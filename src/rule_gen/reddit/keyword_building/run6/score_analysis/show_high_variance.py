@@ -6,7 +6,7 @@ from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run
 def main():
     n_list = list(range(1, 10))
     print("Loading data...")
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     k = 0
     top_k = 200
     for n in n_list:

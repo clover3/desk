@@ -22,7 +22,7 @@ def save_text():
 def save_pickl():
     for n in range(1, 11):
         k = 10000
-        topk_path = get_rp_path("run6_voca_lm_prob_10k", f"{n}.pkl")
+        topk_path = get_rp_path("top_10k_voca", f"{n}.pkl")
         if os.path.exists(topk_path):
             continue
         lm_prob_path = get_rp_path("run6_voca_lm_prob", f"{n}.pkl")

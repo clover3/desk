@@ -91,7 +91,7 @@ def run_clustering(df, k, terms, distance_threshold=1.5):
 
 def load_mat_terms(n_list) -> tuple[np.array, list[str], list[str]]:
     print("Loading data...")
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     sb_len = None
     score_mat_list = []
     term_list_ex = []

@@ -171,7 +171,12 @@ class ProjectAnalyzer:
         reachable_functions = set()
         reachable_classes = set()
 
-        # Queue for BFS: (file_path, function_name, class_name)
+        # Track one dependency reference for each file/function/class
+        file_dependencies = {}  # file_path -> (referencing_file, reason)
+        function_dependencies = {}  # (file, func) -> (referencing_file, referencing_func, reason)
+        class_dependencies = {}  # (file, class) -> (referencing_file, referencing_func/class, reason)
+
+        # Queue for BFS: (file_path, function_name, class_name, source_file, source_item, reason)
         queue = deque()
 
         # Add all functions/classes from entry files to queue
@@ -179,20 +184,25 @@ class ProjectAnalyzer:
             if entry_file in self.file_analyzers:
                 analyzer = self.file_analyzers[entry_file]
 
+                # Mark entry files with special reason
+                file_dependencies[entry_file] = (None, "ENTRY_POINT")
+
                 # Add all top-level functions and classes as starting points
                 for func_name in analyzer.defined_functions:
-                    queue.append((entry_file, func_name, None))
+                    queue.append((entry_file, func_name, None, entry_file, None, "entry_point"))
                     reachable_functions.add((entry_file, func_name))
+                    function_dependencies[(entry_file, func_name)] = (entry_file, None, "entry_point")
 
                 for class_name in analyzer.defined_classes:
-                    queue.append((entry_file, None, class_name))
+                    queue.append((entry_file, None, class_name, entry_file, None, "entry_point"))
                     reachable_classes.add((entry_file, class_name))
+                    class_dependencies[(entry_file, class_name)] = (entry_file, None, "entry_point")
 
         # BFS to find all reachable code
         processed = set()
 
         while queue:
-            current_file, func_name, class_name = queue.popleft()
+            current_file, func_name, class_name, source_file, source_item, reason = queue.popleft()
 
             # Avoid processing the same item multiple times
             item_key = (current_file, func_name, class_name)
@@ -214,19 +224,27 @@ class ProjectAnalyzer:
                         dep_key = (current_file, dep_name)
                         if dep_key not in reachable_functions:
                             reachable_functions.add(dep_key)
-                            queue.append((current_file, dep_name, None))
+                            function_dependencies[dep_key] = (current_file, current_name, f"called_by_{current_name}")
+                            queue.append(
+                                (current_file, dep_name, None, current_file, current_name, f"called_by_{current_name}"))
 
                     elif dep_name in analyzer.defined_classes:
                         dep_key = (current_file, dep_name)
                         if dep_key not in reachable_classes:
                             reachable_classes.add(dep_key)
-                            queue.append((current_file, None, dep_name))
+                            class_dependencies[dep_key] = (current_file, current_name, f"used_by_{current_name}")
+                            queue.append(
+                                (current_file, None, dep_name, current_file, current_name, f"used_by_{current_name}"))
 
             # Handle imports - find external dependencies
             for module_name, imported_names in analyzer.from_imports.items():
                 target_file = self.resolve_import_to_file(module_name, current_file)
                 if target_file and target_file in self.file_analyzers:
-                    reachable_files.add(target_file)
+                    # Track file dependency if not already tracked
+                    if target_file not in file_dependencies:
+                        reachable_files.add(target_file)
+                        file_dependencies[target_file] = (current_file, f"imported_by_{current_file.name}")
+
                     target_analyzer = self.file_analyzers[target_file]
 
                     for imported_name in imported_names:
@@ -234,19 +252,26 @@ class ProjectAnalyzer:
                             dep_key = (target_file, imported_name)
                             if dep_key not in reachable_functions:
                                 reachable_functions.add(dep_key)
-                                queue.append((target_file, imported_name, None))
+                                function_dependencies[dep_key] = (
+                                current_file, current_name, f"imported_from_{module_name}")
+                                queue.append((target_file, imported_name, None, current_file, current_name,
+                                              f"imported_from_{module_name}"))
 
                         elif imported_name in target_analyzer.defined_classes:
                             dep_key = (target_file, imported_name)
                             if dep_key not in reachable_classes:
                                 reachable_classes.add(dep_key)
-                                queue.append((target_file, None, imported_name))
+                                class_dependencies[dep_key] = (
+                                current_file, current_name, f"imported_from_{module_name}")
+                                queue.append((target_file, None, imported_name, current_file, current_name,
+                                              f"imported_from_{module_name}"))
 
-        return reachable_files, reachable_functions, reachable_classes
+        return reachable_files, reachable_functions, reachable_classes, file_dependencies, function_dependencies, class_dependencies
 
     def remove_dead_code(self, entry_files, dry_run=True):
         """Remove all code not reachable from entry points."""
-        reachable_files, reachable_functions, reachable_classes = self.find_reachable_code(entry_files)
+        reachable_files, reachable_functions, reachable_classes, file_deps, func_deps, class_deps = self.find_reachable_code(
+            entry_files)
 
         print(f"Found {len(reachable_files)} reachable files")
         print(f"Found {len(reachable_functions)} reachable functions")
@@ -254,9 +279,33 @@ class ProjectAnalyzer:
 
         if dry_run:
             print("\n--- DRY RUN MODE ---")
-            print("Files that would be kept:")
+            print("Files that would be kept (with one dependency reference):")
             for f in sorted(reachable_files):
-                print(f"  {f}")
+                ref_file, reason = file_deps.get(f, (None, "unknown"))
+                if ref_file:
+                    print(f"  {f} <- referenced by: {ref_file} ({reason})")
+                else:
+                    print(f"  {f} <- {reason}")
+
+            print(f"\nFunctions that would be kept (showing sample dependencies):")
+            for (f, func) in sorted(reachable_functions):
+                ref_file, ref_item, reason = func_deps.get((f, func), (None, None, "unknown"))
+                if ref_file and ref_item:
+                    print(f"  {f}::{func} <- called by: {ref_file}::{ref_item} ({reason})")
+                elif ref_file:
+                    print(f"  {f}::{func} <- from: {ref_file} ({reason})")
+                else:
+                    print(f"  {f}::{func} <- {reason}")
+
+            print(f"\nClasses that would be kept (showing sample dependencies):")
+            for (f, cls) in sorted(reachable_classes):
+                ref_file, ref_item, reason = class_deps.get((f, cls), (None, None, "unknown"))
+                if ref_file and ref_item:
+                    print(f"  {f}::{cls} <- used by: {ref_file}::{ref_item} ({reason})")
+                elif ref_file:
+                    print(f"  {f}::{cls} <- from: {ref_file} ({reason})")
+                else:
+                    print(f"  {f}::{cls} <- {reason}")
 
             print(f"\nFiles that would be REMOVED ({len(self.all_python_files) - len(reachable_files)}):")
             for f in sorted(set(self.all_python_files) - reachable_files):
@@ -318,11 +367,14 @@ class ProjectAnalyzer:
 
 def main():
     # Example usage
-    project_root = r"C:\work\codes\desk\src"
-    entry_files_input = r"C:\work\codes\desk\src\rule_gen\reddit\base_bert\train2.py"
-
-    entry_files = [f.strip() for f in entry_files_input.split(',')]
-
+    project_root = r"C:\work\code\desk\src"
+    entry_files = [
+        r"C:\work\code\desk\src\rule_gen\reddit\dataset_build2\build_dataset2.py",
+        r"C:\work\code\desk\src\rule_gen\reddit\base_bert\train2.py",
+        r"C:\work\code\desk\src\rule_gen\reddit\bert_pat\train_pat.py",
+        r"C:\work\code\desk\src\rule_gen\reddit\keyword_building\run6\pat_inf_filter.py",
+        r"C:\work\code\desk\src\rule_gen\reddit\keyword_building\run6\score_analysis\run_kmeans.py",
+    ]
     # Validate entry files exist
     for entry_file in entry_files:
         if not Path(entry_file).exists():

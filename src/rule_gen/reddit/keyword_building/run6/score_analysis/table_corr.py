@@ -7,7 +7,7 @@ from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run
 def main():
     n_list = list(range(1, 10))
     print("Loading data...")
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     sb_len = None
     score_mat_list = []
     term_list_ex = []

@@ -1,15 +1,10 @@
-from transformers import PreTrainedTokenizer, AutoTokenizer
-from datasets import Dataset
-import pandas as pd
 from typing import List, Dict
 
+from transformers import PreTrainedTokenizer, AutoTokenizer
 from transformers.tokenization_utils_base import PreTokenizedInput
 
-from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
 from rule_gen.reddit.bert_pat.partition_util import random_token_split
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
-
-
 
 
 def tokenize_and_split(

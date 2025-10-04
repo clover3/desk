@@ -42,7 +42,7 @@ def main():
 
     for n in range(1, 30):
         print("{} gram".format(n))
-        topk_path = get_rp_path("run6_voca_lm_prob_10k", f"{n}.pkl")
+        topk_path = get_rp_path("top_10k_voca", f"{n}.pkl")
         voca: list = pickle.load(open(topk_path, "rb"))
 
         mapping_save_path = get_rp_path("run6_voca_doc_map", f"{n}.jsonl")

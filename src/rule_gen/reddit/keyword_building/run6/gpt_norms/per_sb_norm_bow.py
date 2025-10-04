@@ -17,11 +17,11 @@ def load_rp_pkl(dir_name, file_name):
 
 
 def run_for(norm_diff_save_dir, voca_norm_map_dir, use_delta=True):
-    score_dir_name = "run6_10k_score"
+    score_dir_name = "sb_term_scores"
     subreddit_list = get_split_subreddit_list("train")
     for n in range(1, 10):
         print("{} gram".format(n))
-        top_k_voca = load_rp_pkl("run6_voca_lm_prob_10k", f"{n}.pkl")
+        top_k_voca = load_rp_pkl("top_10k_voca", f"{n}.pkl")
         voca_to_norm: dict[tuple, Counter] = dict(load_rp_pkl(voca_norm_map_dir, f"{n}.pkl"))
         score_list = []
         for sb in subreddit_list:

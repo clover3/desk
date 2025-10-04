@@ -9,7 +9,7 @@ from rule_gen.reddit.keyword_building.run6.score_analysis.common import load_run
 
 
 def get_term_score(term):
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     n = 1
     score_mat, valid_sb_list = load_run_score_matrix(dir_name, n)
     term_list = load_run6_10k_text(n)

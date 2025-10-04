@@ -10,7 +10,7 @@ from rule_gen.reddit.s9.voca.show_pca import run_show_pca
 
 def main(n_comp=2, n=1):
     print("Loading data...")
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     score_mat, valid_sb_list = load_run_score_matrix(dir_name, n)
 
     mean_mat = np.mean(score_mat, axis=1, keepdims=True)

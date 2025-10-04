@@ -8,14 +8,14 @@ def load_run6_10k_terms(n):
 
 
 def load_run6_10k_terms_column(col_i, n):
-    topk_path = get_rp_path("run6_voca_lm_prob_10k", f"{n}.pkl")
+    topk_path = get_rp_path("top_10k_voca", f"{n}.pkl")
     voca = pickle.load(open(topk_path, "rb"))
     term_list = [e[col_i] for e in voca]
     return term_list
 
 
 def load_run6_term_text_to_term(n):
-    topk_path = get_rp_path("run6_voca_lm_prob_10k", f"{n}.pkl")
+    topk_path = get_rp_path("top_10k_voca", f"{n}.pkl")
     voca = pickle.load(open(topk_path, "rb"))
     return {e[1]: e[0] for e in voca}
 

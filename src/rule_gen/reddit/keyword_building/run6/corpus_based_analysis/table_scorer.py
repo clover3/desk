@@ -16,7 +16,7 @@ def get_table_clf(run_name):
     n_ed = 6
     n_list = list(range(n_st, n_ed))
     print("Loading data...")
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     score_d: dict[int, np.array] = {}
     term_dd: dict[int, dict[str, int]] = {}
     for n in n_list:

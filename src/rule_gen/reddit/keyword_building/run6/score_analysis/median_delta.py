@@ -22,7 +22,7 @@ def save_mean_delta(voca: list[str], score_dir_name, metric, n):
             l = list(zip(voca, scores))
             l.sort(key=lambda x: x[1], reverse=True)
             assert len(scores) == len(voca)
-            text_out_path = get_rp_path(f"{score_dir_name}_{metric}_delta_score_text",
+            text_out_path = get_rp_path(f"{score_dir_name}_{metric}_delta",
                                         f"{sb}.{n}.txt")
             make_parent_exists(text_out_path)
 

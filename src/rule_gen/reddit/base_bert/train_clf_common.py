@@ -5,7 +5,6 @@ import numpy as np
 
 from transformers import Trainer
 
-from taskman_client.task_proxy import get_task_manager_proxy
 from rule_gen.reddit.train_common import DatasetLoader, get_datasets_from_dataset_arg
 
 
@@ -80,9 +79,3 @@ def train_from_args(
     model.save_pretrained(training_args.output_dir)
     tokenizer.save_pretrained(training_args.output_dir)
 
-    if not do_debug:
-        metric = "eval_f1"
-        proxy = get_task_manager_proxy()
-        dataset = dataset_name + "_val"
-        metric_short = metric[len("eval_"):]
-        proxy.report_number(run_name, eval_results[metric], dataset, metric_short)

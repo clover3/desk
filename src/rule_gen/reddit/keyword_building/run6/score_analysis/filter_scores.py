@@ -17,9 +17,9 @@ def main(n=1):
 
     subreddit_list = get_split_subreddit_list("train")
     for sb in subreddit_list:
-        text_out_path = get_rp_path("run6_10k_score",
+        text_out_path = get_rp_path("sb_term_scores",
                                     f"{sb}.{n}.txt")
-        pkl_path = get_rp_path("run6_10k_score",
+        pkl_path = get_rp_path("sb_term_scores",
                                     f"{sb}.{n}.pkl")
         score_path = get_rp_path("run6_voca", f"{sb}.{n}.pkl")
         if os.path.exists(score_path):

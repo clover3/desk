@@ -19,7 +19,7 @@ def is_url_or_dash(text):
 def main(n_comp=2):
     n_list = list(range(2, 5))
     print("Loading data...")
-    dir_name = "run6_10k_score"
+    dir_name = "sb_term_scores"
     sb_len = None
     score_mat_list = []
     term_list_ex = []

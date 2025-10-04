@@ -13,8 +13,6 @@ from rule_gen.reddit.base_bert.train_clf_common import get_compute_metrics
 from rule_gen.reddit.bert_pat.pat_modeling import BertPAT, CombineByScoreAdd
 from rule_gen.reddit.bert_pat.scratch import tokenize_and_split
 from rule_gen.reddit.path_helper import get_reddit_train_data_path_ex
-from taskman_client.task_proxy import get_task_manager_proxy
-from taskman_client.wrapper3 import JobContext
 
 LOG = logging.getLogger("TrainPat")
 
@@ -36,9 +34,6 @@ def prepare_datasets(dataset_args: DataArguments, model_name):
         result['label'] = example['label']
         return result
 
-    # num_proc = multiprocessing.cpu_count()
-    # LOG.info(f"Using {num_proc} processes for dataset mapping")
-    # LOG.info("Tokenizing training dataset")
     num_proc = 1
     if dataset_args.debug:
         train_dataset = train_dataset.take(10)
@@ -88,39 +83,31 @@ def train_two_seg(
     return eval_results
 
 
-def reddit_train_pat_exp(sb="TwoXChromosomes", debug=False):
+def reddit_train_pat_exp(subreddit="TwoXChromosomes", debug=False):
     init_logging()
-    model_name = f"bert_ts_{sb}"
+    model_name = f"bert_ts_{subreddit}"
     data_name = "train_data2"
 
-    with JobContext(model_name + "_train"):
-        base_model = 'bert-base-uncased'
-        output_dir = get_model_save_path(model_name)
-        final_model_dir = get_model_save_path(model_name)
-        logging_dir = get_model_log_save_dir_path(model_name)
-        max_length = 256
-        training_args = build_training_argument(logging_dir, output_dir)
-        dataset_args = DataArguments(
-            train_data_path=get_reddit_train_data_path_ex(
-                data_name, sb, "train"),
-            eval_data_path=get_reddit_train_data_path_ex(
-                data_name, sb, "val"),
-            max_length=max_length,
-            debug=debug
-        )
-        eval_result = train_two_seg(
-            model_name=base_model,
-            training_args=training_args,
-            dataset_args=dataset_args,
-            final_model_dir=final_model_dir,
-        )
-
-        proxy = get_task_manager_proxy()
-        for metric in ["eval_f1"]:
-            dataset = sb + "_val"
-            metric_short = metric[len("eval_"):]
-            proxy.report_number(model_name, eval_result[metric], dataset, metric_short)
-
+    base_model = 'bert-base-uncased'
+    output_dir = get_model_save_path(model_name)
+    final_model_dir = get_model_save_path(model_name)
+    logging_dir = get_model_log_save_dir_path(model_name)
+    max_length = 256
+    training_args = build_training_argument(logging_dir, output_dir)
+    dataset_args = DataArguments(
+        train_data_path=get_reddit_train_data_path_ex(
+            data_name, subreddit, "train"),
+        eval_data_path=get_reddit_train_data_path_ex(
+            data_name, subreddit, "val"),
+        max_length=max_length,
+        debug=debug
+    )
+    eval_result = train_two_seg(
+        model_name=base_model,
+        training_args=training_args,
+        dataset_args=dataset_args,
+        final_model_dir=final_model_dir,
+    )
 
 if __name__ == "__main__":
     fire.Fire(reddit_train_pat_exp)

@@ -11,7 +11,7 @@ from rule_gen.reddit.path_helper import get_rp_path
 
 
 def main(n=1, metric="mean"):
-    score_dir_name = "run6_10k_score"
+    score_dir_name = "sb_term_scores"
 
     mean_score_path = get_rp_path(score_dir_name, f"{metric}.{n}.pkl")
     if not os.path.exists(mean_score_path):
