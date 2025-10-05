@@ -3,12 +3,9 @@ import multiprocessing
 from dataclasses import dataclass, field
 from typing import Optional
 
-import fire
 from transformers import TrainingArguments, Trainer, BertTokenizer, BertForSequenceClassification
 
-from desk_util.io_helper import init_logging
-from desk_util.path_helper import get_model_save_path, get_model_log_save_dir_path
-from rule_gen.reddit.base_bert.train_bert import load_dataset_from_csv
+from rule_gen.reddit.base_bert.dataset_loader import load_dataset_from_csv
 from rule_gen.reddit.base_bert.train_clf_common import get_compute_metrics
 from rule_gen.reddit.train_common import compute_per_device_batch_size
 

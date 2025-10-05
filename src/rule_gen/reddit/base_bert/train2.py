@@ -13,15 +13,13 @@ LOG = logging.getLogger(__name__)
 
 def train_subreddit_classifier(sb="askscience_head"):
     init_logging()
+    LOG.info("Starting train_subreddit_classifier")
     data_name = "train_data2"
     model_name = f"bert2_{sb}"
     base_model = 'bert-base-uncased'
 
     output_dir = get_model_save_path(model_name)
     final_model_dir = get_model_save_path(model_name)
-    sf_path = os.path.join(output_dir, "model.safetensors")
-    if os.path.exists(sf_path):
-        print("Model exists. Skip training")
     logging_dir = get_model_log_save_dir_path(model_name)
     max_length = 256
     training_args = build_training_argument(logging_dir, output_dir)

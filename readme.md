@@ -8,18 +8,10 @@ This repository contains the implementation for the paper "Decoding the Rule Boo
 
 The CriteriaMatrix approach uses Partial Attention Transformer (PAT) to extract interpretable moderation criteria from Reddit communities. This allows for systematic comparison of moderation patterns across different subreddits.
 
-# CriteriaMatrix: Extracting Hidden Moderation Criteria from Reddit Communities
-
-This repository contains the implementation for the paper "Decoding the Rule Book: Extracting Hidden Moderation Criteria from Reddit Communities" which introduces a novel approach to identify and extract implicit moderation criteria from historical Reddit moderation data.
-
-## Overview
-
-The CriteriaMatrix approach uses Partial Attention Transformer (PAT) to extract interpretable moderation criteria from Reddit communities. This allows for systematic comparison of moderation patterns across different subreddits.
-
 ## Quick Links
 
 **Just want to explore the data?**
-- 📊 [Released Artifacts](#artifacts-released) - Pre-computed CriteriaMatrix, trained models, and datasets
+- 📊 [Released Artifacts](#artifacts-released) - Pre-computed CriteriaMatrix, and datasets
 - 📈 [Analysis Examples](#key-outputs-and-analysis) - See what insights you can extract
 
 **Want to reproduce or extend?**
@@ -33,47 +25,38 @@ To facilitate reproduction and further research, we release the following artifa
 1. **Subreddit list**: `subreddit_splits/train.txt`
    - 60 subreddit names used in the study
    
-2. **Preprocessed training data**: `datasets/train_data2/` (~500MB)
+2. **Preprocessed training data**: `datasets/train_data2/`
    - Balanced moderation datasets for each subreddit
    - Format: CSV with [text, label] columns
    - **Use these to explore the data or train your own models**
-
-3. **Trained PAT models**: `bert_ts_{subreddit}/` (~60GB total, ~1GB per subreddit)
-   - 60 trained PAT models, one per subreddit
-   - **Download these to skip training (Step 2) and go straight to analysis**
-
-4. **Vocabulary lists**: `top_10k_voca/` (~100MB)
+   - 
+3. **Vocabulary lists**: `top_10k_voca/`
    - 10,000 top terms for each n-gram size (1-9)
    - Ranked by Llama-3.1 language model probability
    - **Use these to understand what terms are being scored**
 
-5. **Term scores (CriteriaMatrix)**: `sb_term_scores/` (~500MB)
+4**Term scores (CriteriaMatrix)**: `sb_term_scores/`
    - Moderation scores for all terms across all subreddits
    - **This is the main output - start your analysis here!**
    - Can be combined to form the complete CriteriaMatrix
 
 ### Download Artifacts
 ```bash
-# Download all artifacts (recommended)
-wget [YOUR_ARTIFACT_URL]/criteria-matrix-artifacts.tar.gz
-tar -xzf criteria-matrix-artifacts.tar.gz
+# Install huggingface_hub if not already installed
+pip install huggingface-hub
 
-# Or download specific components
-wget [YOUR_ARTIFACT_URL]/trained-models.tar.gz    # Skip training
-wget [YOUR_ARTIFACT_URL]/criteria-matrix.tar.gz   # Just the scores
+# Download dataset using HuggingFace Hub
+from huggingface_hub import snapshot_download
+
+# Download all artifacts to output/ directory
+snapshot_download(
+    repo_id="youngwoo-umass/CriteriaMatrix",
+    repo_type="dataset",
+    local_dir="output"
+)
 ```
 
 ## Key Outputs and Analysis
-
-### What You Can Do With The Released Artifacts
-
-#### 1. Explore the CriteriaMatrix (No Training Required)
-
-TODO
-
-#### 2. Compare Across Subreddits
-
-TODO
 
 ## Setup
 
@@ -94,7 +77,7 @@ PYTHONPATH=src python src/rule_gen/reddit/bert_pat/train_pat.py --subreddit poli
 The analysis pipeline consists of four main steps:
 
 ### Step 1: Dataset Preparation (Reference Implementation)
-**File:** `src/rule_gen/reddit/dataset_build2/build_dataset2.py`
+**File:** `src/rule_gen/reddit/dataset_helper/build_dataset2.py`
 
 **Purpose:** Shows how balanced datasets are prepared from Reddit moderation data for training PAT models.
 
@@ -158,7 +141,7 @@ python src/rule_gen/reddit/bert_pat/train_pat.py --subreddit politics
 ---
 
 ### Step 3: Vocabulary Scoring
-**File:** `src/rule_gen/reddit/keyword_building/run6/pat_inf_filter.py`
+**File:** `src/rule_gen/reddit/term_scoring/pat_inf_filter.py`
 
 **Purpose:** Uses trained PAT models to score vocabulary terms and build the CriteriaMatrix.
 
@@ -182,11 +165,9 @@ python src/rule_gen/reddit/bert_pat/train_pat.py --subreddit politics
   - Each score represents P(moderated | term, subreddit)
   - These files collectively form the rows of the CriteriaMatrix
 
-**Note on CriteriaMatrix storage:** With 90,000 terms (10,000 terms × 9 n-gram sizes) and 60 subreddits, storing the full [60 × 90,000] matrix in a single CSV file would be inefficient. Instead, we store each subreddit's scores in separate pickle files, which can be loaded and combined as needed for analysis.
-
 **Usage:**
 ```bash
-python src/rule_gen/reddit/keyword_building/run6/pat_inf_filter.py --n [NGRAM_SIZE]
+python src/rule_gen/reddit/term_scoring/pat_inf_filter.py --n [NGRAM_SIZE]
 ```
 
 **Parameters:**
@@ -195,16 +176,16 @@ python src/rule_gen/reddit/keyword_building/run6/pat_inf_filter.py --n [NGRAM_SI
 **Example:**
 ```bash
 # Score all unigrams for all subreddits
-python src/rule_gen/reddit/keyword_building/run6/pat_inf_filter.py --n 1
+python src/rule_gen/reddit/term_scoring/pat_inf_filter.py --n 1
 
 # Score all bigrams for all subreddits
-python src/rule_gen/reddit/keyword_building/run6/pat_inf_filter.py --n 2
+python src/rule_gen/reddit/term_scoring/pat_inf_filter.py --n 2
 ```
 
 ---
 
 ### Step 4: Clustering Analysis
-**File:** `src/rule_gen/reddit/keyword_building/run6/score_analysis/run_kmeans.py`
+**File:** `src/rule_gen/reddit/term_scoring/score_analysis/run_kmeans.py`
 
 **Purpose:** Performs clustering analysis on the CriteriaMatrix to identify patterns in moderation criteria.
 
@@ -232,7 +213,7 @@ python src/rule_gen/reddit/keyword_building/run6/pat_inf_filter.py --n 2
 
 **Usage:**
 ```bash
-python src/rule_gen/reddit/keyword_building/run6/score_analysis/run_kmeans.py
+python src/rule_gen/reddit/term_scoring/score_analysis/run_kmeans.py
 ```
 
 **Output example:**
@@ -300,10 +281,8 @@ Step 1 is provided as a reference implementation to show:
 
 ## Getting Started
 
-1. **With your own data**: Adapt `build_dataset2.py` for your dataset preparation
-2. **With preprocessed data**: Start directly from Step 2 if you have balanced moderation datasets
-3. **With trained models**: Use Steps 3-4 if you have trained PAT models
-4. **Analysis only**: Use Step 4 if you have the CriteriaMatrix (term scores)
+1. **With preprocessed data**: Start directly from Step 2 if you have balanced moderation datasets
+2. **Analysis only**: Use Step 4 if you have the CriteriaMatrix (term scores)
 
 ## Citation
 

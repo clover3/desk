@@ -11,36 +11,35 @@ CriteriaMatrix-Resources contains all artifacts needed to build and analyze **Cr
 1. **Training Data**: Balanced datasets of removed and kept comments from 60+ subreddits
 2. **Vocabulary**: 10,000 most frequent n-grams (1-9 tokens) ranked by language model probability
 3. **CriteriaMatrix Score Tables**: Pre-computed moderation probability scores for each vocabulary term in each subreddit
-4. **Metadata**: Subreddit lists and splits for reproducible research
+4. **Subreddit List Files**: Subreddit lists and splits for reproducible research
 
 ## Dataset Structure
 
 ```
 CriteriaMatrix-Resources/
 ├── reddit/
-│   ├── datasets/
-│   │   └── train_data2/              # Training datasets by subreddit
-│   │       ├── politics/
-│   │       │   ├── train.csv
-│   │       │   └── val.csv
-│   │       └── ... (60+ subreddits)
-│   │
-│   ├── subreddit_splits/
+│   ├── train_data2/              # Training datasets by subreddit
+│   │   ├── politics/
+│   │   │   ├── train.csv
+│   │   │   └── val.csv
+│   │   └── ... (60+ subreddits)
+│   |
+│   ├── subreddit_splits/             # Subreddit List Files
 │   │   ├── train.txt                 # Training subreddits
 │   │   ├── val.txt                   # Validation subreddits
 │   │   └── test.txt                  # Test subreddits
-│   │
-│   ├── top_10k_voca/                 # Vocabulary files
-│   │   ├── 1.pkl                     # 10k unigrams
-│   │   ├── 2.pkl                     # 10k bigrams
-│   │   └── ... (up to 9.pkl)
-│   │
-│   ├── sb_term_scores/               # CriteriaMatrix score tables
-│   │   ├── politics.1.pkl            # Unigram scores for r/politics
-│   │   ├── askscience.1.pkl          # Unigram scores for r/askscience
-│   │   └── ... (60+ subreddits × 9 n-gram sizes)
-│   │
-│   └── reddit-removal-log.csv        # Original moderation data
+│   ├── rule_processing/              # Intermediate outputs
+│   │   ├── top_10k_voca/                 # Vocabulary files
+│   │   │   ├── 1.pkl                     # 10k unigrams
+│   │   │   ├── 2.pkl                     # 10k bigrams
+│   │   │   └── ... (up to 9.pkl)
+│   │   │
+│   │   ├── sb_term_scores/               # CriteriaMatrix score tables
+│   │   │   ├── politics.1.pkl            # Unigram scores for r/politics
+│   │   │   ├── askscience.1.pkl          # Unigram scores for r/askscience
+│   │   │   └── ... (60+ subreddits × 9 n-gram sizes)
+│   │   │
+│   │   └── reddit-removal-log.csv        # Original moderation data
 ```
 
 ## Data Formats
@@ -52,10 +51,25 @@ Each CSV contains two columns:
 - **label**: Binary label (0 = kept, 1 = removed by moderators)
 
 ```csv
-text,labeld
+text,label
 "This is a helpful comment",0
 "This violates community guidelines",1
 ```
+
+* 100 Subreddits * 3 split (train/valid/test)
+  * Note: 3 Subreddits (Incels, soccerstream, and The_Donald) were excluded in the further analysis as they did not exist at tht time of the research.
+#### Dataset size
+
+| **Range**    | **Count** | **Examples**                              |
+|---------------|------------|-------------------------------------------|
+| ≥100K         | 5          | politics, AskReddit, worldnews            |
+| 50K–99K       | 7          | relationships, TwoXChromosomes, gonewild  |
+| 20K–49K       | 31         | PoliticalDiscussion, askscience, personalfinance |
+| 10K–19K       | 52         | Android, OutOfTheLoop, atheism            |
+| 2K–10K        | 2          | NeutralPolitics, EnoughTrumpSpam          |
+
+**Table:** Size distribution of training data across the 97 subreddits in our dataset.
+
 
 ### Vocabulary Files (`top_10k_voca/{n}.pkl`)
 
@@ -73,7 +87,7 @@ lm_probabilty: float  # Probability of term generated based on Llama 3
 
 Python pickle files containing lists of 10,000 floats, where each score represents `P(moderated | term, subreddit)`. These files contain the **CriteriaMatrix score tables** that enable systematic comparison of moderation patterns across communities.
 
-### Subreddit List Files
+### Subreddit List Files (`subreddit_splits/{split}.txt`)
 
 Plain text files with one subreddit name per line.
 
@@ -125,33 +139,6 @@ This dataset enables research on:
 - **Interpretable AI**: Extracting human-readable moderation criteria
 - **Social Computing**: Analyzing governance in online communities
 - **Toxicity Detection**: Building context-aware content classifiers
-
-### Example Research Questions
-
-- What terms are consistently moderated across all communities?
-- How do political subreddits differ in their moderation criteria?
-- Can we identify clusters of communities with similar moderation patterns?
-- Which violations are universal vs. community-specific?
-
-## Pre-trained Models
-
-Trained PAT models for each subreddit are available separately at the [model collection](https://huggingface.co/youngwoo-umass).
-
-## Limitations and Ethical Considerations
-
-### Ethical Considerations
-
-**Intended Use**:
-- Academic research on content moderation
-- Understanding community governance
-- Building interpretable moderation tools
-- Comparative analysis of online communities
-
-**Not Intended For**:
-- Automated content moderation without human oversight
-- Censorship or suppression of legitimate speech
-- Identifying or targeting specific users
-- Creating adversarial attacks against moderation systems
 
 ## Citation
 
